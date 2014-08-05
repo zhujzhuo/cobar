@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright 1999-2012 Alibaba Group.
+ -  
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ -  
+ -      http://www.apache.org/licenses/LICENSE-2.0
+ -  
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+-->
+<!DOCTYPE cobar:server SYSTEM "server.dtd">
+<cobar:server xmlns:cobar="http://cobar.alibaba.com/">
+  
+    <!-- 系统参数定义，服务端口、管理端口，处理器个数、线程池等。 -->
+    <system>
+        <property name="serverPort">8066</property>
+        <property name="managerPort">9066</property>
+        <property name="initExecutor">16</property>
+        <property name="timerExecutor">4</property>
+        <property name="managerExecutor">4</property>
+        <property name="processors">4</property>
+        <property name="processorHandler">8</property>
+        <property name="processorExecutor">8</property>
+        <property name="clusterHeartbeatUser">_HEARTBEAT_USER_</property>
+        <property name="clusterHeartbeatPass">_HEARTBEAT_PASS_</property>
+    </system>
+
+    <!-- 集群列表定义，指定集群节点的主机和权重，用于集群间的心跳和客户端负载均衡。 -->
+    <cluster>
+        <node name="cobar1">
+            <property name="host">127.0.0.1</property>
+            <property name="weight">1</property>
+        </node>
+    </cluster>
+   
+    <!-- 隔离区定义，可以限定某个主机上只允许某个用户登录。 -->
+    <quarantine>
+        <host name="1.2.3.4">
+            <property name="user">test</property>
+        </host>
+    </quarantine>
+    
+    <!-- 用户访问定义，用户名、密码、schema等信息。 -->
+    <users>
+        <user name="test">
+            <property name="password">test</property>
+            <property name="schemas">dbtest</property>
+        </user>
+          <!--
+          <user name="root">
+            <property name="password"></property>
+          </user>
+          -->
+    </users>
+    
+    <!-- schema定义 -->
+    <schemas>
+        <schema name="dbtest" defaultDataNode="dnTest1">
+            <table name="tb2" dataNode="dnTest2,dnTest3" rule="rule1" />
+        </schema>
+    </schemas>
+    
+    <!-- 路由规则定义，定义什么表，什么字段，采用什么路由算法 -->
+    <rules>
+        <tableRule name="rule1">
+            <rule>
+                <columns>id</columns>
+                <algorithm><![CDATA[ func1(${id}) ]]></algorithm>
+            </rule>
+        </tableRule>
+    </rules>
+    
+    <!-- 路由函数定义 -->
+    <functions>
+        <function name="func1"
+            class="com.alibaba.cobar.route.function.PartitionByLong">
+            <property name="partitionCount">2</property>
+            <property name="partitionLength">512</property>
+        </function>
+    </functions>
+    
+    <!-- 数据节点定义，数据节点由数据源和其他一些参数组织而成。-->
+    <dataNodes>
+        <dataNode name="dnTest1">
+            <property name="dataSource">
+                <dataSourceRef>dsTest[0]</dataSourceRef>
+            </property>
+        </dataNode>
+        <dataNode name="dnTest2">
+            <property name="dataSource">
+                <dataSourceRef>dsTest[1]</dataSourceRef>
+            </property>
+        </dataNode>
+        <dataNode name="dnTest3">
+            <property name="dataSource">
+                <dataSourceRef>dsTest[2]</dataSourceRef>
+            </property>
+        </dataNode>
+    </dataNodes>
+    
+    <!-- 数据源定义，数据源是一个具体的后端数据连接的表示。-->
+    <dataSources>
+        <dataSource name="dsTest" type="mysql">
+            <property name="location">
+                <location>192.168.0.1:3306/dbtest1</location>
+                <location>192.168.0.1:3306/dbtest2</location>
+                <location>192.168.0.1:3306/dbtest3</location>
+            </property>
+            <property name="user">test</property>
+            <property name="password"></property>
+            <property name="sqlMode">STRICT_TRANS_TABLES</property>
+        </dataSource>
+    </dataSources>
+
+    <cobarSchemas>
+        <schema name="dbtest" dataNode="N1,N2">
+            <rule name="R1"
+                class="com.alibaba.cobar.route.function.PartitionByLong" />
+        </schema>
+    </cobarSchemas>
+
+    <dataNodes>
+        <dataNode id="N1">
+            <property name="schema">S1</property>
+            <property name="schema">S3</property>
+        </dataNode>
+        <dataNode id="N2">
+            <property name="schema">S2</property>
+            <property name="schema">S4</property>
+        </dataNode>
+    </dataNodes>
+
+    <schemas>
+        <schema id="S1">
+            <property name="instance">I1</property>
+            <property name="name">dbtest1</property>
+            <property name="user">test</property>
+            <property name="password"></property>
+        </schema>
+        <schema id="S2">
+            <property name="instance">I1</property>
+            <property name="name">dbtest2</property>
+            <property name="user">test</property>
+            <property name="password"></property>
+        </schema>
+        <schema id="S3">
+            <property name="instance">I2</property>
+            <property name="name">dbtest1</property>
+            <property name="user">test</property>
+            <property name="password"></property>
+        </schema>
+        <schema id="S4">
+            <property name="instance">I2</property>
+            <property name="name">dbtest2</property>
+            <property name="user">test</property>
+            <property name="password"></property>
+        </schema>
+    </schemas>
+
+    <instances>
+        <instance id="I1">
+            <property name="machine">M1</property>
+            <property name="port">3306</property>
+        </instance>
+        <instance id="I2">
+            <property name="machine">M1</property>
+            <property name="port">3307</property>
+        </instance>
+    </instances>
+
+    <machines>
+        <machine id="M1">
+            <property name="host">192.168.0.1</property>
+        </machine>
+    </machines>
+
+</cobar:server>
+ 

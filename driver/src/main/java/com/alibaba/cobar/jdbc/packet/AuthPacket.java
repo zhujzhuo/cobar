@@ -41,7 +41,7 @@ import com.alibaba.cobar.jdbc.util.StreamUtil;
  * 
  * @author xianmao.hexm 2010-7-15 下午04:35:34
  */
-public class AuthPacket extends MySQLPacket {
+public class AuthPacket extends AbstractPacket {
 
     private static final byte[] FILLER = new byte[23];
     static {

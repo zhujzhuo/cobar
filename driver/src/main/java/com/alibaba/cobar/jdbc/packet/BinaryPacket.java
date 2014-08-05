@@ -23,7 +23,7 @@ import com.alibaba.cobar.jdbc.util.StreamUtil;
 /**
  * @author xianmao.hexm 2011-5-6 上午10:58:33
  */
-public class BinaryPacket extends MySQLPacket {
+public class BinaryPacket extends AbstractPacket {
 
     public static final byte OK = 1;
     public static final byte ERROR = 2;

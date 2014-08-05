@@ -42,7 +42,7 @@ import com.alibaba.cobar.jdbc.util.MySQLMessage;
  * 
  * @author xianmao.hexm 2010-7-23 上午01:05:55
  */
-public class RowDataPacket extends MySQLPacket {
+public class RowDataPacket extends AbstractPacket {
 
     public final int fieldCount;
     public final List<byte[]> fieldValues;

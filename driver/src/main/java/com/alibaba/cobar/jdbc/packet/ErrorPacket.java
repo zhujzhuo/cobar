@@ -34,7 +34,7 @@ import com.alibaba.cobar.jdbc.util.MySQLMessage;
  * 
  * @author xianmao.hexm 2010-7-16 上午10:45:01
  */
-public class ErrorPacket extends MySQLPacket {
+public class ErrorPacket extends AbstractPacket {
 
     public static final byte FIELD_COUNT = (byte) 0xff;
     private static final byte SQLSTATE_MARKER = (byte) '#';

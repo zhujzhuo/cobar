@@ -77,7 +77,7 @@ import com.alibaba.cobar.jdbc.util.StreamUtil;
  * 
  * @author xianmao.hexm 2010-7-15 下午04:35:34
  */
-public class CommandPacket extends MySQLPacket {
+public class CommandPacket extends AbstractPacket {
 
     public byte command;
     public byte[] arg;
