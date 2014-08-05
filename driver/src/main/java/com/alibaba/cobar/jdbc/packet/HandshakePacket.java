@@ -39,7 +39,7 @@ import com.alibaba.cobar.jdbc.util.MySQLMessage;
  * 
  * @author xianmao.hexm 2010-7-14 下午05:18:15
  */
-public class HandshakePacket extends MySQLPacket {
+public class HandshakePacket extends AbstractPacket {
 
     public byte protocolVersion;
     public byte[] serverVersion;

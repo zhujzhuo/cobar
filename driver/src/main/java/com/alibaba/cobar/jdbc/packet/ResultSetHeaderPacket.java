@@ -40,7 +40,7 @@ import com.alibaba.cobar.jdbc.util.MySQLMessage;
  * 
  * @author xianmao.hexm 2010-7-22 下午05:59:55
  */
-public class ResultSetHeaderPacket extends MySQLPacket {
+public class ResultSetHeaderPacket extends AbstractPacket {
 
     public int fieldCount;
     public long extra;

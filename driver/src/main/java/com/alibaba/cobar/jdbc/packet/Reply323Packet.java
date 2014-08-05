@@ -23,7 +23,7 @@ import com.alibaba.cobar.jdbc.util.StreamUtil;
 /**
  * @author xianmao.hexm
  */
-public class Reply323Packet extends MySQLPacket {
+public class Reply323Packet extends AbstractPacket {
 
     public byte[] seed;
 

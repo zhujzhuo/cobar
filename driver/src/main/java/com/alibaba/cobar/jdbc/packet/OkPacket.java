@@ -33,7 +33,7 @@ package com.alibaba.cobar.jdbc.packet;
  * 
  * @author xianmao.hexm 2010-7-16 上午10:33:50
  */
-public class OkPacket extends MySQLPacket {
+public class OkPacket extends AbstractPacket {
 
     public static final byte FIELD_COUNT = 0x00;
 
