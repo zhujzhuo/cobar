@@ -48,80 +48,16 @@
     
     <!-- 用户访问定义，用户名、密码、schema等信息。 -->
     <users>
-        <user name="test">
-            <property name="password">test</property>
+        <user name="test" password="test">
             <property name="schemas">dbtest</property>
         </user>
-          <!--
-          <user name="root">
-            <property name="password"></property>
-          </user>
-          -->
+        <user name="root" password="hello1234" />
     </users>
     
     <!-- schema定义 -->
-    <schemas>
-        <schema name="dbtest" defaultDataNode="dnTest1">
-            <table name="tb2" dataNode="dnTest2,dnTest3" rule="rule1" />
-        </schema>
-    </schemas>
-    
-    <!-- 路由规则定义，定义什么表，什么字段，采用什么路由算法 -->
-    <rules>
-        <tableRule name="rule1">
-            <rule>
-                <columns>id</columns>
-                <algorithm><![CDATA[ func1(${id}) ]]></algorithm>
-            </rule>
-        </tableRule>
-    </rules>
-    
-    <!-- 路由函数定义 -->
-    <functions>
-        <function name="func1"
-            class="com.alibaba.cobar.route.function.PartitionByLong">
-            <property name="partitionCount">2</property>
-            <property name="partitionLength">512</property>
-        </function>
-    </functions>
-    
-    <!-- 数据节点定义，数据节点由数据源和其他一些参数组织而成。-->
-    <dataNodes>
-        <dataNode name="dnTest1">
-            <property name="dataSource">
-                <dataSourceRef>dsTest[0]</dataSourceRef>
-            </property>
-        </dataNode>
-        <dataNode name="dnTest2">
-            <property name="dataSource">
-                <dataSourceRef>dsTest[1]</dataSourceRef>
-            </property>
-        </dataNode>
-        <dataNode name="dnTest3">
-            <property name="dataSource">
-                <dataSourceRef>dsTest[2]</dataSourceRef>
-            </property>
-        </dataNode>
-    </dataNodes>
-    
-    <!-- 数据源定义，数据源是一个具体的后端数据连接的表示。-->
-    <dataSources>
-        <dataSource name="dsTest" type="mysql">
-            <property name="location">
-                <location>192.168.0.1:3306/dbtest1</location>
-                <location>192.168.0.1:3306/dbtest2</location>
-                <location>192.168.0.1:3306/dbtest3</location>
-            </property>
-            <property name="user">test</property>
-            <property name="password"></property>
-            <property name="sqlMode">STRICT_TRANS_TABLES</property>
-        </dataSource>
-    </dataSources>
-
     <cobarSchemas>
-        <schema name="dbtest" dataNode="N1,N2">
-            <rule name="R1"
-                class="com.alibaba.cobar.route.function.PartitionByLong" />
+        <schema name="dbtest" dataNode="N1,N2"
+            ruleClass="com.alibaba.cobar.route.function.PartitionByLong">
         </schema>
     </cobarSchemas>
 
