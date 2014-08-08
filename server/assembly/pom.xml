@@ -21,29 +21,43 @@
         <version>${app.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>cobar-server</artifactId>
+    <artifactId>cobar-assembly</artifactId>
     <name>${project.artifactId}</name>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <finalName>cobar-${app.version}</finalName>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>
             <groupId>com.alibaba.cobar</groupId>
-            <artifactId>cobar-config</artifactId>
+            <artifactId>cobar-server</artifactId>
             <version>${app.version}</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba.cobar</groupId>
-            <artifactId>cobar-parser</artifactId>
+            <artifactId>cobar-manager</artifactId>
             <version>${app.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
