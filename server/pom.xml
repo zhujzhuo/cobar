@@ -99,8 +99,6 @@
         <module>config</module>
         <module>parser</module>
         <module>server</module>
-        <module>manager</module>
-        <module>assembly</module>
     </modules>
 
 </project>

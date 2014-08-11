@@ -25,17 +25,17 @@
 
     <fileSets>
         <fileSet>
-            <directory>bin</directory>
+            <directory>assembly/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
             <lineEnding>keep</lineEnding>
         </fileSet>
         <fileSet>
-            <directory>conf</directory>
+            <directory>assembly/conf</directory>
             <outputDirectory>conf</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>logs</directory>
+            <directory>assembly/logs</directory>
             <outputDirectory>logs</outputDirectory>
         </fileSet>
     </fileSets>

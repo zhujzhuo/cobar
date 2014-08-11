@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.server;
+package com.alibaba.cobar.server.startup;
 
 import java.util.Date;
 
 /**
  * @author xianmao.hexm 2010-12-23 下午01:23:24
  */
-public final class CobarShutdown {
+public final class CobarServerShutdown {
 
-    public static void main(String[] args) {
-        System.out.println(new Date() + ",server shutdown!");
-    }
+	public static void main(String[] args) {
+		System.out.println(new Date() + ",server shutdown!");
+	}
 
 }

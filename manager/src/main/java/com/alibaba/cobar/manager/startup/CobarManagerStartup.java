@@ -1,6 +1,8 @@
-package com.alibaba.cobar.manager;
+package com.alibaba.cobar.manager.startup;
 
-public class ManagerStartup {
+import com.alibaba.cobar.manager.WebServer;
+
+public class CobarManagerStartup {
 
 	public static void main(String[] args) throws Exception {
 		WebServer server = new WebServer(80);
