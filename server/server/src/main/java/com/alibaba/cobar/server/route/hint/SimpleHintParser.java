@@ -29,18 +29,19 @@ import com.alibaba.cobar.config.util.ParameterMapping;
  */
 public final class SimpleHintParser extends HintParser {
 
-    @Override
-    public void process(CobarHint hint, String hintName, String sql) throws SQLSyntaxErrorException {
-        Object value = parsePrimary(hint, sql);
-        if (value instanceof Long)
-            value = ((Long) value).intValue();
-        Map<String, Object> properties = new HashMap<String, Object>(1, 1);
-        properties.put(hintName, value);
-        try {
-            ParameterMapping.mapping(hint, properties);
-        } catch (Throwable t) {
-            throw new SQLSyntaxErrorException(t);
-        }
-    }
+	@Override
+	public void process(CobarHint hint, String hintName, String sql)
+			throws SQLSyntaxErrorException {
+		Object value = parsePrimary(hint, sql);
+		if (value instanceof Long)
+			value = ((Long) value).intValue();
+		Map<String, Object> properties = new HashMap<String, Object>(1, 1);
+		properties.put(hintName, value);
+		try {
+			ParameterMapping.mapping(hint, properties);
+		} catch (Throwable t) {
+			throw new SQLSyntaxErrorException(t);
+		}
+	}
 
 }

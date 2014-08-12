@@ -17,7 +17,6 @@ package com.alibaba.cobar.server.route;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLNonTransientException;
-import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,33 +29,29 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import com.alibaba.cobar.config.model.SchemaConfig;
 import com.alibaba.cobar.config.model.TableConfig;
 import com.alibaba.cobar.config.model.rule.RuleAlgorithm;
 import com.alibaba.cobar.config.model.rule.RuleConfig;
 import com.alibaba.cobar.config.model.rule.TableRuleConfig;
-import com.alibaba.cobar.parser.ast.ASTNode;
-import com.alibaba.cobar.parser.ast.expression.Expression;
-import com.alibaba.cobar.parser.ast.expression.ReplacableExpression;
-import com.alibaba.cobar.parser.ast.expression.comparison.InExpression;
-import com.alibaba.cobar.parser.ast.expression.misc.InExpressionList;
-import com.alibaba.cobar.parser.ast.expression.primary.Identifier;
-import com.alibaba.cobar.parser.ast.expression.primary.RowExpression;
-import com.alibaba.cobar.parser.ast.stmt.SQLStatement;
-import com.alibaba.cobar.parser.ast.stmt.dal.DALShowStatement;
-import com.alibaba.cobar.parser.ast.stmt.dml.DMLInsertReplaceStatement;
-import com.alibaba.cobar.parser.ast.stmt.dml.DMLSelectStatement;
-import com.alibaba.cobar.parser.ast.stmt.dml.DMLSelectUnionStatement;
-import com.alibaba.cobar.parser.ast.stmt.dml.DMLUpdateStatement;
-import com.alibaba.cobar.parser.recognizer.SQLParserDelegate;
-import com.alibaba.cobar.parser.recognizer.mysql.syntax.MySQLParser;
-import com.alibaba.cobar.parser.util.ArrayUtil;
+import com.alibaba.cobar.parser.ASTNode;
+import com.alibaba.cobar.parser.SQLParserDelegate;
+import com.alibaba.cobar.parser.expression.Expression;
+import com.alibaba.cobar.parser.expression.ReplacableExpression;
+import com.alibaba.cobar.parser.expression.comparison.InExpression;
+import com.alibaba.cobar.parser.expression.misc.InExpressionList;
+import com.alibaba.cobar.parser.expression.primary.Identifier;
+import com.alibaba.cobar.parser.expression.primary.RowExpression;
+import com.alibaba.cobar.parser.mysql.syntax.MySQLParser;
+import com.alibaba.cobar.parser.statement.SQLStatement;
+import com.alibaba.cobar.parser.statement.dal.DALShowStatement;
+import com.alibaba.cobar.parser.statement.dml.DMLInsertReplaceStatement;
+import com.alibaba.cobar.parser.statement.dml.DMLSelectStatement;
+import com.alibaba.cobar.parser.statement.dml.DMLSelectUnionStatement;
+import com.alibaba.cobar.parser.statement.dml.DMLUpdateStatement;
 import com.alibaba.cobar.parser.util.Pair;
 import com.alibaba.cobar.parser.visitor.MySQLOutputASTVisitor;
-import com.alibaba.cobar.server.route.hint.CobarHint;
-import com.alibaba.cobar.server.route.visitor.PartitionKeyVisitor;
+import com.alibaba.cobar.server.route.hint.HintRouter;
 import com.alibaba.cobar.server.util.CollectionUtil;
 
 /**
@@ -64,11 +59,13 @@ import com.alibaba.cobar.server.util.CollectionUtil;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public final class ServerRouter {
-    private static final Logger LOGGER = Logger.getLogger(ServerRouter.class);
 
     public static RouteResultset route(SchemaConfig schema, String stmt, String charset, Object info)
             throws SQLNonTransientException {
         RouteResultset rrs = new RouteResultset(stmt);
+        if (charset == null) {
+            charset = MySQLParser.DEFAULT_CHARSET;
+        }
 
         // 检查是否含有cobar hint
         int prefixIndex = HintRouter.indexOfPrefix(stmt);
@@ -80,13 +77,12 @@ public final class ServerRouter {
         // 检查schema是否含有拆分库
         if (schema.isNoSharding()) {
             if (schema.isKeepSqlSchema()) {
-                SQLStatement ast = SQLParserDelegate.parse(stmt, charset == null
-                        ? MySQLParser.DEFAULT_CHARSET : charset);
+                SQLStatement ast = SQLParserDelegate.parse(stmt, charset);
                 PartitionKeyVisitor visitor = new PartitionKeyVisitor(schema.getTables());
                 visitor.setTrimSchema(schema.getName());
                 ast.accept(visitor);
                 if (visitor.isSchemaTrimmed()) {
-                    stmt = genSQL(ast, stmt);
+                    stmt = buildSQL(ast);
                 }
             }
             RouteResultsetNode[] nodes = new RouteResultsetNode[1];
@@ -96,7 +92,7 @@ public final class ServerRouter {
         }
 
         // 生成和展开AST
-        SQLStatement ast = SQLParserDelegate.parse(stmt, charset == null ? MySQLParser.DEFAULT_CHARSET : charset);
+        SQLStatement ast = SQLParserDelegate.parse(stmt, charset);
         PartitionKeyVisitor visitor = new PartitionKeyVisitor(schema.getTables());
         visitor.setTrimSchema(schema.isKeepSqlSchema() ? schema.getName() : null);
         ast.accept(visitor);
@@ -104,7 +100,7 @@ public final class ServerRouter {
         // 如果sql包含用户自定义的schema，则路由到default节点
         if (schema.isKeepSqlSchema() && visitor.isCustomedSchema()) {
             if (visitor.isSchemaTrimmed()) {
-                stmt = genSQL(ast, stmt);
+                stmt = buildSQL(ast);
             }
             RouteResultsetNode[] nodes = new RouteResultsetNode[1];
             nodes[0] = new RouteResultsetNode(schema.getDataNode(), stmt);
@@ -158,7 +154,7 @@ public final class ServerRouter {
 
         // 规则匹配处理，表级别和列级别。
         if (matchedTable == null) {
-            String sql = visitor.isSchemaTrimmed() ? genSQL(ast, stmt) : stmt;
+            String sql = visitor.isSchemaTrimmed() ? buildSQL(ast) : stmt;
             RouteResultsetNode[] rn = new RouteResultsetNode[1];
             if ("".equals(schema.getDataNode()) && isSystemReadSQL(ast)) {
                 rn[0] = new RouteResultsetNode(schema.getRandomDataNode(), sql);
@@ -174,7 +170,7 @@ public final class ServerRouter {
                         + stmt);
             }
             String[] dataNodes = matchedTable.getDataNodes();
-            String sql = visitor.isSchemaTrimmed() ? genSQL(ast, stmt) : stmt;
+            String sql = visitor.isSchemaTrimmed() ? buildSQL(ast) : stmt;
             RouteResultsetNode[] rn = new RouteResultsetNode[dataNodes.length];
             for (int i = 0; i < dataNodes.length; ++i) {
                 rn[i] = new RouteResultsetNode(dataNodes[i], sql);
@@ -194,7 +190,7 @@ public final class ServerRouter {
         // 判断路由结果是单库还是多库
         if (dnMap.size() == 1) {
             String dataNode = matchedTable.getDataNodes()[dnMap.keySet().iterator().next()];
-            String sql = visitor.isSchemaTrimmed() ? genSQL(ast, stmt) : stmt;
+            String sql = visitor.isSchemaTrimmed() ? buildSQL(ast) : stmt;
             RouteResultsetNode[] rn = new RouteResultsetNode[1];
             rn[0] = new RouteResultsetNode(dataNode, sql);
             rrs.setNodes(rn);
@@ -211,219 +207,6 @@ public final class ServerRouter {
         }
 
         return rrs;
-    }
-
-    private static class HintRouter {
-        public static int indexOfPrefix(String sql) {
-            int i = 0;
-            for (; i < sql.length(); ++i) {
-                switch (sql.charAt(i)) {
-                case ' ':
-                case '\t':
-                case '\r':
-                case '\n':
-                    continue;
-                }
-                break;
-            }
-            if (sql.startsWith(CobarHint.COBAR_HINT_PREFIX, i)) {
-                return i;
-            } else {
-                return -1;
-            }
-        }
-
-        public static void routeFromHint(Object frontConn, SchemaConfig schema, RouteResultset rrs, int prefixIndex,
-                                         final String sql) throws SQLSyntaxErrorException {
-            CobarHint hint = CobarHint.parserCobarHint(sql, prefixIndex);
-            final String outputSql = hint.getOutputSql();
-            final int replica = hint.getReplica();
-            final String table = hint.getTable();
-            final List<Pair<Integer, Integer>> dataNodes = hint.getDataNodes();
-            final Pair<String[], Object[][]> partitionOperand = hint.getPartitionOperand();
-
-            TableConfig tableConfig = null;
-            if (table == null || schema.getTables() == null || (tableConfig = schema.getTables().get(table)) == null) {
-                // table not indicated
-                RouteResultsetNode[] nodes = new RouteResultsetNode[1];
-                rrs.setNodes(nodes);
-                if (dataNodes != null && !dataNodes.isEmpty()) {
-                    Integer replicaIndex = dataNodes.get(0).getValue();
-                    if (replicaIndex != null
-                            && RouteResultsetNode.DEFAULT_REPLICA_INDEX.intValue() != replicaIndex.intValue()) {
-                        // replica index indicated in dataNodes references
-                        nodes[0] = new RouteResultsetNode(schema.getDataNode(), replicaIndex, outputSql);
-                        logExplicitReplicaSet(frontConn, sql, rrs);
-                        return;
-                    }
-                }
-                nodes[0] = new RouteResultsetNode(schema.getDataNode(), replica, outputSql);
-                if (replica != RouteResultsetNode.DEFAULT_REPLICA_INDEX) {
-                    logExplicitReplicaSet(frontConn, sql, rrs);
-                }
-                return;
-            }
-
-            if (dataNodes != null && !dataNodes.isEmpty()) {
-                RouteResultsetNode[] nodes = new RouteResultsetNode[dataNodes.size()];
-                rrs.setNodes(nodes);
-                int i = 0;
-                boolean replicaSet = false;
-                for (Pair<Integer, Integer> pair : dataNodes) {
-                    String dataNodeName = tableConfig.getDataNodes()[pair.getKey()];
-                    Integer replicaIndex = dataNodes.get(i).getValue();
-                    if (replicaIndex != null
-                            && RouteResultsetNode.DEFAULT_REPLICA_INDEX.intValue() != replicaIndex.intValue()) {
-                        replicaSet = true;
-                        nodes[i] = new RouteResultsetNode(dataNodeName, replicaIndex, outputSql);
-                    } else {
-                        replicaSet = replicaSet || (replica != RouteResultsetNode.DEFAULT_REPLICA_INDEX);
-                        nodes[i] = new RouteResultsetNode(dataNodeName, replica, outputSql);
-                    }
-                    ++i;
-                }
-                if (replicaSet) {
-                    logExplicitReplicaSet(frontConn, sql, rrs);
-                }
-                return;
-            }
-
-            if (partitionOperand == null) {
-                String[] tableDataNodes = tableConfig.getDataNodes();
-                RouteResultsetNode[] nodes = new RouteResultsetNode[tableDataNodes.length];
-                rrs.setNodes(nodes);
-                for (int i = 0; i < nodes.length; ++i) {
-                    nodes[i] = new RouteResultsetNode(tableDataNodes[i], replica, outputSql);
-                }
-                return;
-            }
-
-            String[] cols = partitionOperand.getKey();
-            Object[][] vals = partitionOperand.getValue();
-            if (cols == null || vals == null) {
-                throw new SQLSyntaxErrorException("${partitionOperand} is invalid: " + sql);
-            }
-            RuleConfig rule = null;
-            TableRuleConfig tr = tableConfig.getRule();
-            List<RuleConfig> rules = tr == null ? null : tr.getRules();
-            if (rules != null) {
-                for (RuleConfig r : rules) {
-                    List<String> ruleCols = r.getColumns();
-                    boolean match = true;
-                    for (String ruleCol : ruleCols) {
-                        match &= ArrayUtil.contains(cols, ruleCol);
-                    }
-                    if (match) {
-                        rule = r;
-                        break;
-                    }
-                }
-            }
-
-            String[] tableDataNodes = tableConfig.getDataNodes();
-            if (rule == null) {
-                RouteResultsetNode[] nodes = new RouteResultsetNode[tableDataNodes.length];
-                rrs.setNodes(nodes);
-                boolean replicaSet = false;
-                for (int i = 0; i < tableDataNodes.length; ++i) {
-                    replicaSet = replicaSet || (replica != RouteResultsetNode.DEFAULT_REPLICA_INDEX);
-                    nodes[i] = new RouteResultsetNode(tableDataNodes[i], replica, outputSql);
-                }
-                if (replicaSet) {
-                    logExplicitReplicaSet(frontConn, sql, rrs);
-                }
-                return;
-            }
-
-            Set<String> destDataNodes = calcHintDataNodes(rule, cols, vals, tableDataNodes);
-            RouteResultsetNode[] nodes = new RouteResultsetNode[destDataNodes.size()];
-            rrs.setNodes(nodes);
-            int i = 0;
-            boolean replicaSet = false;
-            for (String dataNode : destDataNodes) {
-                replicaSet = replicaSet || (replica != RouteResultsetNode.DEFAULT_REPLICA_INDEX);
-                nodes[i++] = new RouteResultsetNode(dataNode, replica, outputSql);
-            }
-            if (replicaSet) {
-                logExplicitReplicaSet(frontConn, sql, rrs);
-            }
-        }
-
-        private static Set<String> calcHintDataNodes(RuleConfig rule, String[] cols, Object[][] vals, String[] dataNodes) {
-            Set<String> destDataNodes = new HashSet<String>(2, 1);
-            Map<String, Object> parameter = new HashMap<String, Object>(cols.length, 1);
-            for (Object[] val : vals) {
-                for (int i = 0; i < cols.length; ++i) {
-                    parameter.put(cols[i], val[i]);
-                }
-                Integer[] dataNodeIndexes = calcDataNodeIndexesByFunction(rule.getRuleAlgorithm(), parameter);
-                for (Integer index : dataNodeIndexes) {
-                    destDataNodes.add(dataNodes[index]);
-                }
-            }
-            return destDataNodes;
-        }
-
-        private static void logExplicitReplicaSet(Object frontConn, String sql, RouteResultset rrs) {
-            if (frontConn != null && LOGGER.isInfoEnabled()) {
-                StringBuilder s = new StringBuilder();
-                s.append(frontConn).append("Explicit data node replica set from, sql=[");
-                s.append(sql).append(']');
-                LOGGER.info(s.toString());
-            }
-        }
-    }
-
-    private static class MetaRouter {
-
-        public static void routeForTableMeta(RouteResultset rrs, SchemaConfig schema, SQLStatement ast,
-                                             PartitionKeyVisitor visitor, String stmt) {
-            String sql = stmt;
-            if (visitor.isSchemaTrimmed()) {
-                sql = genSQL(ast, stmt);
-            }
-            String[] tables = visitor.getMetaReadTable();
-            if (tables == null) {
-                throw new IllegalArgumentException("route err: tables[] is null for meta read table: " + stmt);
-            }
-            String[] dataNodes;
-            if (tables.length <= 0) {
-                dataNodes = schema.getMetaDataNodes();
-            } else if (tables.length == 1) {
-                dataNodes = new String[1];
-                dataNodes[0] = getMetaReadDataNode(schema, tables[0]);
-            } else {
-                Set<String> dataNodeSet = new HashSet<String>(tables.length, 1);
-                for (String table : tables) {
-                    String dataNode = getMetaReadDataNode(schema, table);
-                    dataNodeSet.add(dataNode);
-                }
-                dataNodes = new String[dataNodeSet.size()];
-                Iterator<String> iter = dataNodeSet.iterator();
-                for (int i = 0; i < dataNodes.length; ++i) {
-                    dataNodes[i] = iter.next();
-                }
-            }
-
-            RouteResultsetNode[] nodes = new RouteResultsetNode[dataNodes.length];
-            rrs.setNodes(nodes);
-            for (int i = 0; i < dataNodes.length; ++i) {
-                nodes[i] = new RouteResultsetNode(dataNodes[i], sql);
-            }
-        }
-
-        private static String getMetaReadDataNode(SchemaConfig schema, String table) {
-            String dataNode = schema.getDataNode();
-            Map<String, TableConfig> tables = schema.getTables();
-            TableConfig tc;
-            if (tables != null && (tc = tables.get(table)) != null) {
-                String[] dn = tc.getDataNodes();
-                if (dn != null && dn.length > 0) {
-                    dataNode = dn[0];
-                }
-            }
-            return dataNode;
-        }
     }
 
     private static Integer[] calcDataNodeIndexesByFunction(RuleAlgorithm algorithm, Map<String, Object> parameter) {
@@ -574,7 +357,7 @@ public final class ServerRouter {
         if (ruleColumns.size() > 1) {
             String sql;
             if (visitor.isSchemaTrimmed()) {
-                sql = genSQL(stmtAST, originalSQL);
+                sql = buildSQL(stmtAST);
             } else {
                 sql = originalSQL;
             }
@@ -638,7 +421,7 @@ public final class ServerRouter {
             }
             // [perf tag] 16.506 us: sharding multivalue
 
-            String sql = genSQL(stmtAST, originalSQL);
+            String sql = buildSQL(stmtAST);
             // [perf tag] 21.3425 us: sharding multivalue
 
             String dataNodeName = matchedTable.getDataNodes()[en.getKey()];
@@ -684,7 +467,6 @@ public final class ServerRouter {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static void dispatchInsertReplace(RouteResultsetNode[] rn, DMLInsertReplaceStatement stmt,
                                               List<String> ruleColumns, Map<Integer, List<Object[]>> dataNodeMap,
                                               TableConfig matchedTable, String originalSQL, PartitionKeyVisitor visitor) {
@@ -709,10 +491,10 @@ public final class ServerRouter {
             for (Object[] tuple : tuples) {
                 Set<Pair<Expression, ASTNode>> tupleExprs = null;
                 for (int i = 0; i < tuple.length; ++i) {
-                    Map<Object, Set<Pair<Expression, ASTNode>>> valueMap = colsIndexList.get(i);
+                    Map<Object, Set<Pair<Expression, ASTNode>>> map = colsIndexList.get(i);
                     Object value = tuple[i];
-                    Set<Pair<Expression, ASTNode>> set = getExpressionSet(valueMap, value);
-                    tupleExprs = (Set<Pair<Expression, ASTNode>>) CollectionUtil.intersectSet(tupleExprs, set);
+                    Set<Pair<Expression, ASTNode>> set = getExpressionSet(map, value);
+                    tupleExprs = CollectionUtil.intersectSet(tupleExprs, set);
                 }
                 if (tupleExprs == null || tupleExprs.isEmpty()) {
                     throw new IllegalArgumentException("route: empty expression list for insertReplace stmt: "
@@ -726,7 +508,7 @@ public final class ServerRouter {
             }
 
             stmt.setReplaceRowList(new ArrayList<RowExpression>(replaceRowList));
-            String sql = genSQL(stmt, originalSQL);
+            String sql = buildSQL(stmt);
             stmt.clearReplaceRowList();
             String dataNodeName = matchedTable.getDataNodes()[en.getKey()];
             rn[++dataNodeId] = new RouteResultsetNode(dataNodeName, sql);
@@ -745,7 +527,7 @@ public final class ServerRouter {
         return set;
     }
 
-    private static String genSQL(SQLStatement ast, String orginalSql) {
+    private static String buildSQL(SQLStatement ast) {
         StringBuilder s = new StringBuilder();
         ast.accept(new MySQLOutputASTVisitor(s));
         return s.toString();

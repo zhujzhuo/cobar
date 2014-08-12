@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.helpers.LogLog;
 
 import com.alibaba.cobar.config.model.SystemConfig;
-import com.alibaba.cobar.parser.recognizer.mysql.lexer.MySQLLexer;
+import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 import com.alibaba.cobar.server.frontend.ServerConnectionFactory;
 import com.alibaba.cobar.server.manager.ManagerConnectionFactory;
 import com.alibaba.cobar.server.net.NIOAcceptor;

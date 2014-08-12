@@ -26,19 +26,21 @@ import java.util.Set;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class CollectionUtil {
-    /**
-     * @param orig if null, return intersect
-     */
-    public static Set<? extends Object> intersectSet(Set<? extends Object> orig, Set<? extends Object> intersect) {
-        if (orig == null)
-            return intersect;
-        if (intersect == null || orig.isEmpty())
-            return Collections.emptySet();
-        Set<Object> set = new HashSet<Object>(orig.size());
-        for (Object p : orig) {
-            if (intersect.contains(p))
-                set.add(p);
-        }
-        return set;
-    }
+
+	public static <T> Set<T> intersectSet(Set<T> orig, Set<T> intersect) {
+		if (orig == null) {
+			return intersect;
+		}
+		if (intersect == null || orig.isEmpty()) {
+			return Collections.emptySet();
+		}
+		Set<T> set = new HashSet<T>(orig.size());
+		for (T t : orig) {
+			if (intersect.contains(t)) {
+				set.add(t);
+			}
+		}
+		return set;
+	}
+
 }

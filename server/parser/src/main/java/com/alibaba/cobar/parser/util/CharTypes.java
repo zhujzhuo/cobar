@@ -15,7 +15,7 @@
  */
 package com.alibaba.cobar.parser.util;
 
-import com.alibaba.cobar.parser.recognizer.mysql.lexer.MySQLLexer;
+import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

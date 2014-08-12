@@ -36,7 +36,7 @@ import com.alibaba.cobar.server.util.TimeUtil;
 public class MySQLConnectionPool {
 	private static final Logger alarm = Logger.getLogger("alarm");
 
-	private final MySQLDataNode dataNode;
+	// private final MySQLDataNode dataNode;
 	private final int index;
 	private final String name;
 	private final ReentrantLock lock = new ReentrantLock();
@@ -51,7 +51,7 @@ public class MySQLConnectionPool {
 
 	public MySQLConnectionPool(MySQLDataNode node, int index,
 			DataSourceConfig config, int size) {
-		this.dataNode = node;
+		// this.dataNode = node;
 		this.size = size;
 		this.items = new MySQLConnection[size];
 		this.config = config;

@@ -159,7 +159,6 @@
         </property>
     </bean>
 
-    <!--====================== monitor ======================= -->
     <bean name="/alert.htm" class="com.alibaba.cobar.manager.web.screen.Alert"></bean>
     <bean name="/login.htm" class="com.alibaba.cobar.manager.web.screen.LogIn"></bean>
     <bean name="/recoveryConfirm.htm" class="com.alibaba.cobar.manager.web.screen.RecoveryConfirm"></bean>
@@ -247,7 +246,6 @@
         <property name="cobarAccesser" ref="cobarAccesser" />
     </bean>
 
-    <!-- ======================== do ======================= -->
     <bean name="/addCluster.do" class="com.alibaba.cobar.manager.web.action.AddCluster">
         <property name="xmlAccesser" ref="xmlAccesser" />
     </bean>
@@ -283,7 +281,6 @@
         <property name="xmlAccesser" ref="xmlAccesser" />
     </bean>
 
-    <!-- ==================== ajax ========================= -->
     <bean name="/xmlManager.ajax" class="com.alibaba.cobar.manager.web.ajax.XmlManagerAjax">
         <property name="xmlAccesser" ref="xmlAccesser" />
     </bean>
@@ -300,7 +297,6 @@
         <property name="xmlAccesser" ref="xmlAccesser" />
     </bean>
 
-    <!-- ================== manager service ============== -->
     <bean id="cobarAccesser" class="com.alibaba.cobar.manager.service.CobarAccesser">
         <property name="cobarAdapterDelegate" ref="cobarAdapterDelegate" />
         <property name="xmlAccesser" ref="xmlAccesser" />

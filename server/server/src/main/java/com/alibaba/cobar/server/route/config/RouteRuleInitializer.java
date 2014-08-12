@@ -27,13 +27,13 @@ import com.alibaba.cobar.config.loader.SchemaLoader;
 import com.alibaba.cobar.config.model.rule.RuleAlgorithm;
 import com.alibaba.cobar.config.model.rule.RuleConfig;
 import com.alibaba.cobar.config.util.ConfigException;
-import com.alibaba.cobar.parser.ast.expression.Expression;
-import com.alibaba.cobar.parser.ast.expression.primary.function.FunctionExpression;
-import com.alibaba.cobar.parser.recognizer.mysql.MySQLFunctionManager;
-import com.alibaba.cobar.parser.recognizer.mysql.MySQLToken;
-import com.alibaba.cobar.parser.recognizer.mysql.lexer.MySQLLexer;
-import com.alibaba.cobar.parser.recognizer.mysql.syntax.MySQLExprParser;
-import com.alibaba.cobar.parser.recognizer.mysql.syntax.MySQLParser;
+import com.alibaba.cobar.parser.expression.Expression;
+import com.alibaba.cobar.parser.expression.primary.function.FunctionExpression;
+import com.alibaba.cobar.parser.mysql.MySQLFunctionManager;
+import com.alibaba.cobar.parser.mysql.MySQLToken;
+import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
+import com.alibaba.cobar.parser.mysql.syntax.MySQLExprParser;
+import com.alibaba.cobar.parser.mysql.syntax.MySQLParser;
 import com.alibaba.cobar.server.route.function.ExpressionAdapter;
 
 /**

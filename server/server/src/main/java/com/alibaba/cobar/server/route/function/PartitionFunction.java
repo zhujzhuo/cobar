@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.cobar.config.util.SplitUtil;
-import com.alibaba.cobar.parser.ast.expression.Expression;
-import com.alibaba.cobar.parser.ast.expression.primary.function.FunctionExpression;
+import com.alibaba.cobar.parser.expression.Expression;
+import com.alibaba.cobar.parser.expression.primary.function.FunctionExpression;
 import com.alibaba.cobar.server.util.PartitionUtil;
 
 /**
