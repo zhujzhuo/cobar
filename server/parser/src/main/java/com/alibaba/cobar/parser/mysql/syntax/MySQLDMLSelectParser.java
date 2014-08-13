@@ -34,18 +34,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.cobar.parser.expression.Expression;
-import com.alibaba.cobar.parser.fragment.GroupBy;
-import com.alibaba.cobar.parser.fragment.Limit;
-import com.alibaba.cobar.parser.fragment.OrderBy;
-import com.alibaba.cobar.parser.fragment.tableref.Dual;
-import com.alibaba.cobar.parser.fragment.tableref.TableReference;
-import com.alibaba.cobar.parser.fragment.tableref.TableReferences;
+import com.alibaba.cobar.parser.ast.expression.Expression;
+import com.alibaba.cobar.parser.ast.fragment.GroupBy;
+import com.alibaba.cobar.parser.ast.fragment.Limit;
+import com.alibaba.cobar.parser.ast.fragment.OrderBy;
+import com.alibaba.cobar.parser.ast.fragment.tableref.Dual;
+import com.alibaba.cobar.parser.ast.fragment.tableref.TableReference;
+import com.alibaba.cobar.parser.ast.fragment.tableref.TableReferences;
+import com.alibaba.cobar.parser.ast.statement.dml.DMLQueryStatement;
+import com.alibaba.cobar.parser.ast.statement.dml.DMLSelectStatement;
+import com.alibaba.cobar.parser.ast.statement.dml.DMLSelectUnionStatement;
 import com.alibaba.cobar.parser.mysql.MySQLToken;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
-import com.alibaba.cobar.parser.statement.dml.DMLQueryStatement;
-import com.alibaba.cobar.parser.statement.dml.DMLSelectStatement;
-import com.alibaba.cobar.parser.statement.dml.DMLSelectUnionStatement;
 import com.alibaba.cobar.parser.util.Pair;
 
 /**

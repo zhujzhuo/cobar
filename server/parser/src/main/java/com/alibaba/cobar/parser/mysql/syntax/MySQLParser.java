@@ -24,13 +24,13 @@ import java.sql.SQLSyntaxErrorException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.parser.expression.primary.Identifier;
-import com.alibaba.cobar.parser.expression.primary.ParamMarker;
-import com.alibaba.cobar.parser.expression.primary.PlaceHolder;
-import com.alibaba.cobar.parser.expression.primary.SysVarPrimary;
-import com.alibaba.cobar.parser.expression.primary.Wildcard;
-import com.alibaba.cobar.parser.fragment.Limit;
-import com.alibaba.cobar.parser.fragment.VariableScope;
+import com.alibaba.cobar.parser.ast.expression.primary.Identifier;
+import com.alibaba.cobar.parser.ast.expression.primary.ParamMarker;
+import com.alibaba.cobar.parser.ast.expression.primary.PlaceHolder;
+import com.alibaba.cobar.parser.ast.expression.primary.SysVarPrimary;
+import com.alibaba.cobar.parser.ast.expression.primary.Wildcard;
+import com.alibaba.cobar.parser.ast.fragment.Limit;
+import com.alibaba.cobar.parser.ast.fragment.VariableScope;
 import com.alibaba.cobar.parser.mysql.MySQLToken;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 

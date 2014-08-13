@@ -28,8 +28,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.alibaba.cobar.parser.expression.Expression;
-import com.alibaba.cobar.parser.expression.primary.RowExpression;
+import com.alibaba.cobar.parser.ast.expression.Expression;
+import com.alibaba.cobar.parser.ast.expression.primary.RowExpression;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 
 /**

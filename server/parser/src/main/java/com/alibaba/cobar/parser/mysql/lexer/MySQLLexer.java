@@ -31,16 +31,8 @@ import com.alibaba.cobar.parser.util.CharTypes;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class MySQLLexer {
-    private static int C_STYLE_COMMENT_VERSION = 50599;
 
-    /**
-     * @return previous value
-     */
-    public static int setCStyleCommentVersion(int version) {
-        int v = C_STYLE_COMMENT_VERSION;
-        C_STYLE_COMMENT_VERSION = version;
-        return v;
-    }
+    private static int C_STYLE_COMMENT_VERSION = 50599;
 
     /**
      * End of input character. Used as a sentinel to denote the character one
@@ -73,6 +65,54 @@ public class MySQLLexer {
     private String stringValue;
     /** make sense only for {@link MySQLToken#IDENTIFIER} */
     private String stringValueUppercase;
+
+    protected MySQLKeywords keywods = MySQLKeywords.DEFAULT_KEYWORDS;
+
+    protected boolean inCStyleComment;
+    protected boolean inCStyleCommentIgnore;
+
+    protected int offsetCache;
+    protected int sizeCache;
+
+    /**
+     * @return previous value
+     */
+    public static int setCStyleCommentVersion(int version) {
+        int v = C_STYLE_COMMENT_VERSION;
+        C_STYLE_COMMENT_VERSION = version;
+        return v;
+    }
+
+    private static char[] fromSQL2Chars(String sql) {
+        if (CharTypes.isWhitespace(sql.charAt(sql.length() - 1))) {
+            return sql.toCharArray();
+        }
+        char[] chars = new char[sql.length() + 1];
+        sql.getChars(0, sql.length(), chars, 0);
+        chars[chars.length - 1] = ' ';
+        return chars;
+    }
+
+    public MySQLLexer(char[] sql) throws SQLSyntaxErrorException {
+        if ((this.sbuf = sbufRef.get()) == null) {
+            this.sbuf = new char[1024];
+            sbufRef.set(this.sbuf);
+        }
+        if (CharTypes.isWhitespace(sql[sql.length - 1])) {
+            this.sql = sql;
+        } else {
+            this.sql = new char[sql.length + 1];
+            System.arraycopy(sql, 0, this.sql, 0, sql.length);
+        }
+        this.eofIndex = this.sql.length - 1;
+        this.sql[this.eofIndex] = MySQLLexer.EOI;
+        scanChar();
+        nextToken();
+    }
+
+    public MySQLLexer(String sql) throws SQLSyntaxErrorException {
+        this(fromSQL2Chars(sql));
+    }
 
     /**
      * update {@link MySQLLexer#stringValue} and
@@ -114,39 +154,6 @@ public class MySQLLexer {
             stringValueUppercase = new String(src, srcOffset, len);
         }
     }
-
-    public MySQLLexer(char[] sql) throws SQLSyntaxErrorException {
-        if ((this.sbuf = sbufRef.get()) == null) {
-            this.sbuf = new char[1024];
-            sbufRef.set(this.sbuf);
-        }
-        if (CharTypes.isWhitespace(sql[sql.length - 1])) {
-            this.sql = sql;
-        } else {
-            this.sql = new char[sql.length + 1];
-            System.arraycopy(sql, 0, this.sql, 0, sql.length);
-        }
-        this.eofIndex = this.sql.length - 1;
-        this.sql[this.eofIndex] = MySQLLexer.EOI;
-        scanChar();
-        nextToken();
-    }
-
-    public MySQLLexer(String sql) throws SQLSyntaxErrorException {
-        this(fromSQL2Chars(sql));
-    }
-
-    private static char[] fromSQL2Chars(String sql) {
-        if (CharTypes.isWhitespace(sql.charAt(sql.length() - 1))) {
-            return sql.toCharArray();
-        }
-        char[] chars = new char[sql.length() + 1];
-        sql.getChars(0, sql.length(), chars, 0);
-        chars[chars.length - 1] = ' ';
-        return chars;
-    }
-
-    protected MySQLKeywords keywods = MySQLKeywords.DEFAULT_KEYWORDS;
 
     /**
      * @param token must be a keyword
@@ -470,12 +477,6 @@ public class MySQLLexer {
         return t;
     }
 
-    protected boolean inCStyleComment;
-    protected boolean inCStyleCommentIgnore;
-
-    protected int offsetCache;
-    protected int sizeCache;
-
     /**
      * first <code>@</code> is included
      */
@@ -543,8 +544,9 @@ public class MySQLLexer {
      * first <code>@@</code> is included
      */
     protected void scanSystemVariable() throws SQLSyntaxErrorException {
-        if (ch != '@' || sql[curIndex + 1] != '@')
+        if (ch != '@' || sql[curIndex + 1] != '@') {
             throw err("first char must be @@");
+        }
         offsetCache = curIndex + 2;
         sizeCache = 0;
         scanChar(2);
@@ -1027,25 +1029,6 @@ public class MySQLLexer {
         throw new SQLSyntaxErrorException(errMsg);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName()).append('@').append(hashCode()).append('{');
-        String sqlLeft = new String(sql, curIndex, sql.length - curIndex);
-        sb.append("curIndex=")
-          .append(curIndex)
-          .append(", ch=")
-          .append(ch)
-          .append(", token=")
-          .append(token)
-          .append(", sqlLeft=")
-          .append(sqlLeft)
-          .append(", sql=")
-          .append(sql);
-        sb.append('}');
-        return sb.toString();
-    }
-
     /**
      * {@link #token} must be {@link MySQLToken#LITERAL_NUM_PURE_DIGIT}
      */
@@ -1105,4 +1088,24 @@ public class MySQLLexer {
     public final String stringValueUppercase() {
         return stringValueUppercase;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName()).append('@').append(hashCode()).append('{');
+        String sqlLeft = new String(sql, curIndex, sql.length - curIndex);
+        sb.append("curIndex=")
+          .append(curIndex)
+          .append(", ch=")
+          .append(ch)
+          .append(", token=")
+          .append(token)
+          .append(", sqlLeft=")
+          .append(sqlLeft)
+          .append(", sql=")
+          .append(sql);
+        sb.append('}');
+        return sb.toString();
+    }
+
 }

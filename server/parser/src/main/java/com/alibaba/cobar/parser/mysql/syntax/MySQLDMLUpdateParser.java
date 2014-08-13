@@ -32,13 +32,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.alibaba.cobar.parser.expression.Expression;
-import com.alibaba.cobar.parser.expression.primary.Identifier;
-import com.alibaba.cobar.parser.fragment.Limit;
-import com.alibaba.cobar.parser.fragment.OrderBy;
-import com.alibaba.cobar.parser.fragment.tableref.TableReferences;
+import com.alibaba.cobar.parser.ast.expression.Expression;
+import com.alibaba.cobar.parser.ast.expression.primary.Identifier;
+import com.alibaba.cobar.parser.ast.fragment.Limit;
+import com.alibaba.cobar.parser.ast.fragment.OrderBy;
+import com.alibaba.cobar.parser.ast.fragment.tableref.TableReferences;
+import com.alibaba.cobar.parser.ast.statement.dml.DMLUpdateStatement;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
-import com.alibaba.cobar.parser.statement.dml.DMLUpdateStatement;
 import com.alibaba.cobar.parser.util.Pair;
 
 /**

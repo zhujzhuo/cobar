@@ -30,14 +30,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.cobar.parser.expression.Expression;
-import com.alibaba.cobar.parser.expression.primary.Identifier;
-import com.alibaba.cobar.parser.fragment.Limit;
-import com.alibaba.cobar.parser.fragment.OrderBy;
-import com.alibaba.cobar.parser.fragment.tableref.TableReferences;
+import com.alibaba.cobar.parser.ast.expression.Expression;
+import com.alibaba.cobar.parser.ast.expression.primary.Identifier;
+import com.alibaba.cobar.parser.ast.fragment.Limit;
+import com.alibaba.cobar.parser.ast.fragment.OrderBy;
+import com.alibaba.cobar.parser.ast.fragment.tableref.TableReferences;
+import com.alibaba.cobar.parser.ast.statement.dml.DMLDeleteStatement;
 import com.alibaba.cobar.parser.mysql.MySQLToken;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
-import com.alibaba.cobar.parser.statement.dml.DMLDeleteStatement;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

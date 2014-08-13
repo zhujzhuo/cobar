@@ -39,26 +39,26 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.alibaba.cobar.parser.expression.Expression;
-import com.alibaba.cobar.parser.expression.misc.QueryExpression;
-import com.alibaba.cobar.parser.expression.primary.Identifier;
-import com.alibaba.cobar.parser.fragment.GroupBy;
-import com.alibaba.cobar.parser.fragment.OrderBy;
-import com.alibaba.cobar.parser.fragment.SortOrder;
-import com.alibaba.cobar.parser.fragment.tableref.IndexHint;
-import com.alibaba.cobar.parser.fragment.tableref.InnerJoin;
-import com.alibaba.cobar.parser.fragment.tableref.NaturalJoin;
-import com.alibaba.cobar.parser.fragment.tableref.OuterJoin;
-import com.alibaba.cobar.parser.fragment.tableref.StraightJoin;
-import com.alibaba.cobar.parser.fragment.tableref.SubqueryFactor;
-import com.alibaba.cobar.parser.fragment.tableref.TableRefFactor;
-import com.alibaba.cobar.parser.fragment.tableref.TableReference;
-import com.alibaba.cobar.parser.fragment.tableref.TableReferences;
+import com.alibaba.cobar.parser.ast.expression.Expression;
+import com.alibaba.cobar.parser.ast.expression.misc.QueryExpression;
+import com.alibaba.cobar.parser.ast.expression.primary.Identifier;
+import com.alibaba.cobar.parser.ast.fragment.GroupBy;
+import com.alibaba.cobar.parser.ast.fragment.OrderBy;
+import com.alibaba.cobar.parser.ast.fragment.SortOrder;
+import com.alibaba.cobar.parser.ast.fragment.tableref.IndexHint;
+import com.alibaba.cobar.parser.ast.fragment.tableref.InnerJoin;
+import com.alibaba.cobar.parser.ast.fragment.tableref.NaturalJoin;
+import com.alibaba.cobar.parser.ast.fragment.tableref.OuterJoin;
+import com.alibaba.cobar.parser.ast.fragment.tableref.StraightJoin;
+import com.alibaba.cobar.parser.ast.fragment.tableref.SubqueryFactor;
+import com.alibaba.cobar.parser.ast.fragment.tableref.TableRefFactor;
+import com.alibaba.cobar.parser.ast.fragment.tableref.TableReference;
+import com.alibaba.cobar.parser.ast.fragment.tableref.TableReferences;
+import com.alibaba.cobar.parser.ast.statement.dml.DMLQueryStatement;
+import com.alibaba.cobar.parser.ast.statement.dml.DMLSelectStatement;
+import com.alibaba.cobar.parser.ast.statement.dml.DMLSelectUnionStatement;
 import com.alibaba.cobar.parser.mysql.MySQLToken;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
-import com.alibaba.cobar.parser.statement.dml.DMLQueryStatement;
-import com.alibaba.cobar.parser.statement.dml.DMLSelectStatement;
-import com.alibaba.cobar.parser.statement.dml.DMLSelectUnionStatement;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

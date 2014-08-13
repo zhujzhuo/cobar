@@ -10,7 +10,7 @@ import java.util.Set;
 
 import com.alibaba.cobar.config.model.SchemaConfig;
 import com.alibaba.cobar.config.model.TableConfig;
-import com.alibaba.cobar.parser.statement.SQLStatement;
+import com.alibaba.cobar.parser.ast.statement.SQLStatement;
 import com.alibaba.cobar.parser.visitor.MySQLOutputASTVisitor;
 
 /**

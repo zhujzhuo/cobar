@@ -18,7 +18,7 @@
  */
 package com.alibaba.cobar.server.route.config;
 
-import com.alibaba.cobar.parser.expression.Expression;
+import com.alibaba.cobar.parser.ast.expression.Expression;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

@@ -24,7 +24,7 @@ import java.sql.SQLSyntaxErrorException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.parser.expression.primary.literal.LiteralBoolean;
+import com.alibaba.cobar.parser.ast.expression.primary.literal.LiteralBoolean;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 
 /**

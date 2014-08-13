@@ -22,6 +22,9 @@ import java.sql.SQLSyntaxErrorException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.cobar.parser.ast.statement.SQLStatement;
+import com.alibaba.cobar.parser.ast.statement.ddl.DDLCreateIndexStatement;
+import com.alibaba.cobar.parser.ast.statement.ddl.DDLStatement;
 import com.alibaba.cobar.parser.mysql.MySQLToken;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLDALParser;
@@ -35,9 +38,6 @@ import com.alibaba.cobar.parser.mysql.syntax.MySQLDMLUpdateParser;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLExprParser;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLMTSParser;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLParser;
-import com.alibaba.cobar.parser.statement.SQLStatement;
-import com.alibaba.cobar.parser.statement.ddl.DDLCreateIndexStatement;
-import com.alibaba.cobar.parser.statement.ddl.DDLStatement;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

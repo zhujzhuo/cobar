@@ -20,12 +20,12 @@ package com.alibaba.cobar.parser.mysql.syntax;
 
 import org.junit.Assert;
 
+import com.alibaba.cobar.parser.ast.statement.ddl.DDLStatement;
+import com.alibaba.cobar.parser.ast.statement.ddl.DDLTruncateStatement;
 import com.alibaba.cobar.parser.mysql.MySQLToken;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLDDLParser;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLExprParser;
-import com.alibaba.cobar.parser.statement.ddl.DDLStatement;
-import com.alibaba.cobar.parser.statement.ddl.DDLTruncateStatement;
 
 /**
  * @author <a href="mailto:danping.yudp@alibaba-inc.com">YU Danping</a>

@@ -22,11 +22,11 @@ import java.sql.SQLSyntaxErrorException;
 
 import junit.framework.Assert;
 
+import com.alibaba.cobar.parser.ast.statement.mts.MTSReleaseStatement;
+import com.alibaba.cobar.parser.ast.statement.mts.MTSRollbackStatement;
+import com.alibaba.cobar.parser.ast.statement.mts.MTSSavepointStatement;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLMTSParser;
-import com.alibaba.cobar.parser.statement.mts.MTSReleaseStatement;
-import com.alibaba.cobar.parser.statement.mts.MTSRollbackStatement;
-import com.alibaba.cobar.parser.statement.mts.MTSSavepointStatement;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

@@ -22,11 +22,11 @@ import java.sql.SQLSyntaxErrorException;
 
 import org.junit.Assert;
 
+import com.alibaba.cobar.parser.ast.statement.dml.DMLCallStatement;
 import com.alibaba.cobar.parser.mysql.MySQLToken;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLDMLCallParser;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLExprParser;
-import com.alibaba.cobar.parser.statement.dml.DMLCallStatement;
 
 /**
  * @author <a href="mailto:danping.yudp@alibaba-inc.com">YU Danping</a>

@@ -34,12 +34,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.alibaba.cobar.parser.expression.Expression;
-import com.alibaba.cobar.parser.expression.misc.QueryExpression;
-import com.alibaba.cobar.parser.expression.primary.Identifier;
-import com.alibaba.cobar.parser.expression.primary.RowExpression;
+import com.alibaba.cobar.parser.ast.expression.Expression;
+import com.alibaba.cobar.parser.ast.expression.misc.QueryExpression;
+import com.alibaba.cobar.parser.ast.expression.primary.Identifier;
+import com.alibaba.cobar.parser.ast.expression.primary.RowExpression;
+import com.alibaba.cobar.parser.ast.statement.dml.DMLInsertStatement;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
-import com.alibaba.cobar.parser.statement.dml.DMLInsertStatement;
 import com.alibaba.cobar.parser.util.Pair;
 
 /**

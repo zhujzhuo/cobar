@@ -26,11 +26,11 @@ import java.sql.SQLSyntaxErrorException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.parser.expression.primary.Identifier;
+import com.alibaba.cobar.parser.ast.expression.primary.Identifier;
+import com.alibaba.cobar.parser.ast.statement.mts.MTSReleaseStatement;
+import com.alibaba.cobar.parser.ast.statement.mts.MTSRollbackStatement;
+import com.alibaba.cobar.parser.ast.statement.mts.MTSSavepointStatement;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
-import com.alibaba.cobar.parser.statement.mts.MTSReleaseStatement;
-import com.alibaba.cobar.parser.statement.mts.MTSRollbackStatement;
-import com.alibaba.cobar.parser.statement.mts.MTSSavepointStatement;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

@@ -20,17 +20,17 @@ package com.alibaba.cobar.parser.mysql.syntax;
 
 import junit.framework.Assert;
 
+import com.alibaba.cobar.parser.ast.statement.SQLStatement;
+import com.alibaba.cobar.parser.ast.statement.dal.DALSetCharacterSetStatement;
+import com.alibaba.cobar.parser.ast.statement.dal.DALSetNamesStatement;
+import com.alibaba.cobar.parser.ast.statement.dal.DALSetStatement;
+import com.alibaba.cobar.parser.ast.statement.dal.DALShowStatement;
+import com.alibaba.cobar.parser.ast.statement.ddl.DescTableStatement;
+import com.alibaba.cobar.parser.ast.statement.mts.MTSSetTransactionStatement;
 import com.alibaba.cobar.parser.mysql.MySQLToken;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLDALParser;
 import com.alibaba.cobar.parser.mysql.syntax.MySQLExprParser;
-import com.alibaba.cobar.parser.statement.SQLStatement;
-import com.alibaba.cobar.parser.statement.dal.DALSetCharacterSetStatement;
-import com.alibaba.cobar.parser.statement.dal.DALSetNamesStatement;
-import com.alibaba.cobar.parser.statement.dal.DALSetStatement;
-import com.alibaba.cobar.parser.statement.dal.DALShowStatement;
-import com.alibaba.cobar.parser.statement.ddl.DescTableStatement;
-import com.alibaba.cobar.parser.statement.mts.MTSSetTransactionStatement;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
