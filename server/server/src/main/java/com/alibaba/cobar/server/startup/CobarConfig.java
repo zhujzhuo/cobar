@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.server;
+package com.alibaba.cobar.server.startup;
 
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
@@ -23,6 +23,8 @@ import com.alibaba.cobar.config.model.QuarantineConfig;
 import com.alibaba.cobar.config.model.SchemaConfig;
 import com.alibaba.cobar.config.model.SystemConfig;
 import com.alibaba.cobar.config.model.UserConfig;
+import com.alibaba.cobar.server.frontend.CobarCluster;
+import com.alibaba.cobar.server.frontend.CobarNode;
 import com.alibaba.cobar.server.util.MySQLDataNode;
 import com.alibaba.cobar.server.util.TimeUtil;
 
@@ -30,6 +32,7 @@ import com.alibaba.cobar.server.util.TimeUtil;
  * @author xianmao.hexm
  */
 public class CobarConfig {
+
     private static final int RELOAD = 1;
     private static final int ROLLBACK = 2;
 

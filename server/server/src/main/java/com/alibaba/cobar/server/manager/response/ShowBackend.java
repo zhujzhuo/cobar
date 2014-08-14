@@ -17,10 +17,10 @@ package com.alibaba.cobar.server.manager.response;
 
 import java.nio.ByteBuffer;
 
-import com.alibaba.cobar.config.Fields;
 import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.backend.heartbeat.MySQLDetector;
 import com.alibaba.cobar.server.backend.heartbeat.MySQLHeartbeat;
+import com.alibaba.cobar.server.defs.Fields;
 import com.alibaba.cobar.server.frontend.heartbeat.CobarDetector;
 import com.alibaba.cobar.server.frontend.heartbeat.CobarHeartbeat;
 import com.alibaba.cobar.server.manager.ManagerConnection;

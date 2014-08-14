@@ -14,53 +14,137 @@
  - See the License for the specific language governing permissions and
  - limitations under the License.
 -->
-<!DOCTYPE cobar:server SYSTEM "server.dtd">
-<cobar:server xmlns:cobar="http://cobar.alibaba.com/">
+<cobar>
   
-  <!-- 系统参数定义，服务端口、管理端口，处理器个数、线程池等。 -->
-  <!--
-  <system>
-    <property name="serverPort">8066</property>
-    <property name="managerPort">9066</property>
-    <property name="initExecutor">16</property>
-    <property name="timerExecutor">4</property>
-    <property name="managerExecutor">4</property>
-    <property name="processors">4</property>
-    <property name="processorHandler">8</property>
-    <property name="processorExecutor">8</property>
-    <property name="clusterHeartbeatUser">_HEARTBEAT_USER_</property>
-    <property name="clusterHeartbeatPass">_HEARTBEAT_PASS_</property>
-  </system>
-  -->
+    <!-- 系统参数定义，服务端口、管理端口，处理器个数、线程池等。 -->
+    <server>
+        <property name="serverPort">8066</property>
+        <property name="managerPort">9066</property>
+        <property name="serverExecutor">16</property>
+        <property name="managerExecutor">16</property>
+        <property name="processors">4</property>
+        <property name="processorExecutor">32</property>
+        <property name="charset">utf-8</property>
+        <property name="idleTimeout">3600</property>
+        <property name="txIsolation">REPEATED_READ</property>
+    </server>
 
-  <!-- 用户访问定义，用户名、密码、schema等信息。 -->
-  <user name="test">
-    <property name="password">test</property>
-    <property name="schemas">dbtest</property>
-  </user>
-  <!--
-  <user name="root">
-    <property name="password"></property>
-  </user>
-  -->
-
-  <!-- 集群列表定义，指定集群节点的主机和权重，用于集群间的心跳和客户端负载均衡。 -->
-  <!-- 
-  <cluster>
-    <node name="cobar1">
-      <property name="host">127.0.0.1</property>
-      <property name="weight">1</property>
-    </node>
-  </cluster>
-   -->
+    <!-- 集群列表定义，指定集群节点的主机和权重，用于集群间的心跳和客户端负载均衡。 -->
+    <cluster>
+        <node>
+            <property name="name">cobar1</property>
+            <property name="host">192.168.0.1</property>
+            <property name="weight">1</property>
+        </node>
+        <node>
+            <property name="name">cobar2</property>
+            <property name="host">192.168.0.2</property>
+            <property name="weight">1</property>
+        </node>
+    </cluster>
    
-  <!-- 隔离区定义，可以限定某个主机上只允许某个用户登录。 -->
-  <!--
-  <quarantine>
-    <host name="1.2.3.4">
-      <property name="user">test</property>
-    </host>
-  </quarantine>
-  -->
+    <!-- 隔离区定义，可以限定某个主机上只允许某个用户登录。 -->
+    <quarantine>
+        <host>
+            <property name="name">192.168.0.10</property>
+            <property name="user">test</property>
+        </host>
+        <host>
+            <property name="name">192.168.0.11</property>
+            <property name="user">root</property>
+        </host>
+    </quarantine>
+    
+    <!-- 用户访问定义，用户名、密码、schema等信息。 -->
+    <users>
+        <user>
+            <property name="name">test</property>
+            <property name="password">test</property>
+            <property name="schemas">dbtest</property>
+        </user>
+        <user>
+            <property name="name">root</property>
+            <property name="password">test</property>
+        </user>
+    </users>
+    
+    <!-- schema定义 -->
+    <schemas>
+        <schema>
+            <property name="name">dbtest</property>
+            <property name="dataNode">N1,N2</property>
+            <property name="ruleClass">com.alibaba.cobar.rule.DbtestRule</property>
+        </schema>
+        <schema>
+            <property name="name">dbtest2</property>
+            <property name="dataNode">N1,N2</property>
+            <property name="ruleClass">com.alibaba.cobar.rule.Dbtest2Rule</property>
+        </schema>
+    </schemas>
 
-</cobar:server>
+    <!-- 数据节点定义，一个数据节点代表一份数据 -->
+    <dataNodes>
+        <dataNode>
+            <property name="id">N1</property>
+            <property name="dataSource">S1,S3</property>
+        </dataNode>
+        <dataNode>
+            <property name="id">N2</property>
+            <property name="dataSource">S2,S4</property>
+        </dataNode>
+    </dataNodes>
+
+    <!-- 数据源定义，代表一个mysql的schema，并且关联访问用户以及密码 -->
+    <dataSources>
+        <dataSource>
+            <property name="id">S1</property>
+            <property name="instance">I1</property>
+            <property name="schema">dbtest1</property>
+            <property name="user">test</property>
+            <property name="password"></property>
+        </dataSource>
+        <dataSource>
+            <property name="id">S2</property>
+            <property name="instance">I1</property>
+            <property name="schema">dbtest2</property>
+            <property name="user">test</property>
+            <property name="password"></property>
+        </dataSource>
+        <dataSource>
+            <property name="id">S3</property>
+            <property name="instance">I2</property>
+            <property name="schema">dbtest1</property>
+            <property name="user">test</property>
+            <property name="password"></property>
+        </dataSource>
+        <dataSource>
+            <property name="id">S4</property>
+            <property name="instance">I2</property>
+            <property name="schema">dbtest2</property>
+            <property name="user">test</property>
+            <property name="password"></property>
+        </dataSource>
+    </dataSources>
+
+    <instances>
+        <instance>
+            <property name="id">I1</property>
+            <property name="machine">M1</property>
+            <property name="port">3306</property>
+        </instance>
+        <instance>
+            <property name="id">I2</property>
+            <property name="machine">M1</property>
+            <property name="port">3307</property>
+        </instance>
+    </instances>
+
+    <machines>
+        <machine>
+            <property name="id">M1</property>
+            <property name="host">192.168.0.1</property>
+        </machine>
+    </machines>
+
+</cobar>
+ 

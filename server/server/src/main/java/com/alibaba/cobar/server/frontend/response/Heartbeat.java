@@ -17,8 +17,8 @@ package com.alibaba.cobar.server.frontend.response;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
 import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.net.packet.HeartbeatPacket;

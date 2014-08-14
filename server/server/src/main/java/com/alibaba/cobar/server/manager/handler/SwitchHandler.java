@@ -17,7 +17,7 @@ package com.alibaba.cobar.server.manager.handler;
 
 import static com.alibaba.cobar.server.manager.parser.ManagerParseSwitch.DATASOURCE;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.manager.parser.ManagerParseSwitch;
 import com.alibaba.cobar.server.manager.response.SwitchDataSource;

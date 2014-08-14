@@ -22,10 +22,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.Capabilities;
-import com.alibaba.cobar.config.ErrorCode;
-import com.alibaba.cobar.config.Isolations;
 import com.alibaba.cobar.server.backend.handler.ResponseHandler;
+import com.alibaba.cobar.server.defs.Capabilities;
+import com.alibaba.cobar.server.defs.ErrorCode;
+import com.alibaba.cobar.server.defs.Isolations;
 import com.alibaba.cobar.server.exeception.UnknownTxIsolationException;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.net.BackendConnection;

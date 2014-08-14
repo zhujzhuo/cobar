@@ -18,7 +18,6 @@ package com.alibaba.cobar.server.frontend;
 import java.nio.channels.SocketChannel;
 
 import com.alibaba.cobar.config.model.SystemConfig;
-import com.alibaba.cobar.server.CobarPrivileges;
 import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.frontend.session.BlockingSession;
 import com.alibaba.cobar.server.frontend.session.NonBlockingSession;

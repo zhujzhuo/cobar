@@ -34,7 +34,7 @@ import com.alibaba.cobar.config.model.TableConfig;
 import com.alibaba.cobar.config.model.rule.RuleAlgorithm;
 import com.alibaba.cobar.config.model.rule.RuleConfig;
 import com.alibaba.cobar.config.model.rule.TableRuleConfig;
-import com.alibaba.cobar.parser.SQLParserDelegate;
+import com.alibaba.cobar.parser.CobarParser;
 import com.alibaba.cobar.parser.ast.ASTNode;
 import com.alibaba.cobar.parser.ast.expression.Expression;
 import com.alibaba.cobar.parser.ast.expression.ReplacableExpression;
@@ -77,7 +77,7 @@ public final class ServerRouter {
         // 检查schema是否含有拆分库
         if (schema.isNoSharding()) {
             if (schema.isKeepSqlSchema()) {
-                SQLStatement ast = SQLParserDelegate.parse(stmt, charset);
+                SQLStatement ast = CobarParser.parse(stmt, charset);
                 PartitionKeyVisitor visitor = new PartitionKeyVisitor(schema.getTables());
                 visitor.setTrimSchema(schema.getName());
                 ast.accept(visitor);
@@ -92,7 +92,7 @@ public final class ServerRouter {
         }
 
         // 生成和展开AST
-        SQLStatement ast = SQLParserDelegate.parse(stmt, charset);
+        SQLStatement ast = CobarParser.parse(stmt, charset);
         PartitionKeyVisitor visitor = new PartitionKeyVisitor(schema.getTables());
         visitor.setTrimSchema(schema.isKeepSqlSchema() ? schema.getName() : null);
         ast.accept(visitor);

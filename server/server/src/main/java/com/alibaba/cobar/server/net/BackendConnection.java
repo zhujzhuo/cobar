@@ -21,7 +21,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.util.TimeUtil;
 
 /**

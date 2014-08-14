@@ -17,7 +17,7 @@ package com.alibaba.cobar.server.manager.response;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.net.packet.OkPacket;
 

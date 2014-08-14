@@ -21,9 +21,9 @@ import java.sql.SQLNonTransientException;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
 import com.alibaba.cobar.config.model.SchemaConfig;
 import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.frontend.response.Heartbeat;
 import com.alibaba.cobar.server.frontend.response.Ping;
 import com.alibaba.cobar.server.frontend.session.BlockingSession;

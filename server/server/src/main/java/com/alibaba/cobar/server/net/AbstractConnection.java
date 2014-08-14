@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.util.ByteBufferPool;
 import com.alibaba.cobar.server.util.ByteBufferQueue;
 import com.alibaba.cobar.server.util.TimeUtil;

@@ -20,16 +20,16 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
 import com.alibaba.cobar.config.model.DataSourceConfig;
 import com.alibaba.cobar.config.model.QuarantineConfig;
 import com.alibaba.cobar.config.model.SchemaConfig;
 import com.alibaba.cobar.config.model.UserConfig;
-import com.alibaba.cobar.server.CobarCluster;
-import com.alibaba.cobar.server.CobarConfig;
 import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.ErrorCode;
+import com.alibaba.cobar.server.frontend.CobarCluster;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.net.packet.OkPacket;
+import com.alibaba.cobar.server.startup.CobarConfig;
 import com.alibaba.cobar.server.util.MySQLDataNode;
 import com.alibaba.cobar.server.util.MySQLDataSource;
 

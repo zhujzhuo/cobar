@@ -42,7 +42,7 @@ import com.alibaba.cobar.parser.mysql.syntax.MySQLParser;
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
-public final class SQLParserDelegate {
+public final class CobarParser {
 
     private static enum SpecialIdentifier {
         ROLLBACK,

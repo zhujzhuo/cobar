@@ -21,8 +21,8 @@ package com.alibaba.cobar.server.backend.handler;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.alibaba.cobar.config.ErrorCode;
 import com.alibaba.cobar.server.backend.MySQLConnection;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.frontend.session.NonBlockingSession;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.util.StringUtil;

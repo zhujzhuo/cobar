@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.server.defs;
 
 /**
  * 处理能力标识定义

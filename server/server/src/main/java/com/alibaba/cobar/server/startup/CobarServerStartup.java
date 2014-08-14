@@ -26,21 +26,21 @@ import com.alibaba.cobar.server.CobarServer;
  * @author xianmao.hexm 2011-4-22 下午09:43:05
  */
 public final class CobarServerStartup {
-	private static final String dateFormat = "yyyy-MM-dd HH:mm:ss";
+    private static final String dateFormat = "yyyy-MM-dd HH:mm:ss";
 
-	public static void main(String[] args) {
-		try {
-			// init
-			CobarServer server = CobarServer.getInstance();
-			server.beforeStart(dateFormat);
+    public static void main(String[] args) {
+        try {
+            // init
+            CobarServer server = CobarServer.getInstance();
+            server.beforeStart(dateFormat);
 
-			// startup
-			server.startup();
-		} catch (Throwable e) {
-			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-			LogLog.error(sdf.format(new Date()) + " startup error", e);
-			System.exit(-1);
-		}
-	}
+            // startup
+            server.startup();
+        } catch (Throwable e) {
+            SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+            LogLog.error(sdf.format(new Date()) + " startup error", e);
+            System.exit(-1);
+        }
+    }
 
 }

@@ -25,10 +25,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.Alarms;
 import com.alibaba.cobar.config.model.DataNodeConfig;
 import com.alibaba.cobar.config.util.ConfigException;
-import com.alibaba.cobar.parser.SQLParserDelegate;
+import com.alibaba.cobar.parser.CobarParser;
 import com.alibaba.cobar.parser.ast.expression.primary.PlaceHolder;
 import com.alibaba.cobar.parser.ast.statement.SQLStatement;
 import com.alibaba.cobar.parser.visitor.EmptySQLASTVisitor;
@@ -37,6 +36,7 @@ import com.alibaba.cobar.server.backend.BlockingChannel;
 import com.alibaba.cobar.server.backend.MySQLConnectionPool;
 import com.alibaba.cobar.server.backend.handler.ResponseHandler;
 import com.alibaba.cobar.server.backend.heartbeat.MySQLHeartbeat;
+import com.alibaba.cobar.server.defs.Alarms;
 
 /**
  * @author xianmao.hexm 2011-4-26 上午11:12:24
@@ -99,7 +99,7 @@ public final class MySQLDataNode {
 		}
 		try {
 			final Set<PlaceHolder> plist = new HashSet<PlaceHolder>(1, 1);
-			SQLStatement ast = SQLParserDelegate.parse(heartbeat);
+			SQLStatement ast = CobarParser.parse(heartbeat);
 			ast.accept(new EmptySQLASTVisitor() {
 				@Override
 				public void visit(PlaceHolder node) {

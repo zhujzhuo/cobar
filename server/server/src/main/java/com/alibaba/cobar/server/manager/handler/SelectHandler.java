@@ -18,7 +18,7 @@ package com.alibaba.cobar.server.manager.handler;
 import static com.alibaba.cobar.server.manager.parser.ManagerParseSelect.SESSION_AUTO_INCREMENT;
 import static com.alibaba.cobar.server.manager.parser.ManagerParseSelect.VERSION_COMMENT;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.manager.parser.ManagerParseSelect;
 import com.alibaba.cobar.server.manager.response.SelectSessionAutoIncrement;

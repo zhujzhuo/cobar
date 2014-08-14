@@ -15,8 +15,8 @@
  */
 package com.alibaba.cobar.server.manager.handler;
 
-import com.alibaba.cobar.config.ErrorCode;
 import com.alibaba.cobar.parser.util.ParseUtil;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.manager.parser.ManagerParseShow;
 import com.alibaba.cobar.server.manager.response.ShowBackend;

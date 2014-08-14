@@ -18,9 +18,9 @@ package com.alibaba.cobar.server.frontend.response;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-import com.alibaba.cobar.config.Fields;
 import com.alibaba.cobar.config.model.DataSourceConfig;
 import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.Fields;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;

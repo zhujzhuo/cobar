@@ -17,7 +17,7 @@ package com.alibaba.cobar.server.manager;
 
 import java.nio.channels.SocketChannel;
 
-import com.alibaba.cobar.server.CobarPrivileges;
+import com.alibaba.cobar.server.frontend.CobarPrivileges;
 import com.alibaba.cobar.server.net.FrontendConnection;
 import com.alibaba.cobar.server.net.factory.FrontendConnectionFactory;
 

@@ -23,10 +23,10 @@ import java.sql.SQLNonTransientException;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
-import com.alibaba.cobar.config.Fields;
 import com.alibaba.cobar.config.model.SchemaConfig;
 import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.ErrorCode;
+import com.alibaba.cobar.server.defs.Fields;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;

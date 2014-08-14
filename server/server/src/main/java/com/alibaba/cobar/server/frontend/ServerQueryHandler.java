@@ -17,7 +17,7 @@ package com.alibaba.cobar.server.frontend;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.frontend.handler.BeginHandler;
 import com.alibaba.cobar.server.frontend.handler.ExplainHandler;
 import com.alibaba.cobar.server.frontend.handler.KillHandler;

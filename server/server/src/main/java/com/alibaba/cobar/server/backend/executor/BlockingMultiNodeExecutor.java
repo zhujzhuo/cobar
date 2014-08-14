@@ -29,11 +29,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
-import com.alibaba.cobar.server.CobarConfig;
 import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.backend.BlockingChannel;
 import com.alibaba.cobar.server.backend.BlockingMySQLChannel;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.exeception.UnknownDataNodeException;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.frontend.session.BlockingSession;
@@ -45,6 +44,7 @@ import com.alibaba.cobar.server.net.packet.FieldPacket;
 import com.alibaba.cobar.server.net.packet.OkPacket;
 import com.alibaba.cobar.server.route.RouteResultset;
 import com.alibaba.cobar.server.route.RouteResultsetNode;
+import com.alibaba.cobar.server.startup.CobarConfig;
 import com.alibaba.cobar.server.util.MySQLDataNode;
 import com.alibaba.cobar.server.util.PacketUtil;
 import com.alibaba.cobar.server.util.StringUtil;

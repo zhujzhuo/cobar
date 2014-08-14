@@ -20,14 +20,13 @@
     <server>
         <property name="serverPort">8066</property>
         <property name="managerPort">9066</property>
-        <property name="initExecutor">16</property>
-        <property name="timerExecutor">4</property>
-        <property name="managerExecutor">4</property>
+        <property name="serverExecutor">16</property>
+        <property name="managerExecutor">16</property>
         <property name="processors">4</property>
-        <property name="processorHandler">8</property>
-        <property name="processorExecutor">8</property>
-        <property name="clusterHeartbeatUser">_HEARTBEAT_USER_</property>
-        <property name="clusterHeartbeatPass">_HEARTBEAT_PASS_</property>
+        <property name="processorExecutor">32</property>
+        <property name="charset">utf-8</property>
+        <property name="idleTimeout">3600</property>
+        <property name="txIsolation">REPEATED_READ</property>
     </server>
 
     <!-- 集群列表定义，指定集群节点的主机和权重，用于集群间的心跳和客户端负载均衡。 -->
@@ -70,7 +69,7 @@
     </users>
     
     <!-- schema定义 -->
-    <cobarSchemas>
+    <schemas>
         <schema>
             <property name="name">dbtest</property>
             <property name="dataNode">N1,N2</property>
@@ -79,51 +78,53 @@
         <schema>
             <property name="name">dbtest2</property>
             <property name="dataNode">N1,N2</property>
-            <property name="ruleClass">com.alibaba.cobar.rule.DbtestRule</property>
+            <property name="ruleClass">com.alibaba.cobar.rule.Dbtest2Rule</property>
         </schema>
-    </cobarSchemas>
+    </schemas>
 
+    <!-- 数据节点定义，一个数据节点代表一份数据 -->
     <dataNodes>
         <dataNode>
             <property name="id">N1</property>
-            <property name="schema">S1,S3</property>
+            <property name="dataSource">S1,S3</property>
         </dataNode>
         <dataNode>
             <property name="id">N2</property>
-            <property name="schema">S2,S4</property>
+            <property name="dataSource">S2,S4</property>
         </dataNode>
     </dataNodes>
 
-    <schemas>
-        <schema>
+    <!-- 数据源定义，代表一个mysql的schema，并且关联访问用户以及密码 -->
+    <dataSources>
+        <dataSource>
             <property name="id">S1</property>
             <property name="instance">I1</property>
-            <property name="name">dbtest1</property>
+            <property name="schema">dbtest1</property>
             <property name="user">test</property>
             <property name="password"></property>
-        </schema>
-        <schema>
+        </dataSource>
+        <dataSource>
             <property name="id">S2</property>
             <property name="instance">I1</property>
-            <property name="name">dbtest2</property>
+            <property name="schema">dbtest2</property>
             <property name="user">test</property>
             <property name="password"></property>
-        </schema>
-        <schema>
+        </dataSource>
+        <dataSource>
             <property name="id">S3</property>
             <property name="instance">I2</property>
-            <property name="name">dbtest1</property>
+            <property name="schema">dbtest1</property>
             <property name="user">test</property>
             <property name="password"></property>
-        </schema>
-        <schema>
+        </dataSource>
+        <dataSource>
             <property name="id">S4</property>
             <property name="instance">I2</property>
-            <property name="name">dbtest2</property>
+            <property name="schema">dbtest2</property>
             <property name="user">test</property>
             <property name="password"></property>
-        </schema>
-    </schemas>
+        </dataSource>
+    </dataSources>
 
     <instances>
         <instance>

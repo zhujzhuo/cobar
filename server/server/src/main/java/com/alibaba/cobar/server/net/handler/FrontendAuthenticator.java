@@ -21,7 +21,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.net.FrontendConnection;
 import com.alibaba.cobar.server.net.NIOHandler;
 import com.alibaba.cobar.server.net.packet.AbstractPacket;

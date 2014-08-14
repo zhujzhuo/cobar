@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.server.defs;
 
 /**
- * 事务隔离级别定义
+ * Cobar报警关键词定义
  * 
- * @author xianmao.hexm
+ * @author xianmao.hexm 2012-4-19
  */
-public interface Isolations {
+public interface Alarms {
 
-    int READ_UNCOMMITTED = 1;
-    int READ_COMMITTED = 2;
-    int REPEATED_READ = 3;
-    int SERIALIZABLE = 4;
+    /** 默认报警关键词 **/
+    String DEFAULT = "#!Cobar#";
+
+    /** 集群无有效的节点可提供服务 **/
+    String CLUSTER_EMPTY = "#!CLUSTER_EMPTY#";
+
+    /** 数据节点的数据源发生切换 **/
+    String DATANODE_SWITCH = "#!DN_SWITCH#";
+
+    /** 隔离区非法用户访问 **/
+    String QUARANTINE_ATTACK = "#!QT_ATTACK#";
 
 }

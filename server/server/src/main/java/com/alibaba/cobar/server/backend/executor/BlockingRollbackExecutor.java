@@ -25,9 +25,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
 import com.alibaba.cobar.server.backend.BlockingChannel;
 import com.alibaba.cobar.server.backend.BlockingMySQLChannel;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.exeception.UnknownPacketException;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.frontend.session.BlockingSession;

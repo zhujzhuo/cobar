@@ -28,8 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
-import com.alibaba.cobar.server.CobarConfig;
 import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.backend.MySQLConnection;
 import com.alibaba.cobar.server.backend.handler.CommitNodeHandler;
@@ -39,12 +37,14 @@ import com.alibaba.cobar.server.backend.handler.RollbackNodeHandler;
 import com.alibaba.cobar.server.backend.handler.RollbackReleaseHandler;
 import com.alibaba.cobar.server.backend.handler.SingleNodeHandler;
 import com.alibaba.cobar.server.backend.handler.Terminatable;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.frontend.parser.ServerParse;
 import com.alibaba.cobar.server.net.FrontendConnection;
 import com.alibaba.cobar.server.net.packet.OkPacket;
 import com.alibaba.cobar.server.route.RouteResultset;
 import com.alibaba.cobar.server.route.RouteResultsetNode;
+import com.alibaba.cobar.server.startup.CobarConfig;
 import com.alibaba.cobar.server.util.MySQLDataNode;
 
 /**

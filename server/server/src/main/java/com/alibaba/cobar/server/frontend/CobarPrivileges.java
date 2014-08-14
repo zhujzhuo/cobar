@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.server;
+package com.alibaba.cobar.server.frontend;
 
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.Alarms;
 import com.alibaba.cobar.config.model.UserConfig;
+import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.Alarms;
 import com.alibaba.cobar.server.net.handler.FrontendPrivileges;
+import com.alibaba.cobar.server.startup.CobarConfig;
 
 /**
  * @author xianmao.hexm
  */
 public class CobarPrivileges implements FrontendPrivileges {
+
     private static final Logger ALARM = Logger.getLogger("alarm");
 
     @Override

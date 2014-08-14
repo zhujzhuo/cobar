@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
 import com.alibaba.cobar.server.backend.BlockingChannel;
 import com.alibaba.cobar.server.backend.BlockingMySQLChannel;
 import com.alibaba.cobar.server.backend.executor.BlockingCommitExecutor;
@@ -29,6 +28,7 @@ import com.alibaba.cobar.server.backend.executor.BlockingMultiNodeExecutor;
 import com.alibaba.cobar.server.backend.executor.BlockingNodeExecutor;
 import com.alibaba.cobar.server.backend.executor.BlockingRollbackExecutor;
 import com.alibaba.cobar.server.backend.executor.BlockingSingleNodeExecutor;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.exeception.UnknownPacketException;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.frontend.parser.ServerParse;

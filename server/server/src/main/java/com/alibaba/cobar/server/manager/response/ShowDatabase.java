@@ -19,9 +19,9 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.TreeSet;
 
-import com.alibaba.cobar.config.Fields;
 import com.alibaba.cobar.config.model.SchemaConfig;
 import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.Fields;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;

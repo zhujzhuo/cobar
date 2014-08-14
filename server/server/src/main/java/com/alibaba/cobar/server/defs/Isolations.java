@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.server.defs;
 
 /**
+ * 事务隔离级别定义
+ * 
  * @author xianmao.hexm
  */
-public interface Versions {
+public interface Isolations {
 
-	/** 协议版本 */
-	byte PROTOCOL_VERSION = 10;
-
-	/** 服务器版本 */
-	byte[] SERVER_VERSION = "5.1.48-cobar-1.2.8".getBytes();
+    int READ_UNCOMMITTED = 1;
+    int READ_COMMITTED = 2;
+    int REPEATED_READ = 3;
+    int SERIALIZABLE = 4;
 
 }

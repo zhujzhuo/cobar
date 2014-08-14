@@ -24,9 +24,9 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.Capabilities;
-import com.alibaba.cobar.config.ErrorCode;
-import com.alibaba.cobar.config.Versions;
+import com.alibaba.cobar.server.defs.Capabilities;
+import com.alibaba.cobar.server.defs.ErrorCode;
+import com.alibaba.cobar.server.defs.Versions;
 import com.alibaba.cobar.server.net.handler.FrontendAuthenticator;
 import com.alibaba.cobar.server.net.handler.FrontendPrepareHandler;
 import com.alibaba.cobar.server.net.handler.FrontendPrivileges;

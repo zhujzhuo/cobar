@@ -20,8 +20,8 @@ import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
 import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.net.FrontendConnection;
 import com.alibaba.cobar.server.util.TimeUtil;
 

@@ -17,7 +17,7 @@ package com.alibaba.cobar.server.util;
 
 import java.io.UnsupportedEncodingException;
 
-import com.alibaba.cobar.config.Fields;
+import com.alibaba.cobar.server.defs.Fields;
 
 /**
  * @author xianmao.hexm 2012-8-28

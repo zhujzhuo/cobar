@@ -29,31 +29,31 @@ import com.alibaba.cobar.parser.mysql.syntax.AbstractSyntaxTest;
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
-public class SQLParserDelegateTest extends AbstractSyntaxTest {
+public class CobarParserTest extends AbstractSyntaxTest {
 
     public void testProperlyEnd() throws SQLSyntaxErrorException {
         String sql = "select * from tb1;";
-        SQLStatement stmt = SQLParserDelegate.parse(sql);
+        SQLStatement stmt = CobarParser.parse(sql);
         Assert.assertEquals(DMLSelectStatement.class, stmt.getClass());
 
         sql = "select * from tb1 ;;;  ";
-        stmt = SQLParserDelegate.parse(sql);
+        stmt = CobarParser.parse(sql);
         Assert.assertEquals(DMLSelectStatement.class, stmt.getClass());
 
         sql = "select * from tb1 /***/  ";
-        stmt = SQLParserDelegate.parse(sql);
+        stmt = CobarParser.parse(sql);
         Assert.assertEquals(DMLSelectStatement.class, stmt.getClass());
 
         sql = "select * from tb1 ,  ";
         try {
-            stmt = SQLParserDelegate.parse(sql);
+            stmt = CobarParser.parse(sql);
             Assert.fail("should detect inproperly end");
         } catch (SQLSyntaxErrorException e) {
         }
 
         sql = "select * from tb1 ;,  ";
         try {
-            stmt = SQLParserDelegate.parse(sql);
+            stmt = CobarParser.parse(sql);
             Assert.fail("should detect inproperly end");
         } catch (SQLSyntaxErrorException e) {
         }

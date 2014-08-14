@@ -17,7 +17,7 @@ package com.alibaba.cobar.server.util;
 
 import java.io.UnsupportedEncodingException;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.net.packet.BinaryPacket;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;

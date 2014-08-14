@@ -19,7 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.frontend.response.PreparedStmtResponse;
 import com.alibaba.cobar.server.net.handler.FrontendPrepareHandler;

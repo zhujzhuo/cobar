@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.server.defs;
 
 /**
- * Cobar报警关键词定义
- * 
- * @author xianmao.hexm 2012-4-19
+ * @author xianmao.hexm
  */
-public interface Alarms {
-    /** 默认报警关键词 **/
-    String DEFAULT = "#!Cobar#";
+public interface Versions {
 
-    /** 集群无有效的节点可提供服务 **/
-    String CLUSTER_EMPTY = "#!CLUSTER_EMPTY#";
+    /** 协议版本 */
+    byte PROTOCOL_VERSION = 10;
 
-    /** 数据节点的数据源发生切换 **/
-    String DATANODE_SWITCH = "#!DN_SWITCH#";
-
-    /** 隔离区非法用户访问 **/
-    String QUARANTINE_ATTACK = "#!QT_ATTACK#";
+    /** 服务器版本 */
+    byte[] SERVER_VERSION = "5.1.48-cobar-1.2.8".getBytes();
 
 }

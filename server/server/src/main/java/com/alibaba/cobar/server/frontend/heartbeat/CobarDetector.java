@@ -21,8 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.Capabilities;
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.Capabilities;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.net.BackendConnection;
 import com.alibaba.cobar.server.net.packet.AbstractPacket;
 import com.alibaba.cobar.server.net.packet.AuthPacket;

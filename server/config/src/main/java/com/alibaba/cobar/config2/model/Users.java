@@ -3,78 +3,73 @@ package com.alibaba.cobar.config2.model;
 import java.util.List;
 
 /**
- * 
  * @author xianmao.hexm
- *
  */
 public class Users {
-	private List<User> userList;
 
-	/**
-	 * @return the userList
-	 */
-	public List<User> getUserList() {
-		return userList;
-	}
+    private List<User> userList;
 
-	/**
-	 * @param userList
-	 *            the userList to set
-	 */
-	public void setUserList(List<User> userList) {
-		this.userList = userList;
-	}
+    /**
+     * @return the userList
+     */
+    public List<User> getUserList() {
+        return userList;
+    }
 
-	public static class User {
-		private String name;
-		private String password;
-		private String schemas;
+    /**
+     * @param userList the userList to set
+     */
+    public void setUserList(List<User> userList) {
+        this.userList = userList;
+    }
 
-		/**
-		 * @return the name
-		 */
-		public String getName() {
-			return name;
-		}
+    public static class User {
+        private String name;
+        private String password;
+        private String schemas;
 
-		/**
-		 * @param name
-		 *            the name to set
-		 */
-		public void setName(String name) {
-			this.name = name;
-		}
+        /**
+         * @return the name
+         */
+        public String getName() {
+            return name;
+        }
 
-		/**
-		 * @return the password
-		 */
-		public String getPassword() {
-			return password;
-		}
+        /**
+         * @param name the name to set
+         */
+        public void setName(String name) {
+            this.name = name;
+        }
 
-		/**
-		 * @param password
-		 *            the password to set
-		 */
-		public void setPassword(String password) {
-			this.password = password;
-		}
+        /**
+         * @return the password
+         */
+        public String getPassword() {
+            return password;
+        }
 
-		/**
-		 * @return the schemas
-		 */
-		public String getSchemas() {
-			return schemas;
-		}
+        /**
+         * @param password the password to set
+         */
+        public void setPassword(String password) {
+            this.password = password;
+        }
 
-		/**
-		 * @param schemas
-		 *            the schemas to set
-		 */
-		public void setSchemas(String schemas) {
-			this.schemas = schemas;
-		}
+        /**
+         * @return the schemas
+         */
+        public String getSchemas() {
+            return schemas;
+        }
 
-	}
+        /**
+         * @param schemas the schemas to set
+         */
+        public void setSchemas(String schemas) {
+            this.schemas = schemas;
+        }
+
+    }
 
 }

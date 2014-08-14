@@ -22,7 +22,7 @@ import java.sql.SQLSyntaxErrorException;
 
 import org.junit.Assert;
 
-import com.alibaba.cobar.parser.Performance;
+import com.alibaba.cobar.parser.PerformanceSQL;
 import com.alibaba.cobar.parser.ast.expression.misc.QueryExpression;
 import com.alibaba.cobar.parser.ast.statement.dml.DMLSelectStatement;
 import com.alibaba.cobar.parser.ast.statement.dml.DMLSelectUnionStatement;
@@ -37,7 +37,7 @@ public class MySQLDMLSelectParserTest extends AbstractSyntaxTest {
 
     @SuppressWarnings("unused")
     public static void main(String[] ars) throws Exception {
-        String sql = Performance.SQL_BENCHMARK_SELECT;
+        String sql = PerformanceSQL.SQL_BENCHMARK_SELECT;
         for (int i = 0; i < 3; ++i) {
             MySQLLexer lexer = new MySQLLexer(sql);
             MySQLExprParser exprParser = new MySQLExprParser(lexer);

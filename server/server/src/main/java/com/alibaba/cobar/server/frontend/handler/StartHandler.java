@@ -15,7 +15,7 @@
  */
 package com.alibaba.cobar.server.frontend.handler;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.frontend.parser.ServerParse;
 import com.alibaba.cobar.server.frontend.parser.ServerParseStart;

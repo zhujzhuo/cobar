@@ -15,7 +15,7 @@
  */
 package com.alibaba.cobar.server.net.handler;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.net.FrontendConnection;
 import com.alibaba.cobar.server.net.NIOHandler;
 import com.alibaba.cobar.server.net.packet.AbstractPacket;

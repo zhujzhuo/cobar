@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.config.Fields;
+import com.alibaba.cobar.server.defs.Fields;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;

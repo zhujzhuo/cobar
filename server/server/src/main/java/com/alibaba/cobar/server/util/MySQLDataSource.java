@@ -19,12 +19,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.Alarms;
 import com.alibaba.cobar.config.model.DataSourceConfig;
 import com.alibaba.cobar.server.backend.BlockingChannel;
 import com.alibaba.cobar.server.backend.BlockingChannelFactory;
 import com.alibaba.cobar.server.backend.BlockingMySQLChannelFactory;
 import com.alibaba.cobar.server.backend.heartbeat.MySQLHeartbeat;
+import com.alibaba.cobar.server.defs.Alarms;
 import com.alibaba.cobar.server.statistic.SQLRecorder;
 
 /**

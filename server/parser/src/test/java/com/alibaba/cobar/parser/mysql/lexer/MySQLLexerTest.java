@@ -23,7 +23,7 @@ import java.sql.SQLSyntaxErrorException;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.cobar.parser.Performance;
+import com.alibaba.cobar.parser.PerformanceSQL;
 import com.alibaba.cobar.parser.mysql.MySQLToken;
 
 /**
@@ -1582,7 +1582,7 @@ public class MySQLLexerTest extends TestCase {
     }
 
     public static void main(String[] args) throws SQLSyntaxErrorException {
-        String sql = Performance.SQL_BENCHMARK_SELECT;
+        String sql = PerformanceSQL.SQL_BENCHMARK_SELECT;
         char[] chars = sql.toCharArray();
         MySQLLexer lexer = new MySQLLexer(sql);
         long start = System.currentTimeMillis();

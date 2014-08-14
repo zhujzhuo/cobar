@@ -15,7 +15,7 @@
  */
 package com.alibaba.cobar.server.manager.handler;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.manager.parser.ManagerParseRollback;
 import com.alibaba.cobar.server.manager.response.RollbackConfig;

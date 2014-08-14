@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.server;
+package com.alibaba.cobar.server.frontend;
 
 import java.util.HashMap;
 import java.util.List;

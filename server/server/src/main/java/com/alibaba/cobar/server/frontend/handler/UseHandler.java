@@ -18,7 +18,7 @@ package com.alibaba.cobar.server.frontend.handler;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.net.handler.FrontendPrivileges;
 import com.alibaba.cobar.server.net.packet.OkPacket;

@@ -32,10 +32,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.Capabilities;
-import com.alibaba.cobar.config.Isolations;
 import com.alibaba.cobar.config.model.DataSourceConfig;
 import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.Capabilities;
+import com.alibaba.cobar.server.defs.Isolations;
 import com.alibaba.cobar.server.exeception.ErrorPacketException;
 import com.alibaba.cobar.server.exeception.UnknownCharsetException;
 import com.alibaba.cobar.server.exeception.UnknownPacketException;

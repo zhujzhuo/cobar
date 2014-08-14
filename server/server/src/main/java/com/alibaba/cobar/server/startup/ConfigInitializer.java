@@ -16,7 +16,7 @@
 /**
  * (created at 2012-6-15)
  */
-package com.alibaba.cobar.server;
+package com.alibaba.cobar.server.startup;
 
 import java.sql.SQLSyntaxErrorException;
 import java.util.HashMap;
@@ -34,6 +34,7 @@ import com.alibaba.cobar.config.model.SchemaConfig;
 import com.alibaba.cobar.config.model.SystemConfig;
 import com.alibaba.cobar.config.model.UserConfig;
 import com.alibaba.cobar.config.util.ConfigException;
+import com.alibaba.cobar.server.frontend.CobarCluster;
 import com.alibaba.cobar.server.route.config.RouteRuleInitializer;
 import com.alibaba.cobar.server.util.MySQLDataNode;
 import com.alibaba.cobar.server.util.MySQLDataSource;
@@ -43,6 +44,7 @@ import com.alibaba.cobar.server.util.SplitUtil;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class ConfigInitializer {
+
     private volatile SystemConfig system;
     private volatile CobarCluster cluster;
     private volatile QuarantineConfig quarantine;

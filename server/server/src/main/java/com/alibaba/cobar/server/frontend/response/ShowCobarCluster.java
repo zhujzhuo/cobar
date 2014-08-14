@@ -22,19 +22,19 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.Alarms;
-import com.alibaba.cobar.config.Fields;
 import com.alibaba.cobar.config.model.CobarNodeConfig;
 import com.alibaba.cobar.config.model.SchemaConfig;
-import com.alibaba.cobar.server.CobarCluster;
-import com.alibaba.cobar.server.CobarConfig;
-import com.alibaba.cobar.server.CobarNode;
 import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.Alarms;
+import com.alibaba.cobar.server.defs.Fields;
+import com.alibaba.cobar.server.frontend.CobarCluster;
+import com.alibaba.cobar.server.frontend.CobarNode;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;
 import com.alibaba.cobar.server.net.packet.ResultSetHeaderPacket;
 import com.alibaba.cobar.server.net.packet.RowDataPacket;
+import com.alibaba.cobar.server.startup.CobarConfig;
 import com.alibaba.cobar.server.util.IntegerUtil;
 import com.alibaba.cobar.server.util.PacketUtil;
 import com.alibaba.cobar.server.util.StringUtil;

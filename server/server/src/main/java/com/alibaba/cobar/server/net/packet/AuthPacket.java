@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import com.alibaba.cobar.config.Capabilities;
+import com.alibaba.cobar.server.defs.Capabilities;
 import com.alibaba.cobar.server.net.BackendConnection;
 import com.alibaba.cobar.server.util.BufferUtil;
 import com.alibaba.cobar.server.util.MySQLMessage;

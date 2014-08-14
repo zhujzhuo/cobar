@@ -22,8 +22,8 @@ import java.util.Date;
  */
 public final class CobarServerShutdown {
 
-	public static void main(String[] args) {
-		System.out.println(new Date() + ",server shutdown!");
-	}
+    public static void main(String[] args) {
+        System.out.println(new Date() + ",server shutdown!");
+    }
 
 }

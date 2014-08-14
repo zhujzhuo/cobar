@@ -15,8 +15,6 @@
  */
 package com.alibaba.cobar.config.model;
 
-import com.alibaba.cobar.config.Isolations;
-
 /**
  * 系统基础配置项
  * 
@@ -42,14 +40,16 @@ public final class SystemConfig {
 
     private int serverPort;
     private int managerPort;
-    private String charset;
-    private int processors;
-    private int processorHandler;
-    private int processorExecutor;
     private int initExecutor;
     private int timerExecutor;
     private int managerExecutor;
+    private int processors;
+    private int processorHandler;
+    private int processorExecutor;
+    private String charset;
     private long idleTimeout;
+    private int txIsolation;
+
     private long processorCheckPeriod;
     private long dataNodeIdleCheckPeriod;
     private long dataNodeHeartbeatPeriod;
@@ -58,7 +58,6 @@ public final class SystemConfig {
     private long clusterHeartbeatPeriod;
     private long clusterHeartbeatTimeout;
     private int clusterHeartbeatRetry;
-    private int txIsolation;
     private int parserCommentVersion;
     private int sqlRecordCount;
 
@@ -81,7 +80,7 @@ public final class SystemConfig {
         this.clusterHeartbeatPeriod = DEFAULT_CLUSTER_HEARTBEAT_PERIOD;
         this.clusterHeartbeatTimeout = DEFAULT_CLUSTER_HEARTBEAT_TIMEOUT;
         this.clusterHeartbeatRetry = DEFAULT_CLUSTER_HEARTBEAT_RETRY;
-        this.txIsolation = Isolations.REPEATED_READ;
+        this.txIsolation = 3;
         this.parserCommentVersion = DEFAULT_PARSER_COMMENT_VERSION;
         this.sqlRecordCount = DEFAULT_SQL_RECORD_COUNT;
     }

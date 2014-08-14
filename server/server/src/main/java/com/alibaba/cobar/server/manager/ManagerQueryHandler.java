@@ -17,7 +17,7 @@ package com.alibaba.cobar.server.manager;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
+import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.manager.handler.ClearHandler;
 import com.alibaba.cobar.server.manager.handler.ReloadHandler;
 import com.alibaba.cobar.server.manager.handler.RollbackHandler;

@@ -17,8 +17,8 @@ package com.alibaba.cobar.server.manager.response;
 
 import java.nio.ByteBuffer;
 
-import com.alibaba.cobar.config.Fields;
 import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.defs.Fields;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.net.NIOProcessor;
 import com.alibaba.cobar.server.net.packet.EOFPacket;

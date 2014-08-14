@@ -28,8 +28,8 @@ import static com.alibaba.cobar.server.frontend.parser.ServerParseSet.TX_SERIALI
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ErrorCode;
-import com.alibaba.cobar.config.Isolations;
+import com.alibaba.cobar.server.defs.ErrorCode;
+import com.alibaba.cobar.server.defs.Isolations;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.frontend.parser.ServerParseSet;
 import com.alibaba.cobar.server.frontend.response.CharacterSet;

@@ -28,11 +28,14 @@ import org.apache.log4j.helpers.LogLog;
 
 import com.alibaba.cobar.config.model.SystemConfig;
 import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
+import com.alibaba.cobar.server.frontend.CobarNode;
 import com.alibaba.cobar.server.frontend.ServerConnectionFactory;
 import com.alibaba.cobar.server.manager.ManagerConnectionFactory;
 import com.alibaba.cobar.server.net.NIOAcceptor;
 import com.alibaba.cobar.server.net.NIOConnector;
 import com.alibaba.cobar.server.net.NIOProcessor;
+import com.alibaba.cobar.server.startup.CobarConfig;
+import com.alibaba.cobar.server.startup.Log4jInitializer;
 import com.alibaba.cobar.server.statistic.SQLRecorder;
 import com.alibaba.cobar.server.util.ExecutorUtil;
 import com.alibaba.cobar.server.util.ExecutorUtil.NameableExecutor;
@@ -42,251 +45,239 @@ import com.alibaba.cobar.server.util.TimeUtil;
 /**
  * @author xianmao.hexm 2011-4-19 下午02:58:59
  */
-public class CobarServer {
-	public static final String NAME = "Cobar";
-	private static final long LOG_WATCH_DELAY = 60000L;
-	private static final long TIME_UPDATE_PERIOD = 20L;
-	private static final CobarServer INSTANCE = new CobarServer();
-	private static final Logger LOGGER = Logger.getLogger(CobarServer.class);
+public final class CobarServer {
 
-	public static final CobarServer getInstance() {
-		return INSTANCE;
-	}
+    public static final String NAME = "Cobar";
+    private static final long LOG_WATCH_DELAY = 60000L;
+    private static final long TIME_UPDATE_PERIOD = 20L;
+    private static final CobarServer INSTANCE = new CobarServer();
+    private static final Logger LOGGER = Logger.getLogger(CobarServer.class);
 
-	private final CobarConfig config;
-	private final Timer timer;
-	private final NameableExecutor managerExecutor;
-	private final NameableExecutor timerExecutor;
-	private final NameableExecutor initExecutor;
-	private final SQLRecorder sqlRecorder;
-	private final AtomicBoolean isOnline;
-	private final long startupTime;
-	private NIOProcessor[] processors;
-	private NIOConnector connector;
-	private NIOAcceptor manager;
-	private NIOAcceptor server;
+    public static final CobarServer getInstance() {
+        return INSTANCE;
+    }
 
-	private CobarServer() {
-		this.config = new CobarConfig();
-		SystemConfig system = config.getSystem();
-		MySQLLexer.setCStyleCommentVersion(system.getParserCommentVersion());
-		this.timer = new Timer(NAME + "Timer", true);
-		this.initExecutor = ExecutorUtil.create("InitExecutor",
-				system.getInitExecutor());
-		this.timerExecutor = ExecutorUtil.create("TimerExecutor",
-				system.getTimerExecutor());
-		this.managerExecutor = ExecutorUtil.create("ManagerExecutor",
-				system.getManagerExecutor());
-		this.sqlRecorder = new SQLRecorder(system.getSqlRecordCount());
-		this.isOnline = new AtomicBoolean(true);
-		this.startupTime = TimeUtil.currentTimeMillis();
-	}
+    private final CobarConfig config;
+    private final Timer timer;
+    private final NameableExecutor managerExecutor;
+    private final NameableExecutor timerExecutor;
+    private final NameableExecutor initExecutor;
+    private final SQLRecorder sqlRecorder;
+    private final AtomicBoolean isOnline;
+    private final long startupTime;
+    private NIOProcessor[] processors;
+    private NIOConnector connector;
+    private NIOAcceptor manager;
+    private NIOAcceptor server;
 
-	public CobarConfig getConfig() {
-		return config;
-	}
+    private CobarServer() {
+        this.config = new CobarConfig();
+        SystemConfig system = config.getSystem();
+        MySQLLexer.setCStyleCommentVersion(system.getParserCommentVersion());
+        this.timer = new Timer(NAME + "Timer", true);
+        this.initExecutor = ExecutorUtil.create("InitExecutor", system.getInitExecutor());
+        this.timerExecutor = ExecutorUtil.create("TimerExecutor", system.getTimerExecutor());
+        this.managerExecutor = ExecutorUtil.create("ManagerExecutor", system.getManagerExecutor());
+        this.sqlRecorder = new SQLRecorder(system.getSqlRecordCount());
+        this.isOnline = new AtomicBoolean(true);
+        this.startupTime = TimeUtil.currentTimeMillis();
+    }
 
-	public void beforeStart(String dateFormat) {
-		String home = System.getProperty("cobar.home");
-		if (home == null) {
-			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-			LogLog.warn(sdf.format(new Date()) + " [cobar.home] is not set.");
-		} else {
-			Log4jInitializer.configureAndWatch(home + "/conf/log4j.xml",
-					LOG_WATCH_DELAY);
-		}
-	}
+    public CobarConfig getConfig() {
+        return config;
+    }
 
-	public void startup() throws IOException {
-		// server startup
-		LOGGER.info("===============================================");
-		LOGGER.info(NAME + " is ready to startup ...");
-		SystemConfig system = config.getSystem();
-		timer.schedule(updateTime(), 0L, TIME_UPDATE_PERIOD);
+    public void beforeStart(String dateFormat) {
+        String home = System.getProperty("cobar.home");
+        if (home == null) {
+            SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+            LogLog.warn(sdf.format(new Date()) + " [cobar.home] is not set.");
+        } else {
+            Log4jInitializer.configureAndWatch(home + "/conf/log4j.xml", LOG_WATCH_DELAY);
+        }
+    }
 
-		// startup processors
-		LOGGER.info("Startup processors ...");
-		int handler = system.getProcessorHandler();
-		int executor = system.getProcessorExecutor();
-		processors = new NIOProcessor[system.getProcessors()];
-		for (int i = 0; i < processors.length; i++) {
-			processors[i] = new NIOProcessor("Processor" + i, handler, executor);
-			processors[i].startup();
-		}
-		timer.schedule(processorCheck(), 0L, system.getProcessorCheckPeriod());
+    public void startup() throws IOException {
+        // server startup
+        LOGGER.info("===============================================");
+        LOGGER.info(NAME + " is ready to startup ...");
+        SystemConfig system = config.getSystem();
+        timer.schedule(updateTime(), 0L, TIME_UPDATE_PERIOD);
 
-		// startup connector
-		LOGGER.info("Startup connector ...");
-		connector = new NIOConnector(NAME + "Connector");
-		connector.setProcessors(processors);
-		connector.start();
+        // startup processors
+        LOGGER.info("Startup processors ...");
+        int handler = system.getProcessorHandler();
+        int executor = system.getProcessorExecutor();
+        processors = new NIOProcessor[system.getProcessors()];
+        for (int i = 0; i < processors.length; i++) {
+            processors[i] = new NIOProcessor("Processor" + i, handler, executor);
+            processors[i].startup();
+        }
+        timer.schedule(processorCheck(), 0L, system.getProcessorCheckPeriod());
 
-		// init dataNodes
-		Map<String, MySQLDataNode> dataNodes = config.getDataNodes();
-		LOGGER.info("Initialize dataNodes ...");
-		for (MySQLDataNode node : dataNodes.values()) {
-			node.init(1, 0);
-		}
-		timer.schedule(dataNodeIdleCheck(), 0L,
-				system.getDataNodeIdleCheckPeriod());
-		timer.schedule(dataNodeHeartbeat(), 0L,
-				system.getDataNodeHeartbeatPeriod());
+        // startup connector
+        LOGGER.info("Startup connector ...");
+        connector = new NIOConnector(NAME + "Connector");
+        connector.setProcessors(processors);
+        connector.start();
 
-		// startup manager
-		ManagerConnectionFactory mf = new ManagerConnectionFactory();
-		mf.setCharset(system.getCharset());
-		mf.setIdleTimeout(system.getIdleTimeout());
-		manager = new NIOAcceptor(NAME + "Manager", system.getManagerPort(), mf);
-		manager.setProcessors(processors);
-		manager.start();
-		LOGGER.info(manager.getName() + " is started and listening on "
-				+ manager.getPort());
+        // init dataNodes
+        Map<String, MySQLDataNode> dataNodes = config.getDataNodes();
+        LOGGER.info("Initialize dataNodes ...");
+        for (MySQLDataNode node : dataNodes.values()) {
+            node.init(1, 0);
+        }
+        timer.schedule(dataNodeIdleCheck(), 0L, system.getDataNodeIdleCheckPeriod());
+        timer.schedule(dataNodeHeartbeat(), 0L, system.getDataNodeHeartbeatPeriod());
 
-		// startup server
-		ServerConnectionFactory sf = new ServerConnectionFactory();
-		sf.setCharset(system.getCharset());
-		sf.setIdleTimeout(system.getIdleTimeout());
-		server = new NIOAcceptor(NAME + "Server", system.getServerPort(), sf);
-		server.setProcessors(processors);
-		server.start();
-		timer.schedule(clusterHeartbeat(), 0L,
-				system.getClusterHeartbeatPeriod());
+        // startup manager
+        ManagerConnectionFactory mf = new ManagerConnectionFactory();
+        mf.setCharset(system.getCharset());
+        mf.setIdleTimeout(system.getIdleTimeout());
+        manager = new NIOAcceptor(NAME + "Manager", system.getManagerPort(), mf);
+        manager.setProcessors(processors);
+        manager.start();
+        LOGGER.info(manager.getName() + " is started and listening on " + manager.getPort());
 
-		// server started
-		LOGGER.info(server.getName() + " is started and listening on "
-				+ server.getPort());
-		LOGGER.info("===============================================");
-	}
+        // startup server
+        ServerConnectionFactory sf = new ServerConnectionFactory();
+        sf.setCharset(system.getCharset());
+        sf.setIdleTimeout(system.getIdleTimeout());
+        server = new NIOAcceptor(NAME + "Server", system.getServerPort(), sf);
+        server.setProcessors(processors);
+        server.start();
+        timer.schedule(clusterHeartbeat(), 0L, system.getClusterHeartbeatPeriod());
 
-	public NIOProcessor[] getProcessors() {
-		return processors;
-	}
+        // server started
+        LOGGER.info(server.getName() + " is started and listening on " + server.getPort());
+        LOGGER.info("===============================================");
+    }
 
-	public NIOConnector getConnector() {
-		return connector;
-	}
+    public NIOProcessor[] getProcessors() {
+        return processors;
+    }
 
-	public NameableExecutor getManagerExecutor() {
-		return managerExecutor;
-	}
+    public NIOConnector getConnector() {
+        return connector;
+    }
 
-	public NameableExecutor getTimerExecutor() {
-		return timerExecutor;
-	}
+    public NameableExecutor getManagerExecutor() {
+        return managerExecutor;
+    }
 
-	public NameableExecutor getInitExecutor() {
-		return initExecutor;
-	}
+    public NameableExecutor getTimerExecutor() {
+        return timerExecutor;
+    }
 
-	public SQLRecorder getSqlRecorder() {
-		return sqlRecorder;
-	}
+    public NameableExecutor getInitExecutor() {
+        return initExecutor;
+    }
 
-	public long getStartupTime() {
-		return startupTime;
-	}
+    public SQLRecorder getSqlRecorder() {
+        return sqlRecorder;
+    }
 
-	public boolean isOnline() {
-		return isOnline.get();
-	}
+    public long getStartupTime() {
+        return startupTime;
+    }
 
-	public void offline() {
-		isOnline.set(false);
-	}
+    public boolean isOnline() {
+        return isOnline.get();
+    }
 
-	public void online() {
-		isOnline.set(true);
-	}
+    public void offline() {
+        isOnline.set(false);
+    }
 
-	// 系统时间定时更新任务
-	private TimerTask updateTime() {
-		return new TimerTask() {
-			@Override
-			public void run() {
-				TimeUtil.update();
-			}
-		};
-	}
+    public void online() {
+        isOnline.set(true);
+    }
 
-	// 处理器定时检查任务
-	private TimerTask processorCheck() {
-		return new TimerTask() {
-			@Override
-			public void run() {
-				timerExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						for (NIOProcessor p : processors) {
-							p.check();
-						}
-					}
-				});
-			}
-		};
-	}
+    // 系统时间定时更新任务
+    private TimerTask updateTime() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                TimeUtil.update();
+            }
+        };
+    }
 
-	// 数据节点定时连接空闲超时检查任务
-	private TimerTask dataNodeIdleCheck() {
-		return new TimerTask() {
-			@Override
-			public void run() {
-				timerExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						Map<String, MySQLDataNode> nodes = config
-								.getDataNodes();
-						for (MySQLDataNode node : nodes.values()) {
-							node.idleCheck();
-						}
-						Map<String, MySQLDataNode> _nodes = config
-								.getBackupDataNodes();
-						if (_nodes != null) {
-							for (MySQLDataNode node : _nodes.values()) {
-								node.idleCheck();
-							}
-						}
-					}
-				});
-			}
-		};
-	}
+    // 处理器定时检查任务
+    private TimerTask processorCheck() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                timerExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (NIOProcessor p : processors) {
+                            p.check();
+                        }
+                    }
+                });
+            }
+        };
+    }
 
-	// 数据节点定时心跳任务
-	private TimerTask dataNodeHeartbeat() {
-		return new TimerTask() {
-			@Override
-			public void run() {
-				timerExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						Map<String, MySQLDataNode> nodes = config
-								.getDataNodes();
-						for (MySQLDataNode node : nodes.values()) {
-							node.doHeartbeat();
-						}
-					}
-				});
-			}
-		};
-	}
+    // 数据节点定时连接空闲超时检查任务
+    private TimerTask dataNodeIdleCheck() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                timerExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Map<String, MySQLDataNode> nodes = config.getDataNodes();
+                        for (MySQLDataNode node : nodes.values()) {
+                            node.idleCheck();
+                        }
+                        Map<String, MySQLDataNode> _nodes = config.getBackupDataNodes();
+                        if (_nodes != null) {
+                            for (MySQLDataNode node : _nodes.values()) {
+                                node.idleCheck();
+                            }
+                        }
+                    }
+                });
+            }
+        };
+    }
 
-	// 集群节点定时心跳任务
-	private TimerTask clusterHeartbeat() {
-		return new TimerTask() {
-			@Override
-			public void run() {
-				timerExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						Map<String, CobarNode> nodes = config.getCluster()
-								.getNodes();
-						for (CobarNode node : nodes.values()) {
-							node.doHeartbeat();
-						}
-					}
-				});
-			}
-		};
-	}
+    // 数据节点定时心跳任务
+    private TimerTask dataNodeHeartbeat() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                timerExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Map<String, MySQLDataNode> nodes = config.getDataNodes();
+                        for (MySQLDataNode node : nodes.values()) {
+                            node.doHeartbeat();
+                        }
+                    }
+                });
+            }
+        };
+    }
+
+    // 集群节点定时心跳任务
+    private TimerTask clusterHeartbeat() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                timerExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Map<String, CobarNode> nodes = config.getCluster().getNodes();
+                        for (CobarNode node : nodes.values()) {
+                            node.doHeartbeat();
+                        }
+                    }
+                });
+            }
+        };
+    }
 
 }

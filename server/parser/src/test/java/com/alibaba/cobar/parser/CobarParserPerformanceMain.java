@@ -20,14 +20,14 @@ import java.sql.SQLSyntaxErrorException;
 /**
  * @author xianmao.hexm
  */
-public class SQLParserPerformanceMain {
+public class CobarParserPerformanceMain {
 
     public static void performance() throws SQLSyntaxErrorException {
         String sql = "select id,member_id,gmt_create from offer where member_id in ('1','22','333','1124','4525')";
         int count = 100 * 10000;
         long t = System.currentTimeMillis();
         for (int i = 0; i < count; i++) {
-            SQLParserDelegate.parse(sql);
+            CobarParser.parse(sql);
         }
         long t2 = System.currentTimeMillis();
 

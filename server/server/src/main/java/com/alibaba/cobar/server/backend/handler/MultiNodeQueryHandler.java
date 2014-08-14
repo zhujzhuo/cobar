@@ -27,7 +27,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.server.CobarConfig;
 import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.backend.MySQLConnection;
 import com.alibaba.cobar.server.frontend.ServerConnection;
@@ -35,6 +34,7 @@ import com.alibaba.cobar.server.frontend.session.NonBlockingSession;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.net.packet.OkPacket;
 import com.alibaba.cobar.server.route.RouteResultsetNode;
+import com.alibaba.cobar.server.startup.CobarConfig;
 import com.alibaba.cobar.server.util.MySQLDataNode;
 
 /**
