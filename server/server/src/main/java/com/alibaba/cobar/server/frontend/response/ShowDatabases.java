@@ -21,14 +21,14 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.alibaba.cobar.config.model.UserConfig;
-import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.config.CobarConfig;
 import com.alibaba.cobar.server.defs.Fields;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;
 import com.alibaba.cobar.server.net.packet.ResultSetHeaderPacket;
 import com.alibaba.cobar.server.net.packet.RowDataPacket;
-import com.alibaba.cobar.server.startup.CobarConfig;
+import com.alibaba.cobar.server.startup.CobarServer;
 import com.alibaba.cobar.server.util.PacketUtil;
 import com.alibaba.cobar.server.util.StringUtil;
 

@@ -22,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.server.statistic.HeartbeatRecorder;
+import com.alibaba.cobar.server.statistics.HeartbeatRecorder;
 import com.alibaba.cobar.server.util.MySQLDataNode;
 import com.alibaba.cobar.server.util.MySQLDataSource;
 

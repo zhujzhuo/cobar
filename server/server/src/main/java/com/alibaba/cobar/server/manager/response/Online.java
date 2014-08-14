@@ -18,9 +18,9 @@
  */
 package com.alibaba.cobar.server.manager.response;
 
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.net.packet.OkPacket;
+import com.alibaba.cobar.server.startup.CobarServer;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

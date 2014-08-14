@@ -81,7 +81,7 @@ RUN_CMD="\"$JAVA_HOME/bin/java\""
 RUN_CMD="$RUN_CMD -Dcobar.home=\"$COBAR_HOME\""
 RUN_CMD="$RUN_CMD -classpath \"$COBAR_CLASSPATH\""
 RUN_CMD="$RUN_CMD $JAVA_OPTS"
-RUN_CMD="$RUN_CMD com.alibaba.cobar.server.CobarServerStartup $@"
+RUN_CMD="$RUN_CMD com.alibaba.cobar.server.startup.CobarStartup $@"
 RUN_CMD="$RUN_CMD >> \"$COBAR_HOME/logs/console.log\" 2>&1 &"
 echo $RUN_CMD
 eval $RUN_CMD

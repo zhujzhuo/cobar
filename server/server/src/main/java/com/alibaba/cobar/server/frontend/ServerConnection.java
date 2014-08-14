@@ -22,7 +22,6 @@ import java.sql.SQLNonTransientException;
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.config.model.SchemaConfig;
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.frontend.response.Heartbeat;
 import com.alibaba.cobar.server.frontend.response.Ping;
@@ -31,6 +30,7 @@ import com.alibaba.cobar.server.frontend.session.NonBlockingSession;
 import com.alibaba.cobar.server.net.FrontendConnection;
 import com.alibaba.cobar.server.route.RouteResultset;
 import com.alibaba.cobar.server.route.ServerRouter;
+import com.alibaba.cobar.server.startup.CobarServer;
 import com.alibaba.cobar.server.util.TimeUtil;
 
 /**

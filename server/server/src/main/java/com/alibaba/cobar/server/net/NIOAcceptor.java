@@ -32,6 +32,7 @@ import com.alibaba.cobar.server.net.factory.FrontendConnectionFactory;
  * @author xianmao.hexm
  */
 public final class NIOAcceptor extends Thread {
+
     private static final Logger LOGGER = Logger.getLogger(NIOAcceptor.class);
     private static final AcceptIdGenerator ID_GENERATOR = new AcceptIdGenerator();
 

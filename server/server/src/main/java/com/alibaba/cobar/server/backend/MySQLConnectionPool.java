@@ -26,7 +26,7 @@ import com.alibaba.cobar.config.model.DataSourceConfig;
 import com.alibaba.cobar.server.backend.handler.DelegateResponseHandler;
 import com.alibaba.cobar.server.backend.handler.ResponseHandler;
 import com.alibaba.cobar.server.defs.Alarms;
-import com.alibaba.cobar.server.statistic.SQLRecorder;
+import com.alibaba.cobar.server.statistics.SQLRecorder;
 import com.alibaba.cobar.server.util.MySQLDataNode;
 import com.alibaba.cobar.server.util.TimeUtil;
 

@@ -27,7 +27,7 @@ import com.alibaba.cobar.config.model.CobarNodeConfig;
 import com.alibaba.cobar.server.defs.Alarms;
 import com.alibaba.cobar.server.frontend.CobarNode;
 import com.alibaba.cobar.server.net.packet.OkPacket;
-import com.alibaba.cobar.server.statistic.HeartbeatRecorder;
+import com.alibaba.cobar.server.statistics.HeartbeatRecorder;
 import com.alibaba.cobar.server.util.TimeUtil;
 
 /**

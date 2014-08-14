@@ -19,13 +19,13 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.alibaba.cobar.config.model.DataSourceConfig;
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.defs.Fields;
 import com.alibaba.cobar.server.frontend.ServerConnection;
 import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;
 import com.alibaba.cobar.server.net.packet.ResultSetHeaderPacket;
 import com.alibaba.cobar.server.net.packet.RowDataPacket;
+import com.alibaba.cobar.server.startup.CobarServer;
 import com.alibaba.cobar.server.util.IntegerUtil;
 import com.alibaba.cobar.server.util.MySQLDataNode;
 import com.alibaba.cobar.server.util.MySQLDataSource;

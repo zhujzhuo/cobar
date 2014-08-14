@@ -17,7 +17,6 @@ package com.alibaba.cobar.server.manager.response;
 
 import java.nio.ByteBuffer;
 
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.backend.heartbeat.MySQLDetector;
 import com.alibaba.cobar.server.backend.heartbeat.MySQLHeartbeat;
 import com.alibaba.cobar.server.defs.Fields;
@@ -30,6 +29,7 @@ import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;
 import com.alibaba.cobar.server.net.packet.ResultSetHeaderPacket;
 import com.alibaba.cobar.server.net.packet.RowDataPacket;
+import com.alibaba.cobar.server.startup.CobarServer;
 import com.alibaba.cobar.server.util.IntegerUtil;
 import com.alibaba.cobar.server.util.LongUtil;
 import com.alibaba.cobar.server.util.PacketUtil;

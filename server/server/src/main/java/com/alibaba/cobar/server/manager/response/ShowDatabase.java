@@ -20,13 +20,13 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import com.alibaba.cobar.config.model.SchemaConfig;
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.defs.Fields;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;
 import com.alibaba.cobar.server.net.packet.ResultSetHeaderPacket;
 import com.alibaba.cobar.server.net.packet.RowDataPacket;
+import com.alibaba.cobar.server.startup.CobarServer;
 import com.alibaba.cobar.server.util.PacketUtil;
 import com.alibaba.cobar.server.util.StringUtil;
 

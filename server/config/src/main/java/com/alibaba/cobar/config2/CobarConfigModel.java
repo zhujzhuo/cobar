@@ -1,9 +1,28 @@
-package com.alibaba.cobar.config2.model;
+package com.alibaba.cobar.config2;
+
+import java.beans.IntrospectionException;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
+import com.alibaba.cobar.config2.loader.XmlLoader;
+import com.alibaba.cobar.config2.model.Cluster;
+import com.alibaba.cobar.config2.model.DataNodes;
+import com.alibaba.cobar.config2.model.DataSources;
+import com.alibaba.cobar.config2.model.Instances;
+import com.alibaba.cobar.config2.model.Machines;
+import com.alibaba.cobar.config2.model.Quarantine;
+import com.alibaba.cobar.config2.model.Schemas;
+import com.alibaba.cobar.config2.model.Server;
+import com.alibaba.cobar.config2.model.Users;
 
 /**
  * @author xianmao.hexm
  */
-public class CobarConfig {
+public class CobarConfigModel {
 
     private Server server;
     private Cluster cluster;
@@ -14,6 +33,27 @@ public class CobarConfig {
     private DataSources dataSources;
     private Instances instances;
     private Machines machines;
+
+    public static final CobarConfigModel getInstance() {
+        XmlLoader loader = new XmlLoader();
+        try {
+            return loader.load("/server.xml");
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (IntrospectionException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * @return the server

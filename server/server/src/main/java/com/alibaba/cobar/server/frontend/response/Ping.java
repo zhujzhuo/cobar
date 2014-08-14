@@ -15,10 +15,10 @@
  */
 package com.alibaba.cobar.server.frontend.response;
 
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.net.FrontendConnection;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.net.packet.OkPacket;
+import com.alibaba.cobar.server.startup.CobarServer;
 import com.alibaba.cobar.server.util.PacketUtil;
 
 /**

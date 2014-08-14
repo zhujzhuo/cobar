@@ -25,7 +25,7 @@ import com.alibaba.cobar.server.backend.BlockingChannelFactory;
 import com.alibaba.cobar.server.backend.BlockingMySQLChannelFactory;
 import com.alibaba.cobar.server.backend.heartbeat.MySQLHeartbeat;
 import com.alibaba.cobar.server.defs.Alarms;
-import com.alibaba.cobar.server.statistic.SQLRecorder;
+import com.alibaba.cobar.server.statistics.SQLRecorder;
 
 /**
  * @author xianmao.hexm 2011-4-26 上午11:12:13

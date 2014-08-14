@@ -18,11 +18,11 @@ package com.alibaba.cobar.server.frontend;
 import java.nio.channels.SocketChannel;
 
 import com.alibaba.cobar.config.model.SystemConfig;
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.frontend.session.BlockingSession;
 import com.alibaba.cobar.server.frontend.session.NonBlockingSession;
 import com.alibaba.cobar.server.net.FrontendConnection;
 import com.alibaba.cobar.server.net.factory.FrontendConnectionFactory;
+import com.alibaba.cobar.server.startup.CobarServer;
 
 /**
  * @author xianmao.hexm

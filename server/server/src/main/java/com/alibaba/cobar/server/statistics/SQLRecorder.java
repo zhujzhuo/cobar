@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.server.statistic;
+package com.alibaba.cobar.server.statistics;
 
 import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;

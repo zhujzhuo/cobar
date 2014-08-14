@@ -365,7 +365,7 @@ public abstract class FrontendConnection extends AbstractConnection {
     @Override
     public void handle(final byte[] data) {
         // 异步处理前端数据
-        processor.getHandler().execute(new Runnable() {
+        processor.getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 try {

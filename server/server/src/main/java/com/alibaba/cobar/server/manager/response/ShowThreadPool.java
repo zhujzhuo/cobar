@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.defs.Fields;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.net.NIOProcessor;
@@ -27,6 +26,7 @@ import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;
 import com.alibaba.cobar.server.net.packet.ResultSetHeaderPacket;
 import com.alibaba.cobar.server.net.packet.RowDataPacket;
+import com.alibaba.cobar.server.startup.CobarServer;
 import com.alibaba.cobar.server.util.ExecutorUtil.NameableExecutor;
 import com.alibaba.cobar.server.util.IntegerUtil;
 import com.alibaba.cobar.server.util.LongUtil;
@@ -119,11 +119,9 @@ public final class ShowThreadPool {
     private static List<NameableExecutor> getExecutors() {
         List<NameableExecutor> list = new LinkedList<NameableExecutor>();
         CobarServer server = CobarServer.getInstance();
-        list.add(server.getInitExecutor());
-        list.add(server.getTimerExecutor());
+        list.add(server.getServerExecutor());
         list.add(server.getManagerExecutor());
         for (NIOProcessor p : server.getProcessors()) {
-            list.add(p.getHandler());
             list.add(p.getExecutor());
         }
         return list;

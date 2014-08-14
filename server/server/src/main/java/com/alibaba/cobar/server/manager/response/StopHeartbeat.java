@@ -20,10 +20,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.parser.util.Pair;
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.manager.parser.ManagerParseStop;
 import com.alibaba.cobar.server.net.packet.OkPacket;
+import com.alibaba.cobar.server.startup.CobarServer;
 import com.alibaba.cobar.server.util.FormatUtil;
 import com.alibaba.cobar.server.util.MySQLDataNode;
 import com.alibaba.cobar.server.util.TimeUtil;

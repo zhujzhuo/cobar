@@ -23,8 +23,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.alibaba.cobar.config2.CobarConfigModel;
 import com.alibaba.cobar.config2.model.Cluster;
-import com.alibaba.cobar.config2.model.CobarConfig;
 import com.alibaba.cobar.config2.model.DataNodes;
 import com.alibaba.cobar.config2.model.DataSources;
 import com.alibaba.cobar.config2.model.Instances;
@@ -39,12 +39,12 @@ import com.alibaba.cobar.config2.model.Users;
  */
 public class XmlLoader {
 
-    public CobarConfig load(String xml) throws ParserConfigurationException, SAXException, IOException,
+    public CobarConfigModel load(String xml) throws ParserConfigurationException, SAXException, IOException,
             IntrospectionException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        CobarConfig config = null;
+        CobarConfigModel config = null;
         Element root = getRootElement(xml);
         if (root != null) {
-            config = new CobarConfig();
+            config = new CobarConfigModel();
             config.setServer(loadServer(root));
             config.setCluster(loadCluster(root));
             config.setQuarantine(loadQuarantine(root));

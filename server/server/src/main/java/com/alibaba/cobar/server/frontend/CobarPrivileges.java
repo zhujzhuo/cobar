@@ -21,10 +21,10 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.config.model.UserConfig;
-import com.alibaba.cobar.server.CobarServer;
+import com.alibaba.cobar.server.config.CobarConfig;
 import com.alibaba.cobar.server.defs.Alarms;
 import com.alibaba.cobar.server.net.handler.FrontendPrivileges;
-import com.alibaba.cobar.server.startup.CobarConfig;
+import com.alibaba.cobar.server.startup.CobarServer;
 
 /**
  * @author xianmao.hexm

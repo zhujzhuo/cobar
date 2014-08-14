@@ -16,7 +16,7 @@
 /**
  * (created at 2012-6-15)
  */
-package com.alibaba.cobar.server.startup;
+package com.alibaba.cobar.server.config;
 
 import java.sql.SQLSyntaxErrorException;
 import java.util.HashMap;

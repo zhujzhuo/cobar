@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.server;
+package com.alibaba.cobar.server.startup;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -27,16 +27,15 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.helpers.LogLog;
 
 import com.alibaba.cobar.config.model.SystemConfig;
-import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
+import com.alibaba.cobar.config2.CobarConfigModel;
+import com.alibaba.cobar.server.config.CobarConfig;
 import com.alibaba.cobar.server.frontend.CobarNode;
 import com.alibaba.cobar.server.frontend.ServerConnectionFactory;
 import com.alibaba.cobar.server.manager.ManagerConnectionFactory;
 import com.alibaba.cobar.server.net.NIOAcceptor;
 import com.alibaba.cobar.server.net.NIOConnector;
 import com.alibaba.cobar.server.net.NIOProcessor;
-import com.alibaba.cobar.server.startup.CobarConfig;
-import com.alibaba.cobar.server.startup.Log4jInitializer;
-import com.alibaba.cobar.server.statistic.SQLRecorder;
+import com.alibaba.cobar.server.statistics.SQLRecorder;
 import com.alibaba.cobar.server.util.ExecutorUtil;
 import com.alibaba.cobar.server.util.ExecutorUtil.NameableExecutor;
 import com.alibaba.cobar.server.util.MySQLDataNode;
@@ -49,7 +48,7 @@ public final class CobarServer {
 
     public static final String NAME = "Cobar";
     private static final long LOG_WATCH_DELAY = 60000L;
-    private static final long TIME_UPDATE_PERIOD = 20L;
+    private static final long TIME_UPDATE_PERIOD = 100L;
     private static final CobarServer INSTANCE = new CobarServer();
     private static final Logger LOGGER = Logger.getLogger(CobarServer.class);
 
@@ -57,55 +56,57 @@ public final class CobarServer {
         return INSTANCE;
     }
 
-    private final CobarConfig config;
     private final Timer timer;
+    private final NameableExecutor serverExecutor;
     private final NameableExecutor managerExecutor;
-    private final NameableExecutor timerExecutor;
-    private final NameableExecutor initExecutor;
-    private final SQLRecorder sqlRecorder;
-    private final AtomicBoolean isOnline;
-    private final long startupTime;
     private NIOProcessor[] processors;
     private NIOConnector connector;
     private NIOAcceptor manager;
     private NIOAcceptor server;
+   // private final SQLRecorder sqlRecorder;
+    private final AtomicBoolean isOnline;
+    private final long startupTime;
+
+    private final CobarConfigModel model;
+    //private final CobarConfig config;
 
     private CobarServer() {
-        this.config = new CobarConfig();
-        SystemConfig system = config.getSystem();
-        MySQLLexer.setCStyleCommentVersion(system.getParserCommentVersion());
         this.timer = new Timer(NAME + "Timer", true);
-        this.initExecutor = ExecutorUtil.create("InitExecutor", system.getInitExecutor());
-        this.timerExecutor = ExecutorUtil.create("TimerExecutor", system.getTimerExecutor());
-        this.managerExecutor = ExecutorUtil.create("ManagerExecutor", system.getManagerExecutor());
-        this.sqlRecorder = new SQLRecorder(system.getSqlRecordCount());
+
+        this.model = CobarConfigModel.getInstance();
+
+        //this.config = new CobarConfig();
+        //SystemConfig system = config.getSystem();
+
+        int executor1 = Integer.parseInt(model.getServer().getServerExecutor().trim());
+        this.serverExecutor = ExecutorUtil.create("ServerExecutor", executor1);
+
+        int executor2 = Integer.parseInt(model.getServer().getManagerExecutor().trim());
+        this.managerExecutor = ExecutorUtil.create("ManagerExecutor", executor2);
+
+        //this.sqlRecorder = new SQLRecorder(system.getSqlRecordCount());
         this.isOnline = new AtomicBoolean(true);
         this.startupTime = TimeUtil.currentTimeMillis();
     }
 
-    public CobarConfig getConfig() {
-        return config;
-    }
-
-    public void beforeStart(String dateFormat) {
+    public void startup() throws IOException {
+        // before startup
         String home = System.getProperty("cobar.home");
         if (home == null) {
-            SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             LogLog.warn(sdf.format(new Date()) + " [cobar.home] is not set.");
         } else {
             Log4jInitializer.configureAndWatch(home + "/conf/log4j.xml", LOG_WATCH_DELAY);
         }
-    }
 
-    public void startup() throws IOException {
         // server startup
-        LOGGER.info("===============================================");
-        LOGGER.info(NAME + " is ready to startup ...");
+        LOGGER.warn("===============================================");
+        LOGGER.warn(NAME + " is ready to startup ...");
         SystemConfig system = config.getSystem();
         timer.schedule(updateTime(), 0L, TIME_UPDATE_PERIOD);
 
         // startup processors
-        LOGGER.info("Startup processors ...");
+        LOGGER.warn("Startup processors ...");
         int handler = system.getProcessorHandler();
         int executor = system.getProcessorExecutor();
         processors = new NIOProcessor[system.getProcessors()];
@@ -116,19 +117,10 @@ public final class CobarServer {
         timer.schedule(processorCheck(), 0L, system.getProcessorCheckPeriod());
 
         // startup connector
-        LOGGER.info("Startup connector ...");
+        LOGGER.warn("Startup connector ...");
         connector = new NIOConnector(NAME + "Connector");
         connector.setProcessors(processors);
         connector.start();
-
-        // init dataNodes
-        Map<String, MySQLDataNode> dataNodes = config.getDataNodes();
-        LOGGER.info("Initialize dataNodes ...");
-        for (MySQLDataNode node : dataNodes.values()) {
-            node.init(1, 0);
-        }
-        timer.schedule(dataNodeIdleCheck(), 0L, system.getDataNodeIdleCheckPeriod());
-        timer.schedule(dataNodeHeartbeat(), 0L, system.getDataNodeHeartbeatPeriod());
 
         // startup manager
         ManagerConnectionFactory mf = new ManagerConnectionFactory();
@@ -137,7 +129,16 @@ public final class CobarServer {
         manager = new NIOAcceptor(NAME + "Manager", system.getManagerPort(), mf);
         manager.setProcessors(processors);
         manager.start();
-        LOGGER.info(manager.getName() + " is started and listening on " + manager.getPort());
+        LOGGER.warn(manager.getName() + " is started and listening on " + manager.getPort());
+
+        // init dataNodes
+        Map<String, MySQLDataNode> dataNodes = config.getDataNodes();
+        LOGGER.warn("Initialize dataNodes ...");
+        for (MySQLDataNode node : dataNodes.values()) {
+            node.init(1, 0);
+        }
+        timer.schedule(dataNodeIdleCheck(), 0L, system.getDataNodeIdleCheckPeriod());
+        timer.schedule(dataNodeHeartbeat(), 0L, system.getDataNodeHeartbeatPeriod());
 
         // startup server
         ServerConnectionFactory sf = new ServerConnectionFactory();
@@ -149,8 +150,12 @@ public final class CobarServer {
         timer.schedule(clusterHeartbeat(), 0L, system.getClusterHeartbeatPeriod());
 
         // server started
-        LOGGER.info(server.getName() + " is started and listening on " + server.getPort());
-        LOGGER.info("===============================================");
+        LOGGER.warn(server.getName() + " is started and listening on " + server.getPort());
+        LOGGER.warn("===============================================");
+    }
+
+    public CobarConfig getConfig() {
+        return null;//config;
     }
 
     public NIOProcessor[] getProcessors() {
@@ -161,24 +166,16 @@ public final class CobarServer {
         return connector;
     }
 
+    public NameableExecutor getServerExecutor() {
+        return serverExecutor;
+    }
+
     public NameableExecutor getManagerExecutor() {
         return managerExecutor;
     }
 
-    public NameableExecutor getTimerExecutor() {
-        return timerExecutor;
-    }
-
-    public NameableExecutor getInitExecutor() {
-        return initExecutor;
-    }
-
     public SQLRecorder getSqlRecorder() {
-        return sqlRecorder;
-    }
-
-    public long getStartupTime() {
-        return startupTime;
+        return null;//sqlRecorder;
     }
 
     public boolean isOnline() {
@@ -191,6 +188,10 @@ public final class CobarServer {
 
     public void online() {
         isOnline.set(true);
+    }
+
+    public long getStartupTime() {
+        return startupTime;
     }
 
     // 系统时间定时更新任务
@@ -208,7 +209,7 @@ public final class CobarServer {
         return new TimerTask() {
             @Override
             public void run() {
-                timerExecutor.execute(new Runnable() {
+                serverExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         for (NIOProcessor p : processors) {
@@ -225,7 +226,7 @@ public final class CobarServer {
         return new TimerTask() {
             @Override
             public void run() {
-                timerExecutor.execute(new Runnable() {
+                serverExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         Map<String, MySQLDataNode> nodes = config.getDataNodes();
@@ -249,7 +250,7 @@ public final class CobarServer {
         return new TimerTask() {
             @Override
             public void run() {
-                timerExecutor.execute(new Runnable() {
+                serverExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         Map<String, MySQLDataNode> nodes = config.getDataNodes();
@@ -267,7 +268,7 @@ public final class CobarServer {
         return new TimerTask() {
             @Override
             public void run() {
-                timerExecutor.execute(new Runnable() {
+                serverExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         Map<String, CobarNode> nodes = config.getCluster().getNodes();

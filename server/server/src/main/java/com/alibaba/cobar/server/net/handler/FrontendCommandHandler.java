@@ -19,7 +19,7 @@ import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.net.FrontendConnection;
 import com.alibaba.cobar.server.net.NIOHandler;
 import com.alibaba.cobar.server.net.packet.AbstractPacket;
-import com.alibaba.cobar.server.statistic.CommandCount;
+import com.alibaba.cobar.server.statistics.CommandCount;
 
 /**
  * 前端命令处理器

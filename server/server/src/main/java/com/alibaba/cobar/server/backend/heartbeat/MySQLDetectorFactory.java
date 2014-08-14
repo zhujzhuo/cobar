@@ -20,8 +20,8 @@ import java.nio.channels.SocketChannel;
 
 import com.alibaba.cobar.config.model.DataNodeConfig;
 import com.alibaba.cobar.config.model.DataSourceConfig;
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.net.factory.BackendConnectionFactory;
+import com.alibaba.cobar.server.startup.CobarServer;
 
 /**
  * @author xianmao.hexm

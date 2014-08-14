@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.config.model.DataSourceConfig;
-import com.alibaba.cobar.server.CobarServer;
 import com.alibaba.cobar.server.defs.Capabilities;
 import com.alibaba.cobar.server.defs.Isolations;
 import com.alibaba.cobar.server.exeception.ErrorPacketException;
@@ -52,8 +51,9 @@ import com.alibaba.cobar.server.net.packet.OkPacket;
 import com.alibaba.cobar.server.net.packet.QuitPacket;
 import com.alibaba.cobar.server.net.packet.Reply323Packet;
 import com.alibaba.cobar.server.route.RouteResultsetNode;
-import com.alibaba.cobar.server.statistic.SQLRecord;
-import com.alibaba.cobar.server.statistic.SQLRecorder;
+import com.alibaba.cobar.server.startup.CobarServer;
+import com.alibaba.cobar.server.statistics.SQLRecord;
+import com.alibaba.cobar.server.statistics.SQLRecorder;
 import com.alibaba.cobar.server.util.CharsetUtil;
 import com.alibaba.cobar.server.util.MySQLDataSource;
 import com.alibaba.cobar.server.util.SecurityUtil;
@@ -180,7 +180,7 @@ public final class BlockingMySQLChannel implements BlockingChannel {
                 return handshake();
             }
         });
-        CobarServer.getInstance().getInitExecutor().execute(ft);
+        CobarServer.getInstance().getServerExecutor().execute(ft);
         try {
             ft.get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {

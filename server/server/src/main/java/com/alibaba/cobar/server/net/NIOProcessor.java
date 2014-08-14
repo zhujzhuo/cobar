@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.alibaba.cobar.server.statistic.CommandCount;
+import com.alibaba.cobar.server.statistics.CommandCount;
 import com.alibaba.cobar.server.util.ByteBufferPool;
 import com.alibaba.cobar.server.util.ExecutorUtil;
 import com.alibaba.cobar.server.util.ExecutorUtil.NameableExecutor;
@@ -30,6 +30,7 @@ import com.alibaba.cobar.server.util.ExecutorUtil.NameableExecutor;
  * @author xianmao.hexm
  */
 public final class NIOProcessor {
+
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024 * 16;
     private static final int DEFAULT_BUFFER_CHUNK_SIZE = 4096;
     private static final int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
@@ -37,27 +38,27 @@ public final class NIOProcessor {
     private final String name;
     private final NIOReactor reactor;
     private final ByteBufferPool bufferPool;
-    private final NameableExecutor handler;
     private final NameableExecutor executor;
+
     private final ConcurrentMap<Long, FrontendConnection> frontends;
     private final ConcurrentMap<Long, BackendConnection> backends;
+
     private final CommandCount commands;
     private long netInBytes;
     private long netOutBytes;
 
     public NIOProcessor(String name) throws IOException {
-        this(name, DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_CHUNK_SIZE, AVAILABLE_PROCESSORS, AVAILABLE_PROCESSORS);
+        this(name, DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_CHUNK_SIZE, AVAILABLE_PROCESSORS);
     }
 
-    public NIOProcessor(String name, int handler, int executor) throws IOException {
-        this(name, DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_CHUNK_SIZE, handler, executor);
+    public NIOProcessor(String name, int executor) throws IOException {
+        this(name, DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_CHUNK_SIZE, executor);
     }
 
-    public NIOProcessor(String name, int buffer, int chunk, int handler, int executor) throws IOException {
+    public NIOProcessor(String name, int buffer, int chunk, int executor) throws IOException {
         this.name = name;
         this.reactor = new NIOReactor(name);
         this.bufferPool = new ByteBufferPool(buffer, chunk);
-        this.handler = (handler > 0) ? ExecutorUtil.create(name + "-H", handler) : null;
         this.executor = (executor > 0) ? ExecutorUtil.create(name + "-E", executor) : null;
         this.frontends = new ConcurrentHashMap<Long, FrontendConnection>();
         this.backends = new ConcurrentHashMap<Long, BackendConnection>();
@@ -78,10 +79,6 @@ public final class NIOProcessor {
 
     public int getWriteQueueSize() {
         return reactor.getWriteQueue().size();
-    }
-
-    public NameableExecutor getHandler() {
-        return handler;
     }
 
     public NameableExecutor getExecutor() {

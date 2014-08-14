@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.server.statistic;
+package com.alibaba.cobar.server.statistics;
 
 /**
  * @author xianmao.hexm 2010-9-30 上午10:43:53
