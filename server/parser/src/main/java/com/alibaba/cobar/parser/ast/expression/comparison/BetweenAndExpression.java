@@ -27,6 +27,7 @@ import com.alibaba.cobar.parser.visitor.SQLASTVisitor;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class BetweenAndExpression extends TernaryOperatorExpression implements ReplacableExpression {
+
     private final boolean not;
 
     public BetweenAndExpression(boolean not, Expression comparee, Expression notLessThan, Expression notGreaterThan) {
@@ -57,9 +58,10 @@ public class BetweenAndExpression extends TernaryOperatorExpression implements R
 
     @Override
     public void accept(SQLASTVisitor visitor) {
-        if (replaceExpr == null)
+        if (replaceExpr == null) {
             visitor.visit(this);
-        else
+        } else {
             replaceExpr.accept(visitor);
+        }
     }
 }

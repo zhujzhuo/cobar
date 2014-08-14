@@ -105,6 +105,7 @@ import com.alibaba.cobar.parser.util.Pair;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class MySQLDALParser extends MySQLParser {
+
     protected MySQLExprParser exprParser;
 
     public MySQLDALParser(MySQLLexer lexer, MySQLExprParser exprParser) {

@@ -38,16 +38,17 @@ import com.alibaba.cobar.parser.mysql.MySQLToken;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 class MySQLKeywords {
+
     public static final MySQLKeywords DEFAULT_KEYWORDS = new MySQLKeywords();
 
     private final Map<String, MySQLToken> keywords = new HashMap<String, MySQLToken>(230);
 
     private MySQLKeywords() {
-        for (MySQLToken type : MySQLToken.class.getEnumConstants()) {
-            String name = type.name();
+        for (MySQLToken token : MySQLToken.class.getEnumConstants()) {
+            String name = token.name();
             if (name.startsWith("KW_")) {
                 String kw = name.substring("KW_".length());
-                keywords.put(kw, type);
+                keywords.put(kw, token);
             }
         }
         keywords.put("NULL", MySQLToken.LITERAL_NULL);

@@ -82,6 +82,7 @@ import com.alibaba.cobar.parser.util.Pair;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class MySQLDDLParser extends MySQLParser {
+
     protected MySQLExprParser exprParser;
 
     public MySQLDDLParser(MySQLLexer lexer, MySQLExprParser exprParser) {
@@ -228,6 +229,8 @@ public class MySQLDDLParser extends MySQLParser {
                 siTemp = specialIdentifiers.get(lexer.stringValueUppercase());
                 if (siTemp != null) {
                     switch (siTemp) {
+                    default:
+                        break;
                     case TEMPORARY:
                         lexer.nextToken();
                         match(KW_TABLE);

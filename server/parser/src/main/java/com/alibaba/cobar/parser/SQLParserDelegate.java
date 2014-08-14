@@ -59,8 +59,9 @@ public final class SQLParserDelegate {
 
     private static boolean isEOFedDDL(SQLStatement stmt) {
         if (stmt instanceof DDLStatement) {
-            if (stmt instanceof DDLCreateIndexStatement)
+            if (stmt instanceof DDLCreateIndexStatement) {
                 return false;
+            }
         }
         return true;
     }

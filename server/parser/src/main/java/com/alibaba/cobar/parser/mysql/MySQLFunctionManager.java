@@ -206,6 +206,7 @@ import com.alibaba.cobar.parser.ast.expression.primary.function.xml.Updatexml;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class MySQLFunctionManager {
+
     public static enum FunctionParsingStrategy {
         /** not a function */
         _DEFAULT,
@@ -231,6 +232,7 @@ public class MySQLFunctionManager {
     }
 
     public static final MySQLFunctionManager INSTANCE_MYSQL_DEFAULT = new MySQLFunctionManager(false);
+
     private final boolean allowFuncDefChange;
 
     /** non-reserved word named special syntax function */

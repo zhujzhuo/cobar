@@ -38,7 +38,9 @@ import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public abstract class MySQLParser {
+
     public static final String DEFAULT_CHARSET = "utf-8";
+
     protected final MySQLLexer lexer;
 
     public MySQLParser(MySQLLexer lexer) {
@@ -255,8 +257,9 @@ public abstract class MySQLParser {
      * @throws SQLSyntaxErrorException if no token is matched
      */
     protected int matchIdentifier(String... expectTextUppercase) throws SQLSyntaxErrorException {
-        if (expectTextUppercase == null || expectTextUppercase.length <= 0)
+        if (expectTextUppercase == null || expectTextUppercase.length <= 0) {
             throw new IllegalArgumentException("at least one expect token");
+        }
         if (lexer.token() != MySQLToken.IDENTIFIER) {
             throw err("expect an id");
         }

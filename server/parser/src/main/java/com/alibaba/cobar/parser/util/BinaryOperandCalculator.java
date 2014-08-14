@@ -25,6 +25,7 @@ import java.math.BigInteger;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public interface BinaryOperandCalculator {
+
     Number calculate(Integer integer1, Integer integer2);
 
     Number calculate(Long long1, Long long2);

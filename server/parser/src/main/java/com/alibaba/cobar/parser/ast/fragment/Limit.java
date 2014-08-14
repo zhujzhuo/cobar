@@ -26,6 +26,7 @@ import com.alibaba.cobar.parser.visitor.SQLASTVisitor;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class Limit implements ASTNode {
+
     /** when it is null, to sql generated must ignore this number */
     private final Number offset;
     private final Number size;
@@ -66,10 +67,9 @@ public class Limit implements ASTNode {
     }
 
     public Limit(ParamMarker offsetP, ParamMarker sizeP) {
-        if (offsetP == null)
+        if (offsetP == null || sizeP == null) {
             throw new IllegalArgumentException();
-        if (sizeP == null)
-            throw new IllegalArgumentException();
+        }
         this.offset = null;
         this.size = null;
         this.offsetP = offsetP;

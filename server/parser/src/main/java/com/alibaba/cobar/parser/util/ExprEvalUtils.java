@@ -33,6 +33,7 @@ import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class ExprEvalUtils {
+
     private static final int CLASS_MAP_DOUBLE = 1;
     private static final int CLASS_MAP_FLOAT = 2;
     private static final int CLASS_MAP_BIG_ING = 3;

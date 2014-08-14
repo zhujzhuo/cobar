@@ -119,6 +119,7 @@ import com.alibaba.cobar.parser.ast.statement.dal.ShowTriggers;
 import com.alibaba.cobar.parser.ast.statement.dal.ShowVariables;
 import com.alibaba.cobar.parser.ast.statement.dal.ShowWarnings;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLAlterTableStatement;
+import com.alibaba.cobar.parser.ast.statement.ddl.DDLAlterTableStatement.AlterSpecification;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLCreateIndexStatement;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLCreateTableStatement;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLDropIndexStatement;
@@ -126,7 +127,6 @@ import com.alibaba.cobar.parser.ast.statement.ddl.DDLDropTableStatement;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLRenameTableStatement;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLTruncateStatement;
 import com.alibaba.cobar.parser.ast.statement.ddl.DescTableStatement;
-import com.alibaba.cobar.parser.ast.statement.ddl.DDLAlterTableStatement.AlterSpecification;
 import com.alibaba.cobar.parser.ast.statement.dml.DMLCallStatement;
 import com.alibaba.cobar.parser.ast.statement.dml.DMLDeleteStatement;
 import com.alibaba.cobar.parser.ast.statement.dml.DMLInsertStatement;
@@ -146,248 +146,248 @@ import com.alibaba.cobar.parser.ast.statement.mts.MTSSetTransactionStatement;
  */
 public interface SQLASTVisitor {
 
-	void visit(BetweenAndExpression node);
+    void visit(BetweenAndExpression node);
 
-	void visit(ComparisionIsExpression node);
+    void visit(ComparisionIsExpression node);
 
-	void visit(InExpressionList node);
+    void visit(InExpressionList node);
 
-	void visit(LikeExpression node);
+    void visit(LikeExpression node);
 
-	void visit(CollateExpression node);
+    void visit(CollateExpression node);
 
-	void visit(UserExpression node);
+    void visit(UserExpression node);
 
-	void visit(UnaryOperatorExpression node);
+    void visit(UnaryOperatorExpression node);
 
-	void visit(BinaryOperatorExpression node);
+    void visit(BinaryOperatorExpression node);
 
-	void visit(PolyadicOperatorExpression node);
+    void visit(PolyadicOperatorExpression node);
 
-	void visit(LogicalAndExpression node);
+    void visit(LogicalAndExpression node);
 
-	void visit(LogicalOrExpression node);
+    void visit(LogicalOrExpression node);
 
-	void visit(ComparisionEqualsExpression node);
+    void visit(ComparisionEqualsExpression node);
 
-	void visit(ComparisionNullSafeEqualsExpression node);
+    void visit(ComparisionNullSafeEqualsExpression node);
 
-	void visit(InExpression node);
+    void visit(InExpression node);
 
-	void visit(FunctionExpression node);
+    void visit(FunctionExpression node);
 
-	void visit(Char node);
+    void visit(Char node);
 
-	void visit(Convert node);
+    void visit(Convert node);
 
-	void visit(Trim node);
+    void visit(Trim node);
 
-	void visit(Cast node);
+    void visit(Cast node);
 
-	void visit(Avg node);
+    void visit(Avg node);
 
-	void visit(Max node);
+    void visit(Max node);
 
-	void visit(Min node);
+    void visit(Min node);
 
-	void visit(Sum node);
+    void visit(Sum node);
 
-	void visit(Count node);
+    void visit(Count node);
 
-	void visit(GroupConcat node);
+    void visit(GroupConcat node);
 
-	void visit(Extract node);
+    void visit(Extract node);
 
-	void visit(Timestampdiff node);
+    void visit(Timestampdiff node);
 
-	void visit(Timestampadd node);
+    void visit(Timestampadd node);
 
-	void visit(GetFormat node);
+    void visit(GetFormat node);
 
-	void visit(IntervalPrimary node);
+    void visit(IntervalPrimary node);
 
-	void visit(LiteralBitField node);
+    void visit(LiteralBitField node);
 
-	void visit(LiteralBoolean node);
+    void visit(LiteralBoolean node);
 
-	void visit(LiteralHexadecimal node);
+    void visit(LiteralHexadecimal node);
 
-	void visit(LiteralNull node);
+    void visit(LiteralNull node);
 
-	void visit(LiteralNumber node);
+    void visit(LiteralNumber node);
 
-	void visit(LiteralString node);
+    void visit(LiteralString node);
 
-	void visit(CaseWhenOperatorExpression node);
+    void visit(CaseWhenOperatorExpression node);
 
-	void visit(DefaultValue node);
+    void visit(DefaultValue node);
 
-	void visit(ExistsPrimary node);
+    void visit(ExistsPrimary node);
 
-	void visit(PlaceHolder node);
+    void visit(PlaceHolder node);
 
-	void visit(Identifier node);
+    void visit(Identifier node);
 
-	void visit(MatchExpression node);
+    void visit(MatchExpression node);
 
-	void visit(ParamMarker node);
+    void visit(ParamMarker node);
 
-	void visit(RowExpression node);
+    void visit(RowExpression node);
 
-	void visit(SysVarPrimary node);
+    void visit(SysVarPrimary node);
 
-	void visit(UsrDefVarPrimary node);
+    void visit(UsrDefVarPrimary node);
 
-	void visit(IndexHint node);
+    void visit(IndexHint node);
 
-	void visit(InnerJoin node);
+    void visit(InnerJoin node);
 
-	void visit(NaturalJoin node);
+    void visit(NaturalJoin node);
 
-	void visit(OuterJoin node);
+    void visit(OuterJoin node);
 
-	void visit(StraightJoin node);
+    void visit(StraightJoin node);
 
-	void visit(SubqueryFactor node);
+    void visit(SubqueryFactor node);
 
-	void visit(TableReferences node);
+    void visit(TableReferences node);
 
-	void visit(TableRefFactor node);
+    void visit(TableRefFactor node);
 
-	void visit(Dual dual);
+    void visit(Dual dual);
 
-	void visit(GroupBy node);
+    void visit(GroupBy node);
 
-	void visit(Limit node);
+    void visit(Limit node);
 
-	void visit(OrderBy node);
+    void visit(OrderBy node);
 
-	void visit(ColumnDefinition node);
+    void visit(ColumnDefinition node);
 
-	void visit(IndexOption node);
+    void visit(IndexOption node);
 
-	void visit(IndexColumnName node);
+    void visit(IndexColumnName node);
 
-	void visit(TableOptions node);
+    void visit(TableOptions node);
 
-	void visit(AlterSpecification node);
+    void visit(AlterSpecification node);
 
-	void visit(DataType node);
+    void visit(DataType node);
 
-	void visit(ShowAuthors node);
+    void visit(ShowAuthors node);
 
-	void visit(ShowBinaryLog node);
+    void visit(ShowBinaryLog node);
 
-	void visit(ShowBinLogEvent node);
+    void visit(ShowBinLogEvent node);
 
-	void visit(ShowCharaterSet node);
+    void visit(ShowCharaterSet node);
 
-	void visit(ShowCollation node);
+    void visit(ShowCollation node);
 
-	void visit(ShowColumns node);
+    void visit(ShowColumns node);
 
-	void visit(ShowContributors node);
+    void visit(ShowContributors node);
 
-	void visit(ShowCreate node);
+    void visit(ShowCreate node);
 
-	void visit(ShowDatabases node);
+    void visit(ShowDatabases node);
 
-	void visit(ShowEngine node);
+    void visit(ShowEngine node);
 
-	void visit(ShowEngines node);
+    void visit(ShowEngines node);
 
-	void visit(ShowErrors node);
+    void visit(ShowErrors node);
 
-	void visit(ShowEvents node);
+    void visit(ShowEvents node);
 
-	void visit(ShowFunctionCode node);
+    void visit(ShowFunctionCode node);
 
-	void visit(ShowFunctionStatus node);
+    void visit(ShowFunctionStatus node);
 
-	void visit(ShowGrants node);
+    void visit(ShowGrants node);
 
-	void visit(ShowIndex node);
+    void visit(ShowIndex node);
 
-	void visit(ShowMasterStatus node);
+    void visit(ShowMasterStatus node);
 
-	void visit(ShowOpenTables node);
+    void visit(ShowOpenTables node);
 
-	void visit(ShowPlugins node);
+    void visit(ShowPlugins node);
 
-	void visit(ShowPrivileges node);
+    void visit(ShowPrivileges node);
 
-	void visit(ShowProcedureCode node);
+    void visit(ShowProcedureCode node);
 
-	void visit(ShowProcedureStatus node);
+    void visit(ShowProcedureStatus node);
 
-	void visit(ShowProcesslist node);
+    void visit(ShowProcesslist node);
 
-	void visit(ShowProfile node);
+    void visit(ShowProfile node);
 
-	void visit(ShowProfiles node);
+    void visit(ShowProfiles node);
 
-	void visit(ShowSlaveHosts node);
+    void visit(ShowSlaveHosts node);
 
-	void visit(ShowSlaveStatus node);
+    void visit(ShowSlaveStatus node);
 
-	void visit(ShowStatus node);
+    void visit(ShowStatus node);
 
-	void visit(ShowTables node);
+    void visit(ShowTables node);
 
-	void visit(ShowTableStatus node);
+    void visit(ShowTableStatus node);
 
-	void visit(ShowTriggers node);
+    void visit(ShowTriggers node);
 
-	void visit(ShowVariables node);
+    void visit(ShowVariables node);
 
-	void visit(ShowWarnings node);
+    void visit(ShowWarnings node);
 
-	void visit(DescTableStatement node);
+    void visit(DescTableStatement node);
 
-	void visit(DALSetStatement node);
+    void visit(DALSetStatement node);
 
-	void visit(DALSetNamesStatement node);
+    void visit(DALSetNamesStatement node);
 
-	void visit(DALSetCharacterSetStatement node);
+    void visit(DALSetCharacterSetStatement node);
 
-	void visit(DMLCallStatement node);
+    void visit(DMLCallStatement node);
 
-	void visit(DMLDeleteStatement node);
+    void visit(DMLDeleteStatement node);
 
-	void visit(DMLInsertStatement node);
+    void visit(DMLInsertStatement node);
 
-	void visit(DMLReplaceStatement node);
+    void visit(DMLReplaceStatement node);
 
-	void visit(DMLSelectStatement node);
+    void visit(DMLSelectStatement node);
 
-	void visit(DMLSelectUnionStatement node);
+    void visit(DMLSelectUnionStatement node);
 
-	void visit(DMLUpdateStatement node);
+    void visit(DMLUpdateStatement node);
 
-	void visit(MTSSetTransactionStatement node);
+    void visit(MTSSetTransactionStatement node);
 
-	void visit(MTSSavepointStatement node);
+    void visit(MTSSavepointStatement node);
 
-	void visit(MTSReleaseStatement node);
+    void visit(MTSReleaseStatement node);
 
-	void visit(MTSRollbackStatement node);
+    void visit(MTSRollbackStatement node);
 
-	void visit(DDLTruncateStatement node);
+    void visit(DDLTruncateStatement node);
 
-	void visit(DDLAlterTableStatement node);
+    void visit(DDLAlterTableStatement node);
 
-	void visit(DDLCreateIndexStatement node);
+    void visit(DDLCreateIndexStatement node);
 
-	void visit(DDLCreateTableStatement node);
+    void visit(DDLCreateTableStatement node);
 
-	void visit(DDLRenameTableStatement node);
+    void visit(DDLRenameTableStatement node);
 
-	void visit(DDLDropIndexStatement node);
+    void visit(DDLDropIndexStatement node);
 
-	void visit(DDLDropTableStatement node);
+    void visit(DDLDropTableStatement node);
 
-	void visit(ExtDDLCreatePolicy node);
+    void visit(ExtDDLCreatePolicy node);
 
-	void visit(ExtDDLDropPolicy node);
+    void visit(ExtDDLDropPolicy node);
 
 }

@@ -22,6 +22,7 @@ package com.alibaba.cobar.parser.util;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class ArrayUtil {
+
     public static boolean equals(String str1, String str2) {
         if (str1 == null) {
             return str2 == null;
@@ -30,8 +31,9 @@ public class ArrayUtil {
     }
 
     public static boolean contains(String[] list, String str) {
-        if (list == null)
+        if (list == null) {
             return false;
+        }
         for (String string : list) {
             if (equals(str, string)) {
                 return true;

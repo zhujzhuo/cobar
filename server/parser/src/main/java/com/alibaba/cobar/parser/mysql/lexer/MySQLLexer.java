@@ -38,7 +38,7 @@ public class MySQLLexer {
      * End of input character. Used as a sentinel to denote the character one
      * beyond the last defined character in a source file.
      */
-    private final static byte EOI = 0x1A;
+    private static final byte EOI = 0x1A;
 
     protected final char[] sql;
     /** always be {@link #sql}.length - 1 */
@@ -59,7 +59,7 @@ public class MySQLLexer {
     private int paramIndex = 0;
 
     /** A character buffer for literals. */
-    protected final static ThreadLocal<char[]> sbufRef = new ThreadLocal<char[]>();
+    protected static final ThreadLocal<char[]> sbufRef = new ThreadLocal<char[]>();
     protected char[] sbuf;
 
     private String stringValue;
@@ -111,7 +111,7 @@ public class MySQLLexer {
     }
 
     public MySQLLexer(String sql) throws SQLSyntaxErrorException {
-        this(fromSQL2Chars(sql));
+        this(MySQLLexer.fromSQL2Chars(sql));
     }
 
     /**

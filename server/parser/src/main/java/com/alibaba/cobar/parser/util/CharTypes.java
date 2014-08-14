@@ -22,6 +22,7 @@ import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
  * @author shaojin.wensj
  */
 public class CharTypes {
+
     private final static boolean[] hexFlags = new boolean[256];
     static {
         for (char c = 0; c < hexFlags.length; ++c) {

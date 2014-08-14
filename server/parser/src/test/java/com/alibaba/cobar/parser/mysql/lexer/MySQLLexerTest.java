@@ -25,59 +25,11 @@ import junit.framework.TestCase;
 
 import com.alibaba.cobar.parser.Performance;
 import com.alibaba.cobar.parser.mysql.MySQLToken;
-import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class MySQLLexerTest extends TestCase {
-
-    public static void main(String[] args) throws SQLSyntaxErrorException {
-        String sql = Performance.SQL_BENCHMARK_SELECT;
-        char[] chars = sql.toCharArray();
-        MySQLLexer sut = new MySQLLexer(sql);
-        long start = System.currentTimeMillis();
-        long end = System.currentTimeMillis();
-        for (int i = 0; i < 1; ++i) {
-            for (; !sut.eof();) {
-                sut.nextToken();
-                switch (sut.token()) {
-                case LITERAL_NUM_MIX_DIGIT:
-                    sut.decimalValue();
-                    break;
-                case LITERAL_NUM_PURE_DIGIT:
-                    sut.integerValue();
-                    break;
-                default:
-                    sut.stringValue();
-                    break;
-                }
-            }
-        }
-
-        int loop = 5000000;
-        sut = new MySQLLexer(sql);
-        start = System.currentTimeMillis();
-        for (int i = 0; i < loop; ++i) {
-            sut = new MySQLLexer(chars);
-            for (; !sut.eof();) {
-                sut.nextToken();
-                switch (sut.token()) {
-                case LITERAL_NUM_MIX_DIGIT:
-                    sut.decimalValue();
-                    break;
-                case LITERAL_NUM_PURE_DIGIT:
-                    sut.integerValue();
-                    break;
-                default:
-                    sut.stringValue();
-                    break;
-                }
-            }
-        }
-        end = System.currentTimeMillis();
-        System.out.println((end - start) * 1.0d / (loop / 1000) + " us.");
-    }
 
     public void testParameter() throws SQLSyntaxErrorException {
         MySQLLexer sut = new MySQLLexer("?,?,?");
@@ -1627,6 +1579,54 @@ public class MySQLLexerTest extends TestCase {
         Assert.assertEquals("1", sut.decimalValue().toPlainString());
         sut.nextToken();
         Assert.assertEquals(MySQLToken.EOF, sut.token());
-
     }
+
+    public static void main(String[] args) throws SQLSyntaxErrorException {
+        String sql = Performance.SQL_BENCHMARK_SELECT;
+        char[] chars = sql.toCharArray();
+        MySQLLexer lexer = new MySQLLexer(sql);
+        long start = System.currentTimeMillis();
+        long end = System.currentTimeMillis();
+        for (int i = 0; i < 1; ++i) {
+            while (!lexer.eof()) {
+                lexer.nextToken();
+                switch (lexer.token()) {
+                case LITERAL_NUM_MIX_DIGIT:
+                    lexer.decimalValue();
+                    break;
+                case LITERAL_NUM_PURE_DIGIT:
+                    lexer.integerValue();
+                    break;
+                default:
+                    lexer.stringValue();
+                    break;
+                }
+            }
+        }
+
+        int loop = 100 * 10000;
+        lexer = new MySQLLexer(sql);
+        start = System.currentTimeMillis();
+        for (int i = 0; i < loop; ++i) {
+            lexer = new MySQLLexer(chars);
+            while (!lexer.eof()) {
+                lexer.nextToken();
+                switch (lexer.token()) {
+                case LITERAL_NUM_MIX_DIGIT:
+                    lexer.decimalValue();
+                    break;
+                case LITERAL_NUM_PURE_DIGIT:
+                    lexer.integerValue();
+                    break;
+                default:
+                    lexer.stringValue();
+                    break;
+                }
+            }
+        }
+        end = System.currentTimeMillis();
+
+        System.out.println((end - start) * 1000.0 / loop + " us.");
+    }
+
 }
