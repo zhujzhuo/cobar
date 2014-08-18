@@ -26,7 +26,6 @@
         <property name="processorExecutor">32</property>
         <property name="charset">utf-8</property>
         <property name="idleTimeout">3600</property>
-        <property name="txIsolation">REPEATED_READ</property>
     </server>
 
     <!-- 集群列表定义，指定集群节点的主机和权重，用于集群间的心跳和客户端负载均衡。 -->
@@ -47,11 +46,11 @@
     <quarantine>
         <host>
             <property name="name">192.168.0.10</property>
-            <property name="user">test</property>
+            <property name="users">test,root</property>
         </host>
         <host>
             <property name="name">192.168.0.11</property>
-            <property name="user">root</property>
+            <property name="users">root</property>
         </host>
     </quarantine>
     
@@ -72,13 +71,13 @@
     <schemas>
         <schema>
             <property name="name">dbtest</property>
-            <property name="dataNode">N1,N2</property>
-            <property name="ruleClass">com.alibaba.cobar.rule.DbtestRule</property>
+            <property name="dataNodes">N1,N2</property>
+            <property name="rule">com.alibaba.cobar.rule.DbtestRule</property>
         </schema>
         <schema>
             <property name="name">dbtest2</property>
-            <property name="dataNode">N1,N2</property>
-            <property name="ruleClass">com.alibaba.cobar.rule.Dbtest2Rule</property>
+            <property name="dataNodes">N1,N2</property>
+            <property name="rule">com.alibaba.cobar.rule.Dbtest2Rule</property>
         </schema>
     </schemas>
 
@@ -86,11 +85,11 @@
     <dataNodes>
         <dataNode>
             <property name="id">N1</property>
-            <property name="dataSource">S1,S3</property>
+            <property name="dataSources">S1,S3</property>
         </dataNode>
         <dataNode>
             <property name="id">N2</property>
-            <property name="dataSource">S2,S4</property>
+            <property name="dataSources">S2,S4</property>
         </dataNode>
     </dataNodes>
 
