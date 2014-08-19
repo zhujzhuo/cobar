@@ -17,6 +17,8 @@ package com.alibaba.cobar.net.packet;
 
 import java.nio.ByteBuffer;
 
+import org.apache.log4j.Logger;
+
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.util.ByteBufferUtil;
@@ -39,6 +41,8 @@ import com.alibaba.cobar.util.ByteBufferUtil;
  * @author xianmao.hexm 2010-7-16 上午10:45:01
  */
 public class ErrorPacket extends AbstractPacket {
+
+    private static final Logger LOGGER = Logger.getLogger(ErrorPacket.class);
     public static final byte FIELD_COUNT = (byte) 0xff;
     private static final byte SQLSTATE_MARKER = (byte) '#';
     private static final byte[] DEFAULT_SQLSTATE = "HY000".getBytes();
@@ -77,10 +81,10 @@ public class ErrorPacket extends AbstractPacket {
 
     @Override
     public ByteBuffer write(ByteBuffer buffer, FrontendConnection c) {
-        int size = calcPacketSize();
+        packetLength = calcPacketLength();
         int headerSize = c.getProtocol().getPacketHeaderSize();
-        buffer = ByteBufferUtil.check(buffer, headerSize + size, c);
-        ByteBufferUtil.writeUB3(buffer, size);
+        buffer = ByteBufferUtil.check(buffer, headerSize + packetLength, c);
+        ByteBufferUtil.writeUB3(buffer, packetLength);
         buffer.put(packetId);
         buffer.put(fieldCount);
         ByteBufferUtil.writeUB2(buffer, errno);
@@ -89,12 +93,17 @@ public class ErrorPacket extends AbstractPacket {
         if (message != null) {
             buffer = ByteBufferUtil.write(message, buffer, c);
         }
+        if (LOGGER.isDebugEnabled()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this).append(" >> ").append(c);
+            LOGGER.debug(sb.toString());
+        }
         return buffer;
     }
 
     public void write(FrontendConnection c) {
         ByteBuffer buffer = c.allocate();
-        ByteBufferUtil.writeUB3(buffer, calcPacketSize());
+        ByteBufferUtil.writeUB3(buffer, calcPacketLength());
         buffer.put(packetId);
         buffer.put(fieldCount);
         ByteBufferUtil.writeUB2(buffer, errno);
@@ -107,7 +116,7 @@ public class ErrorPacket extends AbstractPacket {
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         int size = 9;// 1 + 2 + 1 + 5
         if (message != null) {
             size += message.length;
@@ -117,7 +126,7 @@ public class ErrorPacket extends AbstractPacket {
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL Error Packet";
+        return "Error Packet";
     }
 
 }

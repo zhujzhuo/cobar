@@ -17,6 +17,8 @@ package com.alibaba.cobar.net.packet;
 
 import java.nio.ByteBuffer;
 
+import org.apache.log4j.Logger;
+
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.util.ByteBufferUtil;
@@ -39,6 +41,8 @@ import com.alibaba.cobar.util.ByteBufferUtil;
  * @author xianmao.hexm 2010-7-16 上午10:55:53
  */
 public class EOFPacket extends AbstractPacket {
+
+    private static final Logger LOGGER = Logger.getLogger(EOFPacket.class);
     public static final byte FIELD_COUNT = (byte) 0xfe;
 
     public byte fieldCount = FIELD_COUNT;
@@ -56,25 +60,30 @@ public class EOFPacket extends AbstractPacket {
 
     @Override
     public ByteBuffer write(ByteBuffer buffer, FrontendConnection c) {
-        int size = calcPacketSize();
+        packetLength = calcPacketLength();
         int headerSize = c.getProtocol().getPacketHeaderSize();
-        buffer = ByteBufferUtil.check(buffer, headerSize + size, c);
-        ByteBufferUtil.writeUB3(buffer, size);
+        buffer = ByteBufferUtil.check(buffer, headerSize + packetLength, c);
+        ByteBufferUtil.writeUB3(buffer, packetLength);
         buffer.put(packetId);
         buffer.put(fieldCount);
         ByteBufferUtil.writeUB2(buffer, warningCount);
         ByteBufferUtil.writeUB2(buffer, status);
+        if (LOGGER.isDebugEnabled()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this).append(" >> ").append(c);
+            LOGGER.debug(sb.toString());
+        }
         return buffer;
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         return 5;// 1+2+2;
     }
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL EOF Packet";
+        return "EOF Packet";
     }
 
 }

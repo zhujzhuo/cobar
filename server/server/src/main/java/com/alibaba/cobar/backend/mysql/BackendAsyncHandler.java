@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.net.handler;
+package com.alibaba.cobar.backend.mysql;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;

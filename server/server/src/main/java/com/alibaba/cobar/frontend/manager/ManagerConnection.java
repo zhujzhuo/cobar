@@ -23,7 +23,6 @@ import org.apache.log4j.Logger;
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.startup.CobarServer;
-import com.alibaba.cobar.util.TimeUtil;
 
 /**
  * @author xianmao.hexm 2011-4-22 下午02:23:55
@@ -31,20 +30,9 @@ import com.alibaba.cobar.util.TimeUtil;
 public class ManagerConnection extends FrontendConnection {
 
     private static final Logger LOGGER = Logger.getLogger(ManagerConnection.class);
-    private static final long AUTH_TIMEOUT = 15 * 1000L;
 
     public ManagerConnection(SocketChannel channel) {
         super(channel);
-    }
-
-    @Override
-    public boolean isIdleTimeout() {
-        if (isAuthenticated) {
-            return super.isIdleTimeout();
-        } else {
-            long last = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
-            return TimeUtil.currentTimeMillis() > last + AUTH_TIMEOUT;
-        }
     }
 
     @Override

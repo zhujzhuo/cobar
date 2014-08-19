@@ -19,6 +19,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.util.ByteBufferUtil;
@@ -46,6 +48,8 @@ import com.alibaba.cobar.util.ByteBufferUtil;
  * @author xianmao.hexm 2010-7-23 上午01:05:55
  */
 public class RowDataPacket extends AbstractPacket {
+
+    private static final Logger LOGGER = Logger.getLogger(RowDataPacket.class);
     private static final byte NULL_MARK = (byte) 251;
 
     public final int fieldCount;
@@ -73,7 +77,8 @@ public class RowDataPacket extends AbstractPacket {
     public ByteBuffer write(ByteBuffer bb, FrontendConnection c) {
         int headerSize = c.getProtocol().getPacketHeaderSize();
         bb = ByteBufferUtil.check(bb, headerSize, c);
-        ByteBufferUtil.writeUB3(bb, calcPacketSize());
+        packetLength = calcPacketLength();
+        ByteBufferUtil.writeUB3(bb, packetLength);
         bb.put(packetId);
         for (int i = 0; i < fieldCount; i++) {
             byte[] fv = fieldValues.get(i);
@@ -86,11 +91,16 @@ public class RowDataPacket extends AbstractPacket {
                 bb = ByteBufferUtil.write(fv, bb, c);
             }
         }
+        if (LOGGER.isDebugEnabled()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this).append(" >> ").append(c);
+            LOGGER.debug(sb.toString());
+        }
         return bb;
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         int size = 0;
         for (int i = 0; i < fieldCount; i++) {
             byte[] v = fieldValues.get(i);
@@ -101,7 +111,7 @@ public class RowDataPacket extends AbstractPacket {
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL RowData Packet";
+        return "RowData Packet";
     }
 
 }

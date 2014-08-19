@@ -17,6 +17,8 @@ package com.alibaba.cobar.net.packet;
 
 import java.nio.ByteBuffer;
 
+import org.apache.log4j.Logger;
+
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.util.ByteBufferUtil;
@@ -44,6 +46,8 @@ import com.alibaba.cobar.util.ByteBufferUtil;
  * @author xianmao.hexm 2010-7-14 下午05:18:15
  */
 public class HandshakePacket extends AbstractPacket {
+
+    private static final Logger LOGGER = Logger.getLogger(HandshakePacket.class);
     private static final byte[] FILLER_13 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     public byte protocolVersion;
@@ -87,7 +91,8 @@ public class HandshakePacket extends AbstractPacket {
 
     public void write(FrontendConnection c) {
         ByteBuffer buffer = c.allocate();
-        ByteBufferUtil.writeUB3(buffer, calcPacketSize());
+        packetLength = calcPacketLength();
+        ByteBufferUtil.writeUB3(buffer, packetLength);
         buffer.put(packetId);
         buffer.put(protocolVersion);
         ByteBufferUtil.writeWithNull(buffer, serverVersion);
@@ -97,13 +102,17 @@ public class HandshakePacket extends AbstractPacket {
         buffer.put(serverCharsetIndex);
         ByteBufferUtil.writeUB2(buffer, serverStatus);
         buffer.put(FILLER_13);
-        // buffer.position(buffer.position() + 13);
         ByteBufferUtil.writeWithNull(buffer, restOfScrambleBuff);
         c.write(buffer);
+        if (LOGGER.isDebugEnabled()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this).append(" >> ").append(c);
+            LOGGER.debug(sb.toString());
+        }
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         int size = 1;
         size += serverVersion.length;// n
         size += 5;// 1+4
@@ -116,7 +125,7 @@ public class HandshakePacket extends AbstractPacket {
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL Handshake Packet";
+        return "Handshake Packet";
     }
 
 }

@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.backend.mysql.MySQLConnection;
 import com.alibaba.cobar.config.CobarConfig;
-import com.alibaba.cobar.config.tt.MySQLDataNode;
 import com.alibaba.cobar.frontend.server.ServerConnection;
 import com.alibaba.cobar.frontend.server.ServerSession;
 import com.alibaba.cobar.net.packet.ErrorPacket;

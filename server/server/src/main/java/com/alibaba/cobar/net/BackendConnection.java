@@ -21,9 +21,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.net.nio.NIOConnector;
-import com.alibaba.cobar.net.nio.NIOHandler;
 import com.alibaba.cobar.net.nio.NIOProcessor;
 import com.alibaba.cobar.util.TimeUtil;
 
@@ -32,57 +30,11 @@ import com.alibaba.cobar.util.TimeUtil;
  */
 public abstract class BackendConnection extends AbstractConnection {
 
-    protected long id;
-    protected String host;
-    protected int port;
-    protected int localPort;
-    protected long idleTimeout;
     protected NIOConnector connector;
-    protected NIOHandler handler;
     protected boolean isFinishConnect;
 
     public BackendConnection(SocketChannel channel) {
         super(channel);
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public int getLocalPort() {
-        return localPort;
-    }
-
-    public void setLocalPort(int localPort) {
-        this.localPort = localPort;
-    }
-
-    public long getIdleTimeout() {
-        return idleTimeout;
-    }
-
-    public void setIdleTimeout(long idleTimeout) {
-        this.idleTimeout = idleTimeout;
     }
 
     public boolean isIdleTimeout() {
@@ -114,19 +66,6 @@ public abstract class BackendConnection extends AbstractConnection {
         this.processor = processor;
         this.readBuffer = processor.getBufferPool().allocate();
         processor.addBackend(this);
-    }
-
-    public void setHandler(NIOHandler handler) {
-        this.handler = handler;
-    }
-
-    @Override
-    public void handle(byte[] data) {
-        try {
-            handler.handle(data);
-        } catch (Throwable e) {
-            error(ErrorCode.ERR_HANDLE_DATA, e);
-        }
     }
 
     @Override

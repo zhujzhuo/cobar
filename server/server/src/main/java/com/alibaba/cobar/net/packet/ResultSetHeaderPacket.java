@@ -17,6 +17,8 @@ package com.alibaba.cobar.net.packet;
 
 import java.nio.ByteBuffer;
 
+import org.apache.log4j.Logger;
+
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.util.ByteBufferUtil;
@@ -45,6 +47,8 @@ import com.alibaba.cobar.util.ByteBufferUtil;
  * @author xianmao.hexm 2010-7-22 下午05:59:55
  */
 public class ResultSetHeaderPacket extends AbstractPacket {
+    
+    private static final Logger LOGGER = Logger.getLogger(ResultSetHeaderPacket.class);
 
     public int fieldCount;
     public long extra;
@@ -61,20 +65,25 @@ public class ResultSetHeaderPacket extends AbstractPacket {
 
     @Override
     public ByteBuffer write(ByteBuffer buffer, FrontendConnection c) {
-        int size = calcPacketSize();
+        this.packetLength = calcPacketLength();
         int headerSize = c.getProtocol().getPacketHeaderSize();
-        buffer = ByteBufferUtil.check(buffer, headerSize + size, c);
-        ByteBufferUtil.writeUB3(buffer, size);
+        buffer = ByteBufferUtil.check(buffer, headerSize + packetLength, c);
+        ByteBufferUtil.writeUB3(buffer, packetLength);
         buffer.put(packetId);
         ByteBufferUtil.writeLength(buffer, fieldCount);
         if (extra > 0) {
             ByteBufferUtil.writeLength(buffer, extra);
         }
+        if (LOGGER.isDebugEnabled()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this).append(" >> ").append(c);
+            LOGGER.debug(sb.toString());
+        }
         return buffer;
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         int size = ByteBufferUtil.getLength(fieldCount);
         if (extra > 0) {
             size += ByteBufferUtil.getLength(extra);
@@ -84,7 +93,7 @@ public class ResultSetHeaderPacket extends AbstractPacket {
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL ResultSetHeader Packet";
+        return "ResultSetHeader Packet";
     }
 
 }

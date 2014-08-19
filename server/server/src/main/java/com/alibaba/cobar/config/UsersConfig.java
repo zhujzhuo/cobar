@@ -15,9 +15,9 @@
  */
 package com.alibaba.cobar.config;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.alibaba.cobar.config.model.UsersModel;
@@ -28,17 +28,22 @@ import com.alibaba.cobar.util.SplitUtil;
  */
 public class UsersConfig {
 
-    private List<User> userList;
+    private Map<String, User> users;
 
     public UsersConfig(UsersModel model) {
-        userList = new ArrayList<UsersConfig.User>();
+        users = new HashMap<String, UsersConfig.User>();
         for (UsersModel.User user : model.getUserList()) {
-            userList.add(new User(user));
+            UsersConfig.User ucu = new User(user);
+            users.put(ucu.getName(), ucu);
         }
     }
 
-    public List<User> getUserList() {
-        return userList;
+    public Map<String, User> getUsers() {
+        return users;
+    }
+
+    public User getUser(String name) {
+        return users.get(name);
     }
 
     public static class User {

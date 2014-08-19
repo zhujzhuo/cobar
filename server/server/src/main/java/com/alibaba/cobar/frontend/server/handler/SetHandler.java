@@ -35,6 +35,7 @@ import com.alibaba.cobar.frontend.server.parser.ServerParseSet;
 import com.alibaba.cobar.frontend.server.response.CharacterSet;
 import com.alibaba.cobar.net.packet.OkPacket;
 import com.alibaba.cobar.util.ByteBufferUtil;
+import com.alibaba.cobar.util.CharsetUtil;
 
 /**
  * SET 语句处理
@@ -86,7 +87,8 @@ public final class SetHandler {
         }
         case NAMES:
             String charset = stmt.substring(rs >>> 8).trim();
-            if (c.setCharset(charset)) {
+            int charsetIndex = CharsetUtil.getIndex(charset);
+            if (charsetIndex != 0) {
                 ByteBufferUtil.write(OkPacket.OK, c);
             } else {
                 c.writeErrMessage(ErrorCode.ER_UNKNOWN_CHARACTER_SET, "Unknown charset '" + charset + "'");

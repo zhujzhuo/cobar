@@ -17,6 +17,8 @@ package com.alibaba.cobar.net.packet;
 
 import java.nio.ByteBuffer;
 
+import org.apache.log4j.Logger;
+
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.util.ByteBufferUtil;
@@ -50,6 +52,8 @@ import com.alibaba.cobar.util.ByteBufferUtil;
  * @author xianmao.hexm 2010-7-22 下午05:43:34
  */
 public class FieldPacket extends AbstractPacket {
+
+    private static final Logger LOGGER = Logger.getLogger(FieldPacket.class);
     private static final byte[] DEFAULT_CATALOG = "def".getBytes();
     private static final byte[] FILLER = new byte[2];
 
@@ -87,17 +91,22 @@ public class FieldPacket extends AbstractPacket {
 
     @Override
     public ByteBuffer write(ByteBuffer buffer, FrontendConnection c) {
-        int size = calcPacketSize();
+        packetLength = calcPacketLength();
         int headerSize = c.getProtocol().getPacketHeaderSize();
-        buffer = ByteBufferUtil.check(buffer, headerSize + size, c);
-        ByteBufferUtil.writeUB3(buffer, size);
+        buffer = ByteBufferUtil.check(buffer, headerSize + packetLength, c);
+        ByteBufferUtil.writeUB3(buffer, packetLength);
         buffer.put(packetId);
         writeBody(buffer);
+        if (LOGGER.isDebugEnabled()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this).append(" >> ").append(c);
+            LOGGER.debug(sb.toString());
+        }
         return buffer;
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         int size = (catalog == null ? 1 : ByteBufferUtil.getLength(catalog));
         size += (db == null ? 1 : ByteBufferUtil.getLength(db));
         size += (table == null ? 1 : ByteBufferUtil.getLength(table));
@@ -113,7 +122,7 @@ public class FieldPacket extends AbstractPacket {
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL Field Packet";
+        return "Field Packet";
     }
 
     private void readBody(MySQLMessage mm) {

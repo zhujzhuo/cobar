@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
 import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
-import com.alibaba.cobar.config.tt.DataSourceConfig;
 import com.alibaba.cobar.net.factory.BackendConnectionFactory;
 import com.alibaba.cobar.startup.CobarServer;
 

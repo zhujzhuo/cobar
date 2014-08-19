@@ -45,6 +45,7 @@ import com.alibaba.cobar.util.StreamUtil;
  * @author xianmao.hexm 2010-7-15 下午04:35:34
  */
 public class AuthPacket extends AbstractPacket {
+
     private static final byte[] FILLER = new byte[23];
 
     public long clientFlags;
@@ -79,7 +80,7 @@ public class AuthPacket extends AbstractPacket {
     }
 
     public void write(OutputStream out) throws IOException {
-        StreamUtil.writeUB3(out, calcPacketSize());
+        StreamUtil.writeUB3(out, calcPacketLength());
         StreamUtil.write(out, packetId);
         StreamUtil.writeUB4(out, clientFlags);
         StreamUtil.writeUB4(out, maxPacketSize);
@@ -105,7 +106,7 @@ public class AuthPacket extends AbstractPacket {
     @Override
     public void write(BackendConnection c) {
         ByteBuffer buffer = c.allocate();
-        ByteBufferUtil.writeUB3(buffer, calcPacketSize());
+        ByteBufferUtil.writeUB3(buffer, calcPacketLength());
         buffer.put(packetId);
         ByteBufferUtil.writeUB4(buffer, clientFlags);
         ByteBufferUtil.writeUB4(buffer, maxPacketSize);
@@ -138,7 +139,7 @@ public class AuthPacket extends AbstractPacket {
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         int size = 32;// 4+4+1+23;
         size += (user == null) ? 1 : user.length() + 1;
         size += (password == null) ? 1 : ByteBufferUtil.getLength(password);
@@ -148,7 +149,7 @@ public class AuthPacket extends AbstractPacket {
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL Authentication Packet";
+        return "Authentication Packet";
     }
 
 }

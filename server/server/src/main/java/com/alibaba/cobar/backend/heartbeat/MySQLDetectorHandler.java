@@ -15,9 +15,9 @@
  */
 package com.alibaba.cobar.backend.heartbeat;
 
+import com.alibaba.cobar.backend.mysql.BackendAsyncHandler;
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.exeception.HeartbeatException;
-import com.alibaba.cobar.net.handler.BackendAsyncHandler;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.ErrorPacket;
 import com.alibaba.cobar.net.packet.OkPacket;

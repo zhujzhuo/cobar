@@ -17,7 +17,6 @@ package com.alibaba.cobar.frontend.manager;
 
 import java.nio.channels.SocketChannel;
 
-import com.alibaba.cobar.frontend.server.ServerPrivileges;
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.factory.FrontendConnectionFactory;
 
@@ -29,8 +28,7 @@ public class ManagerConnectionFactory extends FrontendConnectionFactory {
     @Override
     protected FrontendConnection getConnection(SocketChannel channel) {
         ManagerConnection c = new ManagerConnection(channel);
-        c.setPrivileges(new ServerPrivileges());
-        c.setQueryHandler(new ManagerQueryHandler(c));
+        c.setHandler(new ManagerAuthenticator(c));
         return c;
     }
 

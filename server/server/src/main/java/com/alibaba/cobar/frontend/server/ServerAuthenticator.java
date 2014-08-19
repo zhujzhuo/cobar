@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.net.handler;
+package com.alibaba.cobar.frontend.server;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
@@ -21,26 +21,25 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.defs.ErrorCode;
-import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.nio.NIOHandler;
 import com.alibaba.cobar.net.packet.AbstractPacket;
 import com.alibaba.cobar.net.packet.AuthPacket;
 import com.alibaba.cobar.net.packet.QuitPacket;
 import com.alibaba.cobar.util.ByteBufferUtil;
+import com.alibaba.cobar.util.CharsetUtil;
 import com.alibaba.cobar.util.SecurityUtil;
 
 /**
- * 前端认证处理器
- * 
  * @author xianmao.hexm
  */
-public class FrontendAuthenticator implements NIOHandler {
-    private static final Logger LOGGER = Logger.getLogger(FrontendAuthenticator.class);
+public class ServerAuthenticator implements NIOHandler {
+
     private static final byte[] AUTH_OK = new byte[] { 7, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0 };
+    private static final Logger LOGGER = Logger.getLogger(ServerAuthenticator.class);
 
-    protected final FrontendConnection source;
+    protected final ServerConnection source;
 
-    public FrontendAuthenticator(FrontendConnection source) {
+    public ServerAuthenticator(ServerConnection source) {
         this.source = source;
     }
 
@@ -126,7 +125,7 @@ public class FrontendAuthenticator implements NIOHandler {
         if (schema == null) {
             return 0;
         }
-        FrontendPrivileges privileges = source.getPrivileges();
+        ServerPrivileges privileges = source.getPrivileges();
         if (!privileges.schemaExists(schema)) {
             return ErrorCode.ER_BAD_DB_ERROR;
         }
@@ -142,8 +141,11 @@ public class FrontendAuthenticator implements NIOHandler {
         source.setAuthenticated(true);
         source.setUser(auth.user);
         source.setSchema(auth.database);
-        source.setCharsetIndex(auth.charsetIndex);
-        source.setHandler(new FrontendCommandHandler(source));
+        String charset = CharsetUtil.getCharset(auth.charsetIndex);
+        if (charset != null) {
+            source.setCharset(charset);
+        }
+        source.setHandler(new ServerDispatcher(source));
         if (LOGGER.isInfoEnabled()) {
             StringBuilder s = new StringBuilder();
             s.append(source).append('\'').append(auth.user).append("' login success");

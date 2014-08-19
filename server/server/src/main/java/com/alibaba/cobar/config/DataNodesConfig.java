@@ -15,8 +15,8 @@
  */
 package com.alibaba.cobar.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.alibaba.cobar.config.model.DataNodesModel;
 import com.alibaba.cobar.util.SplitUtil;
@@ -26,27 +26,32 @@ import com.alibaba.cobar.util.SplitUtil;
  */
 public class DataNodesConfig {
 
-    private List<DataNode> dataNodeList;
+    private Map<String, DataNode> dataNodes;
 
     public DataNodesConfig(DataNodesModel model) {
-        dataNodeList = new ArrayList<DataNodesConfig.DataNode>();
+        dataNodes = new HashMap<String, DataNodesConfig.DataNode>();
         for (DataNodesModel.DataNode dataNode : model.getDataNodeList()) {
-            dataNodeList.add(new DataNode(dataNode));
+            DataNode dn = new DataNode(dataNode);
+            dataNodes.put(dn.getName(), dn);
         }
     }
 
-    public List<DataNode> getDataNodeList() {
-        return dataNodeList;
+    public Map<String, DataNode> getDataNodes() {
+        return dataNodes;
+    }
+
+    public DataNode getDataNode(String name) {
+        return dataNodes.get(name);
     }
 
     public static class DataNode {
-        private String id;
+        private String name;
         private String[] dataSources;
 
         public DataNode(DataNodesModel.DataNode model) {
-            String id = model.getId();
-            if (id != null) {
-                this.id = id.trim();
+            String name = model.getName();
+            if (name != null) {
+                this.name = name.trim();
             }
             String dataSources = model.getDataSources();
             if (dataSources != null) {
@@ -54,8 +59,8 @@ public class DataNodesConfig {
             }
         }
 
-        public String getId() {
-            return id;
+        public String getName() {
+            return name;
         }
 
         public String[] getDataSources() {

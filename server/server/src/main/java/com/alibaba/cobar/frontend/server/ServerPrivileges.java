@@ -15,36 +15,32 @@
  */
 package com.alibaba.cobar.frontend.server;
 
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.CobarConfig;
+import com.alibaba.cobar.config.QuarantineConfig;
+import com.alibaba.cobar.config.SchemasConfig;
 import com.alibaba.cobar.config.UsersConfig;
 import com.alibaba.cobar.defs.Alarms;
-import com.alibaba.cobar.net.handler.FrontendPrivileges;
 import com.alibaba.cobar.startup.CobarServer;
 
 /**
  * @author xianmao.hexm
  */
-public class ServerPrivileges implements FrontendPrivileges {
+public class ServerPrivileges {
 
     private static final Logger ALARM = Logger.getLogger("alarm");
 
-    @Override
     public boolean schemaExists(String schema) {
-        CobarConfig conf = CobarServer.getInstance().getConfig();
-        return conf.getSchemas().containsKey(schema);
+        SchemasConfig sc = CobarServer.getInstance().getConfig().getSchemas();
+        return sc.getSchemas().containsKey(schema);
     }
 
-    @Override
     public boolean userExists(String user, String host) {
-        CobarConfig conf = CobarServer.getInstance().getConfig();
-        Map<String, Set<String>> quarantineHosts = conf.getQuarantine().getHosts();
-        if (quarantineHosts.containsKey(host)) {
-            boolean rs = quarantineHosts.get(host).contains(user);
+        QuarantineConfig quarantine = CobarServer.getInstance().getConfig().getQuarantine();
+        if (quarantine.getHosts().containsKey(host)) {
+            boolean rs = quarantine.getHost(host).getUsers().contains(user);
             if (!rs) {
                 ALARM.error(new StringBuilder().append(Alarms.QUARANTINE_ATTACK)
                                                .append("[host=")
@@ -56,35 +52,30 @@ public class ServerPrivileges implements FrontendPrivileges {
             }
             return rs;
         } else {
-            if (user != null && user.equals(conf.getSystem().getClusterHeartbeatUser())) {
-                return true;
-            } else {
-                return conf.getUsers().containsKey(user);
-            }
+            UsersConfig users = CobarServer.getInstance().getConfig().getUsers();
+            return users.getUsers().containsKey(user);
         }
     }
 
-    @Override
+    /**
+     * 取得用户密码
+     */
     public String getPassword(String user) {
-        CobarConfig conf = CobarServer.getInstance().getConfig();
-        if (user != null && user.equals(conf.getSystem().getClusterHeartbeatUser())) {
-            return conf.getSystem().getClusterHeartbeatPass();
+        UsersConfig.User ucu = CobarServer.getInstance().getConfig().getUsers().getUser(user);
+        if (ucu != null) {
+            return ucu.getPassword();
         } else {
-            UsersConfig uc = conf.getUsers().get(user);
-            if (uc != null) {
-                return uc.getPassword();
-            } else {
-                return null;
-            }
+            return null;
         }
     }
 
-    @Override
+    /**
+     * 取得用户schema集合
+     */
     public Set<String> getUserSchemas(String user) {
-        CobarConfig conf = CobarServer.getInstance().getConfig();
-        UsersConfig uc = conf.getUsers().get(user);
-        if (uc != null) {
-            return uc.getSchemas();
+        UsersConfig.User ucu = CobarServer.getInstance().getConfig().getUsers().getUser(user);
+        if (ucu != null) {
+            return ucu.getSchemas();
         } else {
             return null;
         }

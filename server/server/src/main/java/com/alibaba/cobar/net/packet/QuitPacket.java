@@ -22,13 +22,13 @@ public class QuitPacket extends AbstractPacket {
     public static final byte[] QUIT = new byte[] { 1, 0, 0, 0, 1 };
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         return 1;
     }
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL Quit Packet";
+        return "Quit Packet";
     }
 
 }

@@ -19,7 +19,7 @@ import java.util.Set;
 
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.frontend.server.ServerConnection;
-import com.alibaba.cobar.net.handler.FrontendPrivileges;
+import com.alibaba.cobar.frontend.server.ServerPrivileges;
 import com.alibaba.cobar.net.packet.OkPacket;
 import com.alibaba.cobar.util.ByteBufferUtil;
 
@@ -48,7 +48,7 @@ public final class UseHandler {
         }
 
         // 检查schema的有效性
-        FrontendPrivileges privileges = c.getPrivileges();
+        ServerPrivileges privileges = c.getPrivileges();
         if (schema == null || !privileges.schemaExists(schema)) {
             c.writeErrMessage(ErrorCode.ER_BAD_DB_ERROR, "Unknown database '" + schema + "'");
             return;

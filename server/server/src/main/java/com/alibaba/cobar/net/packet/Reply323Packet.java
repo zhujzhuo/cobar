@@ -31,7 +31,7 @@ public class Reply323Packet extends AbstractPacket {
     public byte[] seed;
 
     public void write(OutputStream out) throws IOException {
-        StreamUtil.writeUB3(out, calcPacketSize());
+        StreamUtil.writeUB3(out, calcPacketLength());
         StreamUtil.write(out, packetId);
         if (seed == null) {
             StreamUtil.write(out, (byte) 0);
@@ -43,7 +43,7 @@ public class Reply323Packet extends AbstractPacket {
     @Override
     public void write(BackendConnection c) {
         ByteBuffer buffer = c.allocate();
-        ByteBufferUtil.writeUB3(buffer, calcPacketSize());
+        ByteBufferUtil.writeUB3(buffer, calcPacketLength());
         buffer.put(packetId);
         if (seed == null) {
             buffer.put((byte) 0);
@@ -54,13 +54,13 @@ public class Reply323Packet extends AbstractPacket {
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         return seed == null ? 1 : seed.length + 1;
     }
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL Auth323 Packet";
+        return "Auth323 Packet";
     }
 
 }

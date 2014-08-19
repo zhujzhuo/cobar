@@ -15,18 +15,16 @@
  */
 package com.alibaba.cobar.frontend.manager.response;
 
-import java.util.Comparator;
+import java.nio.ByteBuffer;
 
-import com.alibaba.cobar.config.tt.DataSourceConfig;
+import com.alibaba.cobar.config.DataSourcesConfig;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.manager.ManagerConnection;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.FieldPacket;
 import com.alibaba.cobar.net.packet.ResultSetHeaderPacket;
 import com.alibaba.cobar.net.packet.RowDataPacket;
-import com.alibaba.cobar.parser.util.Pair;
-import com.alibaba.cobar.parser.util.PairUtil;
-import com.alibaba.cobar.util.IntegerUtil;
+import com.alibaba.cobar.startup.CobarServer;
 import com.alibaba.cobar.util.PacketUtil;
 import com.alibaba.cobar.util.StringUtil;
 
@@ -50,88 +48,61 @@ public final class ShowDataSource {
         fields[i] = PacketUtil.getField("NAME", Fields.FIELD_TYPE_VAR_STRING);
         fields[i++].packetId = ++packetId;
 
-        fields[i] = PacketUtil.getField("TYPE", Fields.FIELD_TYPE_VAR_STRING);
-        fields[i++].packetId = ++packetId;
-
-        fields[i] = PacketUtil.getField("HOST", Fields.FIELD_TYPE_VAR_STRING);
-        fields[i++].packetId = ++packetId;
-
-        fields[i] = PacketUtil.getField("PORT", Fields.FIELD_TYPE_LONG);
+        fields[i] = PacketUtil.getField("INSTANCE", Fields.FIELD_TYPE_VAR_STRING);
         fields[i++].packetId = ++packetId;
 
         fields[i] = PacketUtil.getField("SCHEMA", Fields.FIELD_TYPE_VAR_STRING);
+        fields[i++].packetId = ++packetId;
+
+        fields[i] = PacketUtil.getField("USER", Fields.FIELD_TYPE_LONG);
+        fields[i++].packetId = ++packetId;
+
+        fields[i] = PacketUtil.getField("PASSWORD", Fields.FIELD_TYPE_VAR_STRING);
         fields[i++].packetId = ++packetId;
 
         eof.packetId = ++packetId;
     }
 
     public static void execute(ManagerConnection c, String name) {
-        //        ByteBuffer buffer = c.allocate();
-        //
-        //        // write header
-        //        buffer = header.write(buffer, c);
-        //
-        //        // write fields
-        //        for (FieldPacket field : fields) {
-        //            buffer = field.write(buffer, c);
-        //        }
-        //
-        //        // write eof
-        //        buffer = eof.write(buffer, c);
-        //
-        //        // write rows
-        //        byte packetId = eof.packetId;
-        //        CobarConfig conf = CobarServer.getInstance().getConfig();
-        //        Map<String, DataSourceConfig> dataSources = conf.getDataSources();
-        //        List<String> keys = new ArrayList<String>();
-        //        if (null != name) {
-        //            MySQLDataNode dn = conf.getDataNodes().get(name);
-        //            if (dn != null)
-        //                for (MySQLDataSource ds : dn.getSources()) {
-        //                    if (ds != null) {
-        //                        keys.add(ds.getName());
-        //                    }
-        //                }
-        //        } else {
-        //            keys.addAll(dataSources.keySet());
-        //        }
-        //        Collections.sort(keys, new Comparators<String>());
-        //        for (String key : keys) {
-        //            RowDataPacket row = getRow(dataSources.get(key), c.getCharset());
-        //            row.packetId = ++packetId;
-        //            buffer = row.write(buffer, c);
-        //        }
-        //
-        //        // write last eof
-        //        EOFPacket lastEof = new EOFPacket();
-        //        lastEof.packetId = ++packetId;
-        //        buffer = lastEof.write(buffer, c);
-        //
-        //        // post write
-        //        c.write(buffer);
+        ByteBuffer buffer = c.allocate();
+
+        // write header
+        buffer = header.write(buffer, c);
+
+        // write fields
+        for (FieldPacket field : fields) {
+            buffer = field.write(buffer, c);
+        }
+
+        // write eof
+        buffer = eof.write(buffer, c);
+
+        // write rows
+        byte packetId = eof.packetId;
+        DataSourcesConfig dsc = CobarServer.getInstance().getConfig().getDataSources();
+        for (DataSourcesConfig.DataSource ds : dsc.getDataSources().values()) {
+            RowDataPacket row = getRow(ds, c.getCharset());
+            row.packetId = ++packetId;
+            buffer = row.write(buffer, c);
+        }
+
+        // write last eof
+        EOFPacket lastEof = new EOFPacket();
+        lastEof.packetId = ++packetId;
+        buffer = lastEof.write(buffer, c);
+
+        // post write
+        c.write(buffer);
     }
 
-    static RowDataPacket getRow(DataSourceConfig dsc, String charset) {
+    static RowDataPacket getRow(DataSourcesConfig.DataSource dsc, String charset) {
         RowDataPacket row = new RowDataPacket(FIELD_COUNT);
         row.add(StringUtil.encode(dsc.getName(), charset));
-        row.add(StringUtil.encode(dsc.getType(), charset));
-        row.add(StringUtil.encode(dsc.getHost(), charset));
-        row.add(IntegerUtil.toBytes(dsc.getPort()));
-        row.add(StringUtil.encode(dsc.getDatabase(), charset));
+        row.add(StringUtil.encode(dsc.getInstance(), charset));
+        row.add(StringUtil.encode(dsc.getSchema(), charset));
+        row.add(StringUtil.encode(dsc.getUser(), charset));
+        row.add(StringUtil.encode(dsc.getPassword(), charset));
         return row;
-    }
-
-    private static final class Comparators<T> implements Comparator<String> {
-        @Override
-        public int compare(String s1, String s2) {
-            Pair<String, Integer> p1 = PairUtil.splitIndex(s1, '[', ']');
-            Pair<String, Integer> p2 = PairUtil.splitIndex(s2, '[', ']');
-            if (p1.getKey().compareTo(p2.getKey()) == 0) {
-                return p1.getValue() - p2.getValue();
-            } else {
-                return p1.getKey().compareTo(p2.getKey());
-            }
-        }
     }
 
 }

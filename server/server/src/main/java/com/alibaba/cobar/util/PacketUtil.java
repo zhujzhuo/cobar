@@ -76,7 +76,7 @@ public class PacketUtil {
         FieldPacket field = new FieldPacket();
         field.read(src);
         field.name = encode(fieldName, CODE_PAGE_1252);
-        field.packetLength = field.calcPacketSize();
+        field.packetLength = field.calcPacketLength();
         return field;
     }
 

@@ -20,24 +20,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Set;
-
-import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.defs.Capabilities;
-import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.defs.Versions;
-import com.alibaba.cobar.net.handler.FrontendAuthenticator;
-import com.alibaba.cobar.net.handler.FrontendPrepareHandler;
-import com.alibaba.cobar.net.handler.FrontendPrivileges;
-import com.alibaba.cobar.net.handler.FrontendQueryHandler;
-import com.alibaba.cobar.net.nio.NIOHandler;
 import com.alibaba.cobar.net.nio.NIOProcessor;
 import com.alibaba.cobar.net.packet.ErrorPacket;
 import com.alibaba.cobar.net.packet.HandshakePacket;
-import com.alibaba.cobar.net.packet.OkPacket;
-import com.alibaba.cobar.net.protocol.MySQLMessage;
-import com.alibaba.cobar.util.ByteBufferUtil;
 import com.alibaba.cobar.util.CharsetUtil;
 import com.alibaba.cobar.util.RandomUtil;
 import com.alibaba.cobar.util.TimeUtil;
@@ -47,24 +35,13 @@ import com.alibaba.cobar.util.TimeUtil;
  */
 public abstract class FrontendConnection extends AbstractConnection {
 
-    private static final Logger LOGGER = Logger.getLogger(FrontendConnection.class);
+    protected static final long AUTH_TIMEOUT = 30 * 1000L;
+    protected static final int SERVER_CAPABILITIES = getServerCapabilities();
 
-    protected long id;
-    protected String host;
-    protected int port;
-    protected int localPort;
-    protected long idleTimeout;
     protected String charset;
-    protected int charsetIndex;
     protected byte[] seed;
-    protected String user;
-    protected String schema;
-    protected NIOHandler handler;
-    protected FrontendPrivileges privileges;
-    protected FrontendQueryHandler queryHandler;
-    protected FrontendPrepareHandler prepareHandler;
-    protected boolean isAccepted;
     protected boolean isAuthenticated;
+    protected String schema;
 
     public FrontendConnection(SocketChannel channel) {
         super(channel);
@@ -72,56 +49,6 @@ public abstract class FrontendConnection extends AbstractConnection {
         this.host = socket.getInetAddress().getHostAddress();
         this.port = socket.getPort();
         this.localPort = socket.getLocalPort();
-        this.handler = new FrontendAuthenticator(this);
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public int getLocalPort() {
-        return localPort;
-    }
-
-    public void setLocalPort(int localPort) {
-        this.localPort = localPort;
-    }
-
-    public long getIdleTimeout() {
-        return idleTimeout;
-    }
-
-    public void setIdleTimeout(long idleTimeout) {
-        this.idleTimeout = idleTimeout;
-    }
-
-    public boolean isIdleTimeout() {
-        long lastTime = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
-        return TimeUtil.currentTimeMillis() > lastTime + idleTimeout;
-    }
-
-    public void setAccepted(boolean isAccepted) {
-        this.isAccepted = isAccepted;
     }
 
     public void setProcessor(NIOProcessor processor) {
@@ -130,36 +57,20 @@ public abstract class FrontendConnection extends AbstractConnection {
         processor.addFrontend(this);
     }
 
-    public void setHandler(NIOHandler handler) {
-        this.handler = handler;
+    public String getCharset() {
+        return charset;
     }
 
-    public void setQueryHandler(FrontendQueryHandler queryHandler) {
-        this.queryHandler = queryHandler;
+    public void setCharset(String charset) {
+        this.charset = charset;
     }
 
-    public void setPrepareHandler(FrontendPrepareHandler prepareHandler) {
-        this.prepareHandler = prepareHandler;
+    public byte[] getSeed() {
+        return seed;
     }
 
     public void setAuthenticated(boolean isAuthenticated) {
         this.isAuthenticated = isAuthenticated;
-    }
-
-    public FrontendPrivileges getPrivileges() {
-        return privileges;
-    }
-
-    public void setPrivileges(FrontendPrivileges privileges) {
-        this.privileges = privileges;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
     }
 
     public String getSchema() {
@@ -168,174 +79,6 @@ public abstract class FrontendConnection extends AbstractConnection {
 
     public void setSchema(String schema) {
         this.schema = schema;
-    }
-
-    public byte[] getSeed() {
-        return seed;
-    }
-
-    public int getCharsetIndex() {
-        return charsetIndex;
-    }
-
-    public boolean setCharsetIndex(int ci) {
-        String charset = CharsetUtil.getCharset(ci);
-        if (charset != null) {
-            this.charset = charset;
-            this.charsetIndex = ci;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public String getCharset() {
-        return charset;
-    }
-
-    public boolean setCharset(String charset) {
-        int ci = CharsetUtil.getIndex(charset);
-        if (ci > 0) {
-            this.charset = charset;
-            this.charsetIndex = ci;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void writeErrMessage(int errno, String msg) {
-        writeErrMessage((byte) 1, errno, msg);
-    }
-
-    public void writeErrMessage(byte id, int errno, String msg) {
-        ErrorPacket err = new ErrorPacket();
-        err.packetId = id;
-        err.errno = errno;
-        err.message = encodeString(msg, charset);
-        err.write(this);
-    }
-
-    public void initDB(byte[] data) {
-        MySQLMessage mm = new MySQLMessage(data);
-        mm.position(5);
-        String db = mm.readString();
-
-        // 检查schema是否已经设置
-        if (schema != null) {
-            if (schema.equals(db)) {
-                ByteBufferUtil.write(OkPacket.OK, this);
-            } else {
-                writeErrMessage(ErrorCode.ER_DBACCESS_DENIED_ERROR, "Not allowed to change the database!");
-            }
-            return;
-        }
-
-        // 检查schema的有效性
-        if (db == null || !privileges.schemaExists(db)) {
-            writeErrMessage(ErrorCode.ER_BAD_DB_ERROR, "Unknown database '" + db + "'");
-            return;
-        }
-        if (!privileges.userExists(user, host)) {
-            writeErrMessage(ErrorCode.ER_ACCESS_DENIED_ERROR, "Access denied for user '" + user + "'");
-            return;
-        }
-        Set<String> schemas = privileges.getUserSchemas(user);
-        if (schemas == null || schemas.size() == 0 || schemas.contains(db)) {
-            this.schema = db;
-            ByteBufferUtil.write(OkPacket.OK, this);
-        } else {
-            String s = "Access denied for user '" + user + "' to database '" + db + "'";
-            writeErrMessage(ErrorCode.ER_DBACCESS_DENIED_ERROR, s);
-        }
-    }
-
-    public void query(byte[] data) {
-        if (queryHandler != null) {
-            // 取得语句
-            MySQLMessage mm = new MySQLMessage(data);
-            mm.position(5);
-            String sql = null;
-            try {
-                sql = mm.readString(charset);
-            } catch (UnsupportedEncodingException e) {
-                writeErrMessage(ErrorCode.ER_UNKNOWN_CHARACTER_SET, "Unknown charset '" + charset + "'");
-                return;
-            }
-            if (sql == null || sql.length() == 0) {
-                writeErrMessage(ErrorCode.ER_NOT_ALLOWED_COMMAND, "Empty SQL");
-                return;
-            }
-
-            // 执行查询
-            queryHandler.query(sql);
-        } else {
-            writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Query unsupported!");
-        }
-    }
-
-    public void stmtPrepare(byte[] data) {
-        if (prepareHandler != null) {
-            // 取得语句
-            MySQLMessage mm = new MySQLMessage(data);
-            mm.position(5);
-            String sql = null;
-            try {
-                sql = mm.readString(charset);
-            } catch (UnsupportedEncodingException e) {
-                writeErrMessage(ErrorCode.ER_UNKNOWN_CHARACTER_SET, "Unknown charset '" + charset + "'");
-                return;
-            }
-            if (sql == null || sql.length() == 0) {
-                writeErrMessage(ErrorCode.ER_NOT_ALLOWED_COMMAND, "Empty SQL");
-                return;
-            }
-
-            // 执行预处理
-            prepareHandler.prepare(sql);
-        } else {
-            writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Prepare unsupported!");
-        }
-    }
-
-    public void stmtExecute(byte[] data) {
-        if (prepareHandler != null) {
-            prepareHandler.execute(data);
-        } else {
-            writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Prepare unsupported!");
-        }
-    }
-
-    public void stmtClose(byte[] data) {
-        if (prepareHandler != null) {
-            prepareHandler.close();
-        } else {
-            writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Prepare unsupported!");
-        }
-    }
-
-    public void ping() {
-        ByteBufferUtil.write(OkPacket.OK, this);
-    }
-
-    public void heartbeat(byte[] data) {
-        ByteBufferUtil.write(OkPacket.OK, this);
-    }
-
-    public void kill(byte[] data) {
-        writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Unknown command");
-    }
-
-    public void unknown(byte[] data) {
-        writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Unknown command");
-    }
-
-    @Override
-    public void idleCheck() {
-        if (isIdleTimeout()) {
-            LOGGER.warn(toString() + " idle timeout");
-            close();
-        }
     }
 
     @Override
@@ -359,8 +102,8 @@ public abstract class FrontendConnection extends AbstractConnection {
             hs.serverVersion = Versions.SERVER_VERSION;
             hs.threadId = id;
             hs.seed = rand1;
-            hs.serverCapabilities = getServerCapabilities();
-            hs.serverCharsetIndex = (byte) (charsetIndex & 0xff);
+            hs.serverCapabilities = SERVER_CAPABILITIES;
+            hs.serverCharsetIndex = (byte) (CharsetUtil.getIndex(charset) & 0xff);
             hs.serverStatus = 2;
             hs.restOfScrambleBuff = rand2;
             hs.write(this);
@@ -368,21 +111,56 @@ public abstract class FrontendConnection extends AbstractConnection {
     }
 
     @Override
-    public void handle(final byte[] data) {
-        // 异步处理前端数据
-        processor.getExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    handler.handle(data);
-                } catch (Throwable t) {
-                    error(ErrorCode.ERR_HANDLE_DATA, t);
-                }
-            }
-        });
+    public void idleCheck() {
+        boolean isIdleTimeout = false;
+        long last = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
+        if (isAuthenticated) {
+            isIdleTimeout = TimeUtil.currentTimeMillis() > last + idleTimeout;
+        } else {
+            isIdleTimeout = TimeUtil.currentTimeMillis() > last + AUTH_TIMEOUT;
+        }
+        if (isIdleTimeout) {
+            close();
+
+        }
     }
 
-    protected int getServerCapabilities() {
+    public void writeErrMessage(int errno, String msg) {
+        writeErrMessage((byte) 1, errno, msg);
+    }
+
+    public void writeErrMessage(byte id, int errno, String msg) {
+        ErrorPacket err = new ErrorPacket();
+        err.packetId = id;
+        err.errno = errno;
+        err.message = encodeString(msg, charset);
+        err.write(this);
+    }
+
+    protected boolean isConnectionReset(Throwable t) {
+        if (t instanceof IOException) {
+            String msg = t.getMessage();
+            return (msg != null && msg.contains("Connection reset by peer"));
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder().append("[class=")
+                                              .append(getClass().getSimpleName())
+                                              .append(",host=")
+                                              .append(host)
+                                              .append(",port=")
+                                              .append(port);
+        if (schema != null) {
+            sb.append(",schema=").append(schema);
+        }
+        sb.append(']');
+        return sb.toString();
+    }
+
+    protected static int getServerCapabilities() {
         int flag = 0;
         flag |= Capabilities.CLIENT_LONG_PASSWORD;
         flag |= Capabilities.CLIENT_FOUND_ROWS;
@@ -401,30 +179,6 @@ public abstract class FrontendConnection extends AbstractConnection {
         // flag |= ServerDefs.CLIENT_RESERVED;
         flag |= Capabilities.CLIENT_SECURE_CONNECTION;
         return flag;
-    }
-
-    protected boolean isConnectionReset(Throwable t) {
-        if (t instanceof IOException) {
-            String msg = t.getMessage();
-            return (msg != null && msg.contains("Connection reset by peer"));
-        }
-        return false;
-    }
-
-    @Override
-    public String toString() {
-        return new StringBuilder().append("[thread=")
-                                  .append(Thread.currentThread().getName())
-                                  .append(",class=")
-                                  .append(getClass().getSimpleName())
-                                  .append(",host=")
-                                  .append(host)
-                                  .append(",port=")
-                                  .append(port)
-                                  .append(",schema=")
-                                  .append(schema)
-                                  .append(']')
-                                  .toString();
     }
 
     private final static byte[] encodeString(String src, String charset) {

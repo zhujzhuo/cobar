@@ -30,10 +30,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import com.alibaba.cobar.config.SchemasConfig;
-import com.alibaba.cobar.config.tt.RuleAlgorithm;
-import com.alibaba.cobar.config.tt.RuleConfig;
-import com.alibaba.cobar.config.tt.TableConfig;
-import com.alibaba.cobar.config.tt.TableRuleConfig;
 import com.alibaba.cobar.parser.CobarParser;
 import com.alibaba.cobar.parser.ast.ASTNode;
 import com.alibaba.cobar.parser.ast.expression.Expression;
@@ -60,7 +56,7 @@ import com.alibaba.cobar.util.CollectionUtil;
  */
 public final class ServerRouter {
 
-    public static RouteResultset route(SchemasConfig schema, String stmt, String charset, Object info)
+    public static RouteResultset route(SchemasConfig.Schema schema, String stmt, String charset, Object info)
             throws SQLNonTransientException {
         RouteResultset rrs = new RouteResultset(stmt);
         if (charset == null) {

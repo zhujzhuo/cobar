@@ -25,7 +25,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.alibaba.cobar.backend.mysql.MySQLConnection;
 import com.alibaba.cobar.config.CobarConfig;
-import com.alibaba.cobar.config.tt.MySQLDataNode;
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.frontend.server.ServerConnection;
 import com.alibaba.cobar.frontend.server.ServerSession;

@@ -37,6 +37,7 @@ import com.alibaba.cobar.util.TimeUtil;
  * @author xianmao.hexm
  */
 public class MySQLDetector extends BackendConnection {
+
     private static final Logger LOGGER = Logger.getLogger(MySQLDetector.class);
     private static final long CLIENT_FLAGS = initClientFlags();
 

@@ -32,7 +32,6 @@ import com.alibaba.cobar.frontend.server.ServerConnectionFactory;
 import com.alibaba.cobar.net.nio.NIOAcceptor;
 import com.alibaba.cobar.net.nio.NIOConnector;
 import com.alibaba.cobar.net.nio.NIOProcessor;
-import com.alibaba.cobar.statistics.SQLStatistic;
 import com.alibaba.cobar.util.ExecutorUtil;
 import com.alibaba.cobar.util.ExecutorUtil.NameableExecutor;
 import com.alibaba.cobar.util.TimeUtil;
@@ -86,12 +85,12 @@ public final class CobarServer {
         }
 
         // server startup
-        LOGGER.warn("===============================================");
-        LOGGER.warn(NAME + " is ready to startup ...");
+        LOGGER.info("==========================================");
+        LOGGER.info(NAME + " is ready to startup ...");
         timer.schedule(updateTime(), 0L, TIME_UPDATE_PERIOD);
 
         // startup processors
-        LOGGER.warn("Startup processors ...");
+        LOGGER.info("Startup processors ...");
         int processorExecutor = sc.getProcessorExecutor();
         for (int i = 0; i < processors.length; i++) {
             processors[i] = new NIOProcessor("Processor" + i, processorExecutor);
@@ -100,7 +99,7 @@ public final class CobarServer {
         timer.schedule(processorCheck(), 0L, sc.getProcessorCheckPeriod());
 
         // startup connector
-        LOGGER.warn("Startup connector ...");
+        LOGGER.info("Startup connector ...");
         connector = new NIOConnector(NAME + "Connector");
         connector.setProcessors(processors);
         connector.start();
@@ -112,7 +111,7 @@ public final class CobarServer {
         manager = new NIOAcceptor(NAME + "Manager", sc.getManagerPort(), mf);
         manager.setProcessors(processors);
         manager.start();
-        LOGGER.warn(manager.getName() + " is started and listening on " + manager.getPort());
+        LOGGER.info(manager.getName() + " is started and listening on " + manager.getPort());
 
         //        // init dataNodes
         //        Map<String, MySQLDataNode> dataNodes = config.getDataNodes();
@@ -133,8 +132,8 @@ public final class CobarServer {
         //        timer.schedule(clusterHeartbeat(), 0L, sc.getClusterHeartbeatPeriod());
 
         // server started
-        LOGGER.warn(server.getName() + " is started and listening on " + server.getPort());
-        LOGGER.warn("===============================================");
+        LOGGER.info(server.getName() + " is started and listening on " + server.getPort());
+        LOGGER.info("==========================================");
     }
 
     public CobarConfig getConfig() {
@@ -155,10 +154,6 @@ public final class CobarServer {
 
     public NameableExecutor getManagerExecutor() {
         return managerExecutor;
-    }
-
-    public SQLStatistic getSqlRecorder() {
-        return null;//sqlRecorder;
     }
 
     public boolean isOnline() {

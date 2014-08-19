@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.manager.ManagerConnection;
-import com.alibaba.cobar.frontend.server.ServerConnection;
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.nio.NIOProcessor;
 import com.alibaba.cobar.net.packet.EOFPacket;
@@ -43,7 +42,7 @@ import com.alibaba.cobar.util.TimeUtil;
  */
 public final class ShowConnection {
 
-    private static final int FIELD_COUNT = 14;
+    private static final int FIELD_COUNT = 13;
     private static final ResultSetHeaderPacket header = PacketUtil.getHeader(FIELD_COUNT);
     private static final FieldPacket[] fields = new FieldPacket[FIELD_COUNT];
     private static final EOFPacket eof = new EOFPacket();
@@ -89,9 +88,6 @@ public final class ShowConnection {
         fields[i++].packetId = ++packetId;
 
         fields[i] = PacketUtil.getField("SEND_QUEUE", Fields.FIELD_TYPE_LONG);
-        fields[i++].packetId = ++packetId;
-
-        fields[i] = PacketUtil.getField("CHANNELS", Fields.FIELD_TYPE_LONG);
         fields[i++].packetId = ++packetId;
 
         eof.packetId = ++packetId;
@@ -151,12 +147,6 @@ public final class ShowConnection {
         row.add(IntegerUtil.toBytes(bb == null ? 0 : bb.capacity()));
         ByteBufferQueue bq = c.getWriteQueue();
         row.add(IntegerUtil.toBytes(bq == null ? 0 : bq.size()));
-        if (c instanceof ServerConnection) {
-            ServerConnection sc = (ServerConnection) c;
-            row.add(IntegerUtil.toBytes(sc.getSession().getTargetCount()));
-        } else {
-            row.add(null);
-        }
         return row;
     }
 

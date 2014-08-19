@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.net.handler;
+package com.alibaba.cobar.frontend.server;
 
 import com.alibaba.cobar.defs.ErrorCode;
-import com.alibaba.cobar.net.FrontendConnection;
+import com.alibaba.cobar.frontend.server.response.Ping;
 import com.alibaba.cobar.net.nio.NIOHandler;
 import com.alibaba.cobar.net.packet.AbstractPacket;
 import com.alibaba.cobar.statistics.ProcessorStatistic.CommandCount;
@@ -26,12 +26,12 @@ import com.alibaba.cobar.statistics.ProcessorStatistic.CommandCount;
  * 
  * @author xianmao.hexm
  */
-public class FrontendCommandHandler implements NIOHandler {
+public class ServerDispatcher implements NIOHandler {
 
-    protected final FrontendConnection source;
+    protected final ServerConnection source;
     protected final CommandCount commands;
 
-    public FrontendCommandHandler(FrontendConnection source) {
+    public ServerDispatcher(ServerConnection source) {
         this.source = source;
         this.commands = source.getProcessor().getStatistic().getCommands();
     }
@@ -49,7 +49,7 @@ public class FrontendCommandHandler implements NIOHandler {
             break;
         case AbstractPacket.COM_PING:
             commands.doPing();
-            source.ping();
+            Ping.response(source);
             break;
         case AbstractPacket.COM_QUIT:
             commands.doQuit();
@@ -71,13 +71,9 @@ public class FrontendCommandHandler implements NIOHandler {
             commands.doStmtClose();
             source.stmtClose(data);
             break;
-        case AbstractPacket.COM_HEARTBEAT:
-            commands.doHeartbeat();
-            source.heartbeat(data);
-            break;
         default:
             commands.doOther();
-            source.writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Unknown command");
+            source.writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Unsupported command");
         }
     }
 

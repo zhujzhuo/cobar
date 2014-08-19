@@ -108,7 +108,7 @@ public class ExplainHandler {
             c.writeErrMessage(ErrorCode.ER_NO_DB_ERROR, "No database selected");
             return null;
         }
-        SchemasConfig schema = CobarServer.getInstance().getConfig().getSchemas().get(db);
+        SchemasConfig.Schema schema = CobarServer.getInstance().getConfig().getSchemas().getSchema(db);
         if (schema == null) {
             c.writeErrMessage(ErrorCode.ER_BAD_DB_ERROR, "Unknown database '" + db + "'");
             return null;

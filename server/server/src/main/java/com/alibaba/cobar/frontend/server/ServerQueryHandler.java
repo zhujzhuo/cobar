@@ -28,12 +28,12 @@ import com.alibaba.cobar.frontend.server.handler.ShowHandler;
 import com.alibaba.cobar.frontend.server.handler.StartHandler;
 import com.alibaba.cobar.frontend.server.handler.UseHandler;
 import com.alibaba.cobar.frontend.server.parser.ServerParse;
-import com.alibaba.cobar.net.handler.FrontendQueryHandler;
 
 /**
  * @author xianmao.hexm
  */
-public class ServerQueryHandler implements FrontendQueryHandler {
+public class ServerQueryHandler {
+
     private static final Logger LOGGER = Logger.getLogger(ServerQueryHandler.class);
 
     private final ServerConnection source;
@@ -42,7 +42,6 @@ public class ServerQueryHandler implements FrontendQueryHandler {
         this.source = source;
     }
 
-    @Override
     public void query(String sql) {
         ServerConnection c = this.source;
         if (LOGGER.isDebugEnabled()) {

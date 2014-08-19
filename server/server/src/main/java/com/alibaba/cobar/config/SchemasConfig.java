@@ -18,26 +18,34 @@
  */
 package com.alibaba.cobar.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.alibaba.cobar.config.model.SchemasModel;
 import com.alibaba.cobar.route.rule.Rule;
 import com.alibaba.cobar.util.SplitUtil;
 
+/**
+ * @author xianmao.hexm
+ */
 public class SchemasConfig {
 
-    private List<Schema> schemaList;
+    private Map<String, Schema> schemas;
 
     public SchemasConfig(SchemasModel model) {
-        schemaList = new ArrayList<SchemasConfig.Schema>();
+        schemas = new HashMap<String, SchemasConfig.Schema>();
         for (SchemasModel.Schema schema : model.getSchemaList()) {
-            schemaList.add(new SchemasConfig.Schema(schema));
+            SchemasConfig.Schema scs = new SchemasConfig.Schema(schema);
+            schemas.put(scs.getName(), scs);
         }
     }
 
-    public List<Schema> getSchemaList() {
-        return schemaList;
+    public Map<String, Schema> getSchemas() {
+        return schemas;
+    }
+
+    public Schema getSchema(String name) {
+        return schemas.get(name);
     }
 
     public static class Schema {

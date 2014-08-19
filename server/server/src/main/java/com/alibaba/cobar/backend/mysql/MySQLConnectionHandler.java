@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
-import com.alibaba.cobar.net.handler.BackendAsyncHandler;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.ErrorPacket;
 import com.alibaba.cobar.net.packet.OkPacket;

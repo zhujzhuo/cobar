@@ -23,7 +23,6 @@ import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.FieldPacket;
 import com.alibaba.cobar.net.packet.ResultSetHeaderPacket;
 import com.alibaba.cobar.net.packet.RowDataPacket;
-import com.alibaba.cobar.startup.CobarServer;
 import com.alibaba.cobar.statistics.SQLStatistic.SQLRecord;
 import com.alibaba.cobar.util.IntegerUtil;
 import com.alibaba.cobar.util.LongUtil;
@@ -86,14 +85,14 @@ public final class ShowSQLSlow {
 
         // write rows
         byte packetId = eof.packetId;
-        SQLRecord[] records = CobarServer.getInstance().getSqlRecorder().getRecords();
-        for (int i = records.length - 1; i >= 0; i--) {
-            if (records[i] != null) {
-                RowDataPacket row = getRow(records[i], c.getCharset());
-                row.packetId = ++packetId;
-                buffer = row.write(buffer, c);
-            }
-        }
+        //        SQLRecord[] records = CobarServer.getInstance().getSqlRecorder().getRecords();
+        //        for (int i = records.length - 1; i >= 0; i--) {
+        //            if (records[i] != null) {
+        //                RowDataPacket row = getRow(records[i], c.getCharset());
+        //                row.packetId = ++packetId;
+        //                buffer = row.write(buffer, c);
+        //            }
+        //        }
 
         // write last eof
         EOFPacket lastEof = new EOFPacket();

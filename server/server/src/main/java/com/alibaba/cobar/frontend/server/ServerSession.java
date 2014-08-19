@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,21 +28,17 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.backend.mysql.MySQLConnection;
 import com.alibaba.cobar.backend.mysql.handler.CommitNodeHandler;
-import com.alibaba.cobar.backend.mysql.handler.KillConnectionHandler;
 import com.alibaba.cobar.backend.mysql.handler.MultiNodeQueryHandler;
 import com.alibaba.cobar.backend.mysql.handler.RollbackNodeHandler;
 import com.alibaba.cobar.backend.mysql.handler.RollbackReleaseHandler;
 import com.alibaba.cobar.backend.mysql.handler.SingleNodeHandler;
 import com.alibaba.cobar.backend.mysql.handler.Terminatable;
-import com.alibaba.cobar.config.CobarConfig;
-import com.alibaba.cobar.config.tt.MySQLDataNode;
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.frontend.server.parser.ServerParse;
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.packet.OkPacket;
 import com.alibaba.cobar.route.RouteResultset;
 import com.alibaba.cobar.route.RouteResultsetNode;
-import com.alibaba.cobar.startup.CobarServer;
 import com.alibaba.cobar.util.ByteBufferUtil;
 
 /**
@@ -69,12 +64,10 @@ public class ServerSession {
         this.terminating = new AtomicBoolean(false);
     }
 
-    @Override
     public ServerConnection getSource() {
         return source;
     }
 
-    @Override
     public int getTargetCount() {
         return target.size();
     }
@@ -91,7 +84,6 @@ public class ServerSession {
         return target.remove(key);
     }
 
-    @Override
     public void execute(RouteResultset rrs, int type) {
         if (LOGGER.isDebugEnabled()) {
             StringBuilder s = new StringBuilder();
@@ -138,7 +130,6 @@ public class ServerSession {
         rollbackHandler.rollback();
     }
 
-    @Override
     public void cancel(FrontendConnection sponsor) {
         // TODO Auto-generated method stub
 
@@ -274,17 +265,17 @@ public class ServerSession {
             }
         }
         if (hooked) {
-            for (Entry<RouteResultsetNode, MySQLConnection> en : killees.entrySet()) {
-                KillConnectionHandler kill = new KillConnectionHandler(en.getValue(), this, run, count);
-                CobarConfig conf = CobarServer.getInstance().getConfig();
-                MySQLDataNode dn = conf.getDataNodes().get(en.getKey().getName());
-                try {
-                    dn.getConnection(kill, en.getKey());
-                } catch (Exception e) {
-                    LOGGER.error("get killer connection failed for " + en.getKey(), e);
-                    kill.connectionError(e, null);
-                }
-            }
+            //            for (Entry<RouteResultsetNode, MySQLConnection> en : killees.entrySet()) {
+            //                KillConnectionHandler kill = new KillConnectionHandler(en.getValue(), this, run, count);
+            //                CobarConfig conf = CobarServer.getInstance().getConfig();
+            //                MySQLDataNode dn = conf.getDataNodes().get(en.getKey().getName());
+            //                try {
+            //                    dn.getConnection(kill, en.getKey());
+            //                } catch (Exception e) {
+            //                    LOGGER.error("get killer connection failed for " + en.getKey(), e);
+            //                    kill.connectionError(e, null);
+            //                }
+            //            }
         } else {
             run.run();
         }

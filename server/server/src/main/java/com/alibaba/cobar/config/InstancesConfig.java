@@ -15,8 +15,8 @@
  */
 package com.alibaba.cobar.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.alibaba.cobar.config.model.InstancesModel;
 
@@ -25,28 +25,33 @@ import com.alibaba.cobar.config.model.InstancesModel;
  */
 public class InstancesConfig {
 
-    private List<Instance> instanceList;
+    private Map<String, Instance> instances;
 
     public InstancesConfig(InstancesModel model) {
-        instanceList = new ArrayList<InstancesConfig.Instance>();
+        instances = new HashMap<String, InstancesConfig.Instance>();
         for (InstancesModel.Instance instance : model.getInstanceList()) {
-            instanceList.add(new Instance(instance));
+            InstancesConfig.Instance ici = new Instance(instance);
+            instances.put(ici.getName(), ici);
         }
     }
 
-    public List<Instance> getInstanceList() {
-        return instanceList;
+    public Map<String, Instance> getInstances() {
+        return instances;
+    }
+
+    public Instance getInstance(String name) {
+        return instances.get(name);
     }
 
     public static class Instance {
-        private String id;
+        private String name;
         private String machine;
         private int port;
 
         public Instance(InstancesModel.Instance model) {
-            String id = model.getId();
-            if (id != null) {
-                this.id = id.trim();
+            String name = model.getName();
+            if (name != null) {
+                this.name = name.trim();
             }
             String machine = model.getMachine();
             if (machine != null) {
@@ -58,8 +63,8 @@ public class InstancesConfig {
             }
         }
 
-        public String getId() {
-            return id;
+        public String getName() {
+            return name;
         }
 
         public String getMachine() {

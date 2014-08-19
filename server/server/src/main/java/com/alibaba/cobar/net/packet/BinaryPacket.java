@@ -27,6 +27,7 @@ import com.alibaba.cobar.util.StreamUtil;
  * @author xianmao.hexm 2011-5-6 上午10:58:33
  */
 public class BinaryPacket extends AbstractPacket {
+
     public static final byte OK = 1;
     public static final byte ERROR = 2;
     public static final byte HEADER = 3;
@@ -49,20 +50,20 @@ public class BinaryPacket extends AbstractPacket {
     public ByteBuffer write(ByteBuffer buffer, FrontendConnection c) {
         int size = c.getProtocol().getPacketHeaderSize();
         buffer = ByteBufferUtil.check(buffer, size, c);
-        ByteBufferUtil.writeUB3(buffer, calcPacketSize());
+        ByteBufferUtil.writeUB3(buffer, calcPacketLength());
         buffer.put(packetId);
         buffer = ByteBufferUtil.write(data, buffer, c);
         return buffer;
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         return data == null ? 0 : data.length;
     }
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL Binary Packet";
+        return "Binary Packet";
     }
 
 }

@@ -22,8 +22,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.backend.mysql.MySQLDataSource;
-import com.alibaba.cobar.config.tt.MySQLDataNode;
 import com.alibaba.cobar.statistics.ConnectionStatistic;
 import com.alibaba.cobar.statistics.HeartbeatStatistic;
 

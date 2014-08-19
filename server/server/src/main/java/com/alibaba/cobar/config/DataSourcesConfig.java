@@ -15,8 +15,8 @@
  */
 package com.alibaba.cobar.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.alibaba.cobar.config.model.DataSourcesModel;
 
@@ -25,30 +25,35 @@ import com.alibaba.cobar.config.model.DataSourcesModel;
  */
 public class DataSourcesConfig {
 
-    private List<DataSource> dataSourceList;
+    private Map<String, DataSource> dataSources;
 
     public DataSourcesConfig(DataSourcesModel model) {
-        dataSourceList = new ArrayList<DataSourcesConfig.DataSource>();
+        dataSources = new HashMap<String, DataSourcesConfig.DataSource>();
         for (DataSourcesModel.DataSource source : model.getDataSourceList()) {
-            dataSourceList.add(new DataSource(source));
+            DataSourcesConfig.DataSource ds = new DataSource(source);
+            dataSources.put(ds.getName(), ds);
         }
     }
 
-    public List<DataSource> getDataSourceList() {
-        return dataSourceList;
+    public Map<String, DataSource> getDataSources() {
+        return dataSources;
+    }
+
+    public DataSource getDataSource(String name) {
+        return dataSources.get(name);
     }
 
     public static class DataSource {
-        private String id;
+        private String name;
         private String instance;
         private String schema;
         private String user;
         private String password;
 
         public DataSource(DataSourcesModel.DataSource model) {
-            String id = model.getId();
-            if (id != null) {
-                this.id = id.trim();
+            String name = model.getName();
+            if (name != null) {
+                this.name = name.trim();
             }
             String instance = model.getInstance();
             if (instance != null) {
@@ -68,8 +73,8 @@ public class DataSourcesConfig {
             }
         }
 
-        public String getId() {
-            return id;
+        public String getName() {
+            return name;
         }
 
         public String getInstance() {

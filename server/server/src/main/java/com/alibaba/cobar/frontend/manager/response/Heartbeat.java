@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.frontend.server.response;
+package com.alibaba.cobar.frontend.manager.response;
 
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.defs.ErrorCode;
-import com.alibaba.cobar.frontend.server.ServerConnection;
+import com.alibaba.cobar.frontend.manager.ManagerConnection;
 import com.alibaba.cobar.net.packet.ErrorPacket;
 import com.alibaba.cobar.net.packet.HeartbeatPacket;
 import com.alibaba.cobar.net.packet.OkPacket;
@@ -29,7 +29,7 @@ public class Heartbeat {
 
     private static final Logger HEARTBEAT = Logger.getLogger("heartbeat");
 
-    public static void response(ServerConnection c, byte[] data) {
+    public static void response(ManagerConnection c, byte[] data) {
         HeartbeatPacket hp = new HeartbeatPacket();
         hp.read(data);
         if (CobarServer.getInstance().isOnline()) {
@@ -53,7 +53,7 @@ public class Heartbeat {
         }
     }
 
-    private static String responseMessage(String action, ServerConnection c, long id) {
+    private static String responseMessage(String action, ManagerConnection c, long id) {
         return new StringBuilder("RESPONSE:").append(action)
                                              .append(", id=")
                                              .append(id)

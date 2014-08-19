@@ -16,11 +16,12 @@
 package com.alibaba.cobar.frontend.server.response;
 
 import java.nio.ByteBuffer;
-import java.util.Map;
 
-import com.alibaba.cobar.backend.mysql.MySQLDataSource;
-import com.alibaba.cobar.config.tt.DataSourceConfig;
-import com.alibaba.cobar.config.tt.MySQLDataNode;
+import com.alibaba.cobar.config.CobarConfig;
+import com.alibaba.cobar.config.DataNodesConfig;
+import com.alibaba.cobar.config.DataSourcesConfig;
+import com.alibaba.cobar.config.InstancesConfig;
+import com.alibaba.cobar.config.MachinesConfig;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.server.ServerConnection;
 import com.alibaba.cobar.net.packet.EOFPacket;
@@ -39,7 +40,7 @@ import com.alibaba.cobar.util.StringUtil;
  */
 public class ShowDataSources {
 
-    private static final int FIELD_COUNT = 5;
+    private static final int FIELD_COUNT = 4;
     private static final ResultSetHeaderPacket header = PacketUtil.getHeader(FIELD_COUNT);
     private static final FieldPacket[] fields = new FieldPacket[FIELD_COUNT];
     private static final EOFPacket eof = new EOFPacket();
@@ -48,8 +49,6 @@ public class ShowDataSources {
         byte packetId = 0;
         header.packetId = ++packetId;
         fields[i] = PacketUtil.getField("NAME", Fields.FIELD_TYPE_VAR_STRING);
-        fields[i++].packetId = ++packetId;
-        fields[i] = PacketUtil.getField("TYPE", Fields.FIELD_TYPE_VAR_STRING);
         fields[i++].packetId = ++packetId;
         fields[i] = PacketUtil.getField("HOST", Fields.FIELD_TYPE_VAR_STRING);
         fields[i++].packetId = ++packetId;
@@ -76,8 +75,8 @@ public class ShowDataSources {
 
         // write rows
         byte packetId = eof.packetId;
-        Map<String, MySQLDataNode> nodes = CobarServer.getInstance().getConfig().getDataNodes();
-        for (MySQLDataNode node : nodes.values()) {
+        DataNodesConfig dataNodes = CobarServer.getInstance().getConfig().getDataNodes();
+        for (DataNodesConfig.DataNode node : dataNodes.getDataNodes().values()) {
             RowDataPacket row = getRow(node, c.getCharset());
             row.packetId = ++packetId;
             buffer = row.write(buffer, c);
@@ -92,18 +91,19 @@ public class ShowDataSources {
         c.write(buffer);
     }
 
-    private static RowDataPacket getRow(MySQLDataNode node, String charset) {
+    private static RowDataPacket getRow(DataNodesConfig.DataNode node, String charset) {
         RowDataPacket row = new RowDataPacket(FIELD_COUNT);
         row.add(StringUtil.encode(node.getName(), charset));
-        MySQLDataSource ds = node.getSource();
+        String ds = node.getDataSources()[0];
         if (ds != null) {
-            DataSourceConfig dsc = ds.getConfig();
-            row.add(StringUtil.encode(dsc.getType(), charset));
-            row.add(StringUtil.encode(dsc.getHost(), charset));
-            row.add(IntegerUtil.toBytes(dsc.getPort()));
-            row.add(StringUtil.encode(dsc.getDatabase(), charset));
+            CobarConfig cc = CobarServer.getInstance().getConfig();
+            DataSourcesConfig.DataSource dsc = cc.getDataSources().getDataSource(ds);
+            InstancesConfig.Instance ici = cc.getInstances().getInstance(dsc.getInstance());
+            MachinesConfig.Machine mcm = cc.getMachines().getMachine(ici.getMachine());
+            row.add(StringUtil.encode(mcm.getHost(), charset));
+            row.add(IntegerUtil.toBytes(ici.getPort()));
+            row.add(StringUtil.encode(dsc.getSchema(), charset));
         } else {
-            row.add(null);
             row.add(null);
             row.add(null);
             row.add(null);

@@ -64,7 +64,7 @@ public class PreparedOkPacket extends AbstractPacket {
 
     @Override
     public ByteBuffer write(ByteBuffer buffer, FrontendConnection c) {
-        int size = calcPacketSize();
+        int size = calcPacketLength();
         int headerSize = c.getProtocol().getPacketHeaderSize();
         buffer = ByteBufferUtil.check(buffer, headerSize + size, c);
         ByteBufferUtil.writeUB3(buffer, size);
@@ -79,13 +79,13 @@ public class PreparedOkPacket extends AbstractPacket {
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         return 12;
     }
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL PreparedOk Packet";
+        return "PreparedOk Packet";
     }
 
 }

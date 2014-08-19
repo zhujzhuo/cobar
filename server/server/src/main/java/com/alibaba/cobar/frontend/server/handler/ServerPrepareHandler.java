@@ -23,14 +23,13 @@ import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.frontend.server.PreparedStatement;
 import com.alibaba.cobar.frontend.server.ServerConnection;
 import com.alibaba.cobar.frontend.server.response.PreparedStmtResponse;
-import com.alibaba.cobar.net.handler.FrontendPrepareHandler;
 import com.alibaba.cobar.net.packet.ExecutePacket;
 import com.alibaba.cobar.util.BytesUtil;
 
 /**
  * @author xianmao.hexm 2012-8-28
  */
-public class ServerPrepareHandler implements FrontendPrepareHandler {
+public class ServerPrepareHandler {
 
     private ServerConnection source;
     private volatile long pstmtId;
@@ -44,7 +43,6 @@ public class ServerPrepareHandler implements FrontendPrepareHandler {
         this.pstmtForId = new HashMap<Long, PreparedStatement>();
     }
 
-    @Override
     public void prepare(String sql) {
         PreparedStatement pstmt = null;
         if ((pstmt = pstmtForSql.get(sql)) == null) {
@@ -55,7 +53,6 @@ public class ServerPrepareHandler implements FrontendPrepareHandler {
         PreparedStmtResponse.response(pstmt, source);
     }
 
-    @Override
     public void execute(byte[] data) {
         long pstmtId = BytesUtil.readUB4(data, 5);
         PreparedStatement pstmt = null;
@@ -73,7 +70,6 @@ public class ServerPrepareHandler implements FrontendPrepareHandler {
         }
     }
 
-    @Override
     public void close() {
         // TODO Auto-generated method stub
 

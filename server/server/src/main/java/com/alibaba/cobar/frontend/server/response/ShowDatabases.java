@@ -16,11 +16,9 @@
 package com.alibaba.cobar.frontend.server.response;
 
 import java.nio.ByteBuffer;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.alibaba.cobar.config.CobarConfig;
 import com.alibaba.cobar.config.UsersConfig;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.server.ServerConnection;
@@ -66,16 +64,14 @@ public class ShowDatabases {
 
         // write rows
         byte packetId = eof.packetId;
-        CobarConfig conf = CobarServer.getInstance().getConfig();
-        Map<String, UsersConfig> users = conf.getUsers();
-        UsersConfig user = users == null ? null : users.get(c.getUser());
+        UsersConfig.User user = CobarServer.getInstance().getConfig().getUsers().getUser(c.getUser());
         if (user != null) {
             TreeSet<String> schemaSet = new TreeSet<String>();
-            Set<String> schemaList = user.getSchemas();
-            if (schemaList == null || schemaList.size() == 0) {
-                schemaSet.addAll(conf.getSchemas().keySet());
+            Set<String> schemas = user.getSchemas();
+            if (schemas == null || schemas.size() == 0) {
+                schemaSet.addAll(CobarServer.getInstance().getConfig().getSchemas().getSchemas().keySet());
             } else {
-                for (String schema : schemaList) {
+                for (String schema : schemas) {
                     schemaSet.add(schema);
                 }
             }

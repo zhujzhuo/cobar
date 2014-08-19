@@ -15,9 +15,9 @@
  */
 package com.alibaba.cobar.config;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.alibaba.cobar.config.model.QuarantineModel;
@@ -30,17 +30,22 @@ import com.alibaba.cobar.util.SplitUtil;
  */
 public class QuarantineConfig {
 
-    private List<Host> hostList;
+    private Map<String, Host> hosts;
 
     public QuarantineConfig(QuarantineModel model) {
-        hostList = new ArrayList<Host>();
+        hosts = new HashMap<String, Host>();
         for (QuarantineModel.Host host : model.getHostList()) {
-            hostList.add(new QuarantineConfig.Host(host));
+            QuarantineConfig.Host qch = new QuarantineConfig.Host(host);
+            hosts.put(qch.getName(), qch);
         }
     }
 
-    public List<Host> getHostList() {
-        return hostList;
+    public Map<String, Host> getHosts() {
+        return hosts;
+    }
+
+    public Host getHost(String name) {
+        return hosts.get(name);
     }
 
     public static class Host {

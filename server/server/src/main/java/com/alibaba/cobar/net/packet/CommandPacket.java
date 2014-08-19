@@ -95,7 +95,8 @@ public class CommandPacket extends AbstractPacket {
     }
 
     public void write(OutputStream out) throws IOException {
-        StreamUtil.writeUB3(out, calcPacketSize());
+        packetLength = calcPacketLength();
+        StreamUtil.writeUB3(out, packetLength);
         StreamUtil.write(out, packetId);
         StreamUtil.write(out, command);
         out.write(arg);
@@ -104,7 +105,8 @@ public class CommandPacket extends AbstractPacket {
     @Override
     public void write(BackendConnection c) {
         ByteBuffer buffer = c.allocate();
-        ByteBufferUtil.writeUB3(buffer, calcPacketSize());
+        packetLength = calcPacketLength();
+        ByteBufferUtil.writeUB3(buffer, packetLength);
         buffer.put(packetId);
         buffer.put(command);
         buffer = ByteBufferUtil.write(arg, buffer, c);
@@ -112,13 +114,13 @@ public class CommandPacket extends AbstractPacket {
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         return 1 + arg.length;
     }
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL Command Packet";
+        return "Command Packet";
     }
 
 }

@@ -128,14 +128,14 @@ public class ExecutePacket extends AbstractPacket {
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
     protected String getPacketInfo() {
-        return "MySQL Execute Packet";
+        return "Execute Packet";
     }
 
 }

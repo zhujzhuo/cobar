@@ -15,6 +15,7 @@
  */
 package com.alibaba.cobar.util;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -131,8 +132,11 @@ public class CharsetUtil {
     }
 
     public static final String getCharset(int index) {
-        if(index<0 || index>98) index = 83;
-        return INDEX_TO_CHARSET[index];
+        if (index < 0 || index > 98) {
+            return null;
+        } else {
+            return INDEX_TO_CHARSET[index];
+        }
     }
 
     public static final int getIndex(String charset) {
@@ -142,6 +146,10 @@ public class CharsetUtil {
             Integer i = CHARSET_TO_INDEX.get(charset.toLowerCase());
             return (i == null) ? 0 : i.intValue();
         }
+    }
+
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        "ssss".getBytes("utf8mb4");
     }
 
 }

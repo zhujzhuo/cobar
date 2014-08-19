@@ -57,7 +57,7 @@ public final class NIOProcessor {
         this.name = name;
         this.reactor = new NIOReactor(name);
         this.bufferPool = new ByteBufferPool(buffer, chunk);
-        this.executor = (executor > 0) ? ExecutorUtil.create(name + "-E", executor) : null;
+        this.executor = (executor > 0) ? ExecutorUtil.create(name + "-Executor", executor) : null;
         this.frontends = new ConcurrentHashMap<Long, FrontendConnection>();
         this.backends = new ConcurrentHashMap<Long, BackendConnection>();
         this.statistic = new ProcessorStatistic();
@@ -123,12 +123,12 @@ public final class NIOProcessor {
      * 定时检查并回收资源。
      */
     public void check() {
-        fcCheck();
-        bcCheck();
+        frontendCheck();
+        backendCheck();
     }
 
     // 前端连接检查
-    private void fcCheck() {
+    private void frontendCheck() {
         Iterator<Map.Entry<Long, FrontendConnection>> it = frontends.entrySet().iterator();
         while (it.hasNext()) {
             FrontendConnection c = it.next().getValue();
@@ -147,7 +147,7 @@ public final class NIOProcessor {
     }
 
     // 后端连接检查
-    private void bcCheck() {
+    private void backendCheck() {
         Iterator<Map.Entry<Long, BackendConnection>> it = backends.entrySet().iterator();
         while (it.hasNext()) {
             BackendConnection c = it.next().getValue();

@@ -169,7 +169,7 @@ public final class ServerConfig {
         }
         String idleTimeout = model.getIdleTimeout();
         if (idleTimeout != null) {
-            this.idleTimeout = Long.parseLong(idleTimeout.trim());
+            this.idleTimeout = Long.parseLong(idleTimeout.trim()) * 1000L;
         }
     }
 

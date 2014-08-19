@@ -48,7 +48,7 @@ public class HeartbeatPacket extends AbstractPacket {
     @Override
     public void write(BackendConnection c) {
         ByteBuffer buffer = c.allocate();
-        ByteBufferUtil.writeUB3(buffer, calcPacketSize());
+        ByteBufferUtil.writeUB3(buffer, calcPacketLength());
         buffer.put(packetId);
         buffer.put(command);
         ByteBufferUtil.writeLength(buffer, id);
@@ -56,13 +56,13 @@ public class HeartbeatPacket extends AbstractPacket {
     }
 
     @Override
-    public int calcPacketSize() {
+    public int calcPacketLength() {
         return 1 + ByteBufferUtil.getLength(id);
     }
 
     @Override
     protected String getPacketInfo() {
-        return "Cobar Heartbeat Packet";
+        return "Heartbeat Packet";
     }
 
 }

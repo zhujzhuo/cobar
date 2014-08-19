@@ -15,8 +15,8 @@
  */
 package com.alibaba.cobar.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.alibaba.cobar.config.model.ClusterModel;
 
@@ -25,23 +25,29 @@ import com.alibaba.cobar.config.model.ClusterModel;
  */
 public class ClusterConfig {
 
-    private List<Node> nodeList;
+    private Map<String, Node> nodes;
 
     public ClusterConfig(ClusterModel model) {
-        nodeList = new ArrayList<Node>();
+        nodes = new HashMap<String, Node>();
         for (ClusterModel.Node node : model.getNodeList()) {
-            nodeList.add(new ClusterConfig.Node(node));
+            ClusterConfig.Node ccn = new ClusterConfig.Node(node);
+            nodes.put(ccn.getName(), ccn);
         }
     }
 
-    public List<Node> getNodeList() {
-        return nodeList;
+    public Map<String, Node> getNodes() {
+        return nodes;
+    }
+
+    public Node getNode(String name) {
+        return nodes.get(name);
     }
 
     public static class Node {
         private String name;
         private String host;
         private int weight;
+        private boolean isOnline;
 
         public Node(ClusterModel.Node model) {
             String name = model.getName();
@@ -68,6 +74,14 @@ public class ClusterConfig {
 
         public int getWeight() {
             return weight;
+        }
+
+        public boolean isOnline() {
+            return isOnline;
+        }
+
+        public void setOnline(boolean isOnline) {
+            this.isOnline = isOnline;
         }
 
     }

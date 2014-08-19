@@ -15,17 +15,22 @@
  */
 package com.alibaba.cobar.frontend.manager.response;
 
+import java.nio.ByteBuffer;
+
+import com.alibaba.cobar.config.SchemasConfig;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.manager.ManagerConnection;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.FieldPacket;
 import com.alibaba.cobar.net.packet.ResultSetHeaderPacket;
+import com.alibaba.cobar.net.packet.RowDataPacket;
+import com.alibaba.cobar.startup.CobarServer;
 import com.alibaba.cobar.util.PacketUtil;
+import com.alibaba.cobar.util.StringUtil;
 
 /**
  * 查看schema信息
  * 
- * @author wenfeng.cenwf 2011-4-21
  * @author xianmao.hexm
  */
 public final class ShowDatabase {
@@ -46,36 +51,36 @@ public final class ShowDatabase {
     }
 
     public static void execute(ManagerConnection c) {
-        //        ByteBuffer buffer = c.allocate();
-        //
-        //        // write header
-        //        buffer = header.write(buffer, c);
-        //
-        //        // write fields
-        //        for (FieldPacket field : fields) {
-        //            buffer = field.write(buffer, c);
-        //        }
-        //
-        //        // write eof
-        //        buffer = eof.write(buffer, c);
-        //
-        //        // write rows
-        //        byte packetId = eof.packetId;
-        //        Map<String, SchemaConfig> schemas = CobarServer.getInstance().getConfig().getSchemas();
-        //        for (String name : new TreeSet<String>(schemas.keySet())) {
-        //            RowDataPacket row = new RowDataPacket(FIELD_COUNT);
-        //            row.add(StringUtil.encode(name, c.getCharset()));
-        //            row.packetId = ++packetId;
-        //            buffer = row.write(buffer, c);
-        //        }
-        //
-        //        // write lastEof
-        //        EOFPacket lastEof = new EOFPacket();
-        //        lastEof.packetId = ++packetId;
-        //        buffer = lastEof.write(buffer, c);
-        //
-        //        // write buffer
-        //        c.write(buffer);
+        ByteBuffer buffer = c.allocate();
+
+        // write header
+        buffer = header.write(buffer, c);
+
+        // write fields
+        for (FieldPacket field : fields) {
+            buffer = field.write(buffer, c);
+        }
+
+        // write eof
+        buffer = eof.write(buffer, c);
+
+        // write rows
+        byte packetId = eof.packetId;
+        SchemasConfig sc = CobarServer.getInstance().getConfig().getSchemas();
+        for (String schema : sc.getSchemas().keySet()) {
+            RowDataPacket row = new RowDataPacket(FIELD_COUNT);
+            row.add(StringUtil.encode(schema, c.getCharset()));
+            row.packetId = ++packetId;
+            buffer = row.write(buffer, c);
+        }
+
+        // write lastEof
+        EOFPacket lastEof = new EOFPacket();
+        lastEof.packetId = ++packetId;
+        buffer = lastEof.write(buffer, c);
+
+        // write buffer
+        c.write(buffer);
     }
 
 }

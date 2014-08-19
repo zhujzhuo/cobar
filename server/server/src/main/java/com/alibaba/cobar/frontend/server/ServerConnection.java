@@ -16,35 +16,40 @@
 package com.alibaba.cobar.frontend.server;
 
 import java.io.EOFException;
+import java.io.UnsupportedEncodingException;
 import java.nio.channels.SocketChannel;
 import java.sql.SQLNonTransientException;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.config.SchemasConfig;
 import com.alibaba.cobar.defs.ErrorCode;
-import com.alibaba.cobar.frontend.server.response.Heartbeat;
-import com.alibaba.cobar.frontend.server.response.Ping;
-import com.alibaba.cobar.frontend.session.BlockingSession;
+import com.alibaba.cobar.frontend.server.handler.ServerPrepareHandler;
 import com.alibaba.cobar.net.FrontendConnection;
+import com.alibaba.cobar.net.packet.OkPacket;
+import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.route.RouteResultset;
 import com.alibaba.cobar.route.ServerRouter;
 import com.alibaba.cobar.startup.CobarServer;
-import com.alibaba.cobar.util.TimeUtil;
+import com.alibaba.cobar.util.ByteBufferUtil;
 
 /**
  * @author xianmao.hexm 2011-4-21 上午11:22:57
  */
 public class ServerConnection extends FrontendConnection {
-    private static final Logger LOGGER = Logger.getLogger(ServerConnection.class);
-    private static final long AUTH_TIMEOUT = 15 * 1000L;
 
+    private static final Logger LOGGER = Logger.getLogger(ServerConnection.class);
+
+    protected String user;
+    protected ServerPrivileges privileges;
+    protected ServerQueryHandler queryHandler;
+    protected ServerPrepareHandler prepareHandler;
     private volatile int txIsolation;
     private volatile boolean autocommit;
     private volatile boolean txInterrupted;
     private long lastInsertId;
-    private BlockingSession session;
-    private ServerSession session2;
+    private ServerSession session;
 
     public ServerConnection(SocketChannel channel) {
         super(channel);
@@ -52,14 +57,126 @@ public class ServerConnection extends FrontendConnection {
         this.autocommit = true;
     }
 
-    @Override
-    public boolean isIdleTimeout() {
-        if (isAuthenticated) {
-            return super.isIdleTimeout();
-        } else {
-            long last = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
-            return TimeUtil.currentTimeMillis() > last + AUTH_TIMEOUT;
+    public void initDB(byte[] data) {
+        MySQLMessage mm = new MySQLMessage(data);
+        mm.position(5);
+        String db = mm.readString();
+
+        // 检查schema是否已经设置
+        if (schema != null) {
+            if (schema.equals(db)) {
+                ByteBufferUtil.write(OkPacket.OK, this);
+            } else {
+                writeErrMessage(ErrorCode.ER_DBACCESS_DENIED_ERROR, "Not allowed to change the database!");
+            }
+            return;
         }
+
+        // 检查schema的有效性
+        if (db == null || !privileges.schemaExists(db)) {
+            writeErrMessage(ErrorCode.ER_BAD_DB_ERROR, "Unknown database '" + db + "'");
+            return;
+        }
+        if (!privileges.userExists(user, host)) {
+            writeErrMessage(ErrorCode.ER_ACCESS_DENIED_ERROR, "Access denied for user '" + user + "'");
+            return;
+        }
+        Set<String> schemas = privileges.getUserSchemas(user);
+        if (schemas == null || schemas.size() == 0 || schemas.contains(db)) {
+            this.schema = db;
+            ByteBufferUtil.write(OkPacket.OK, this);
+        } else {
+            String s = "Access denied for user '" + user + "' to database '" + db + "'";
+            writeErrMessage(ErrorCode.ER_DBACCESS_DENIED_ERROR, s);
+        }
+    }
+
+    public void query(byte[] data) {
+        if (queryHandler != null) {
+            // 取得语句
+            MySQLMessage mm = new MySQLMessage(data);
+            mm.position(5);
+            String sql = null;
+            try {
+                sql = mm.readString(charset);
+            } catch (UnsupportedEncodingException e) {
+                writeErrMessage(ErrorCode.ER_UNKNOWN_CHARACTER_SET, "Unknown charset '" + charset + "'");
+                return;
+            }
+            if (sql == null || sql.length() == 0) {
+                writeErrMessage(ErrorCode.ER_NOT_ALLOWED_COMMAND, "Empty SQL");
+                return;
+            }
+
+            // 执行查询
+            queryHandler.query(sql);
+        } else {
+            writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Query unsupported!");
+        }
+    }
+
+    public void stmtPrepare(byte[] data) {
+        if (prepareHandler != null) {
+            // 取得语句
+            MySQLMessage mm = new MySQLMessage(data);
+            mm.position(5);
+            String sql = null;
+            try {
+                sql = mm.readString(charset);
+            } catch (UnsupportedEncodingException e) {
+                writeErrMessage(ErrorCode.ER_UNKNOWN_CHARACTER_SET, "Unknown charset '" + charset + "'");
+                return;
+            }
+            if (sql == null || sql.length() == 0) {
+                writeErrMessage(ErrorCode.ER_NOT_ALLOWED_COMMAND, "Empty SQL");
+                return;
+            }
+
+            // 执行预处理
+            prepareHandler.prepare(sql);
+        } else {
+            writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Prepare unsupported!");
+        }
+    }
+
+    public void stmtExecute(byte[] data) {
+        if (prepareHandler != null) {
+            prepareHandler.execute(data);
+        } else {
+            writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Prepare unsupported!");
+        }
+    }
+
+    public void stmtClose(byte[] data) {
+        if (prepareHandler != null) {
+            prepareHandler.close();
+        } else {
+            writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Prepare unsupported!");
+        }
+    }
+
+    public void setQueryHandler(ServerQueryHandler queryHandler) {
+        this.queryHandler = queryHandler;
+    }
+
+    public void setPrepareHandler(ServerPrepareHandler prepareHandler) {
+        this.prepareHandler = prepareHandler;
+    }
+
+    public ServerPrivileges getPrivileges() {
+        return privileges;
+    }
+
+    public void setPrivileges(ServerPrivileges privileges) {
+        this.privileges = privileges;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
     public int getTxIsolation() {
@@ -95,30 +212,16 @@ public class ServerConnection extends FrontendConnection {
         }
     }
 
-    public BlockingSession getSession() {
+    public ServerSession getSession() {
         return session;
     }
 
-    public void setSession(BlockingSession session) {
+    public void setSession(ServerSession session) {
         this.session = session;
     }
 
-    public ServerSession getSession2() {
-        return session2;
-    }
-
-    public void setSession2(ServerSession session2) {
-        this.session2 = session2;
-    }
-
-    @Override
-    public void ping() {
-        Ping.response(this);
-    }
-
-    @Override
-    public void heartbeat(byte[] data) {
-        Heartbeat.response(this, data);
+    public void kill(byte[] data) {
+        writeErrMessage(ErrorCode.ER_UNKNOWN_COM_ERROR, "Unknown command");
     }
 
     public void execute(String sql, int type) {
@@ -134,7 +237,7 @@ public class ServerConnection extends FrontendConnection {
             writeErrMessage(ErrorCode.ER_NO_DB_ERROR, "No database selected");
             return;
         }
-        SchemasConfig schema = CobarServer.getInstance().getConfig().getSchemas().get(db);
+        SchemasConfig.Schema schema = CobarServer.getInstance().getConfig().getSchemas().getSchema(db);
         if (schema == null) {
             writeErrMessage(ErrorCode.ER_BAD_DB_ERROR, "Unknown database '" + db + "'");
             return;

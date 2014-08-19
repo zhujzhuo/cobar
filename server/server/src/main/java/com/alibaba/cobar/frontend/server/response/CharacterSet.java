@@ -26,6 +26,7 @@ import com.alibaba.cobar.frontend.server.ServerConnection;
 import com.alibaba.cobar.frontend.server.parser.ServerParseSet;
 import com.alibaba.cobar.net.packet.OkPacket;
 import com.alibaba.cobar.util.ByteBufferUtil;
+import com.alibaba.cobar.util.CharsetUtil;
 import com.alibaba.cobar.util.SplitUtil;
 
 /**
@@ -134,18 +135,16 @@ public class CharacterSet {
         if ("null".equalsIgnoreCase(charset)) {
             /* 忽略字符集为null的属性设置 */
             ByteBufferUtil.write(OkPacket.OK, c);
-        } else if (c.setCharset(charset)) {
+            return;
+        }
+
+        int charsetIndex = CharsetUtil.getIndex(charset);
+        if (charsetIndex != 0) {
+            c.setCharset(charset);
             ByteBufferUtil.write(OkPacket.OK, c);
+            return;
         } else {
-            try {
-                if (c.setCharsetIndex(Integer.parseInt(charset))) {
-                    ByteBufferUtil.write(OkPacket.OK, c);
-                } else {
-                    c.writeErrMessage(ErrorCode.ER_UNKNOWN_CHARACTER_SET, "Unknown charset :" + charset);
-                }
-            } catch (RuntimeException e) {
-                c.writeErrMessage(ErrorCode.ER_UNKNOWN_CHARACTER_SET, "Unknown charset :" + charset);
-            }
+            c.writeErrMessage(ErrorCode.ER_UNKNOWN_CHARACTER_SET, "Unknown charset :" + charset);
         }
     }
 

@@ -23,8 +23,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.tt.CobarNode;
-import com.alibaba.cobar.config.tt.CobarNodeConfig;
 import com.alibaba.cobar.defs.Alarms;
 import com.alibaba.cobar.net.packet.OkPacket;
 import com.alibaba.cobar.statistics.ConnectionStatistic;

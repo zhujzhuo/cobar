@@ -28,6 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.net.nio.NIOConnection;
+import com.alibaba.cobar.net.nio.NIOHandler;
 import com.alibaba.cobar.net.nio.NIOProcessor;
 import com.alibaba.cobar.net.protocol.MySQLProtocol;
 import com.alibaba.cobar.statistics.ConnectionStatistic;
@@ -42,12 +43,18 @@ public abstract class AbstractConnection implements NIOConnection {
     private static final int OP_NOT_READ = ~SelectionKey.OP_READ;
     private static final int OP_NOT_WRITE = ~SelectionKey.OP_WRITE;
 
+    protected long id;
+    protected String host;
+    protected int port;
+    protected int localPort;
+    protected long idleTimeout;
     protected final SocketChannel channel;
     protected NIOProcessor processor;
     protected SelectionKey processKey;
     protected final ReentrantLock keyLock;
-    protected final MySQLProtocol protocol;
     protected ByteBuffer readBuffer;
+    protected final MySQLProtocol protocol;
+    protected NIOHandler handler;
     protected ByteBufferQueue writeQueue;
     protected final ReentrantLock writeLock;
     protected boolean isRegistered;
@@ -62,6 +69,46 @@ public abstract class AbstractConnection implements NIOConnection {
         this.writeLock = new ReentrantLock();
         this.isClosed = new AtomicBoolean(false);
         this.statistic = new ConnectionStatistic();
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public int getLocalPort() {
+        return localPort;
+    }
+
+    public void setLocalPort(int localPort) {
+        this.localPort = localPort;
+    }
+
+    public long getIdleTimeout() {
+        return idleTimeout;
+    }
+
+    public void setIdleTimeout(long idleTimeout) {
+        this.idleTimeout = idleTimeout;
     }
 
     public SocketChannel getChannel() {
@@ -104,6 +151,10 @@ public abstract class AbstractConnection implements NIOConnection {
         processor.getBufferPool().recycle(buffer);
     }
 
+    public void setHandler(NIOHandler handler) {
+        this.handler = handler;
+    }
+
     @Override
     public void register(Selector selector) throws IOException {
         try {
@@ -130,6 +181,20 @@ public abstract class AbstractConnection implements NIOConnection {
 
         // 对读取的buffer数据做协议层的处理和转换
         protocol.handle(buffer);
+    }
+
+    @Override
+    public void handle(final byte[] data) {
+        processor.getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    handler.handle(data);
+                } catch (Throwable t) {
+                    error(ErrorCode.ERR_HANDLE_DATA, t);
+                }
+            }
+        });
     }
 
     @Override

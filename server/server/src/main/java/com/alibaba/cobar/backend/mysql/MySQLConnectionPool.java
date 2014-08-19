@@ -24,8 +24,6 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.backend.mysql.handler.DelegateResponseHandler;
 import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
-import com.alibaba.cobar.config.tt.DataSourceConfig;
-import com.alibaba.cobar.config.tt.MySQLDataNode;
 import com.alibaba.cobar.defs.Alarms;
 import com.alibaba.cobar.statistics.SQLStatistic;
 import com.alibaba.cobar.util.TimeUtil;

@@ -194,7 +194,7 @@ public abstract class AbstractPacket {
     /**
      * 计算数据包大小，不包含包头长度。
      */
-    public abstract int calcPacketSize();
+    public abstract int calcPacketLength();
 
     /**
      * 取得数据包信息
@@ -203,12 +203,13 @@ public abstract class AbstractPacket {
 
     @Override
     public String toString() {
-        return new StringBuilder().append(getPacketInfo())
-                                  .append("{length=")
+        return new StringBuilder().append("[class=")
+                                  .append(getClass().getSimpleName())
+                                  .append(",length=")
                                   .append(packetLength)
                                   .append(",id=")
                                   .append(packetId)
-                                  .append('}')
+                                  .append(']')
                                   .toString();
     }
 

@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
 import com.alibaba.cobar.config.ServerConfig;
-import com.alibaba.cobar.config.tt.CobarNodeConfig;
 import com.alibaba.cobar.net.factory.BackendConnectionFactory;
 import com.alibaba.cobar.startup.CobarServer;
 

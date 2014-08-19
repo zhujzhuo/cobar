@@ -18,15 +18,10 @@ package com.alibaba.cobar.frontend.server.response;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.CobarConfig;
-import com.alibaba.cobar.config.SchemasConfig;
-import com.alibaba.cobar.config.tt.CobarCluster;
-import com.alibaba.cobar.config.tt.CobarNode;
-import com.alibaba.cobar.config.tt.CobarNodeConfig;
+import com.alibaba.cobar.config.ClusterConfig;
 import com.alibaba.cobar.defs.Alarms;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.server.ServerConnection;
@@ -93,39 +88,11 @@ public class ShowCobarCluster {
 
     private static List<RowDataPacket> getRows(ServerConnection c) {
         List<RowDataPacket> rows = new LinkedList<RowDataPacket>();
-        CobarConfig config = CobarServer.getInstance().getConfig();
-        CobarCluster cluster = config.getCluster();
-        Map<String, SchemasConfig> schemas = config.getSchemas();
-        SchemasConfig schema = (c.getSchema() == null) ? null : schemas.get(c.getSchema());
 
-        // 如果没有指定schema或者schema为null，则使用全部集群。
-        if (schema == null) {
-            Map<String, CobarNode> nodes = cluster.getNodes();
-            for (CobarNode n : nodes.values()) {
-                if (n != null && n.isOnline()) {
-                    rows.add(getRow(n, c.getCharset()));
-                }
-            }
-        } else {
-            String group = (schema.getGroup() == null) ? "default" : schema.getGroup();
-            List<String> nodeList = cluster.getGroups().get(group);
-            if (nodeList != null && nodeList.size() > 0) {
-                Map<String, CobarNode> nodes = cluster.getNodes();
-                for (String id : nodeList) {
-                    CobarNode n = nodes.get(id);
-                    if (n != null && n.isOnline()) {
-                        rows.add(getRow(n, c.getCharset()));
-                    }
-                }
-            }
-            // 如果schema对应的group或者默认group都没有有效的节点，则使用全部集群。
-            if (rows.size() == 0) {
-                Map<String, CobarNode> nodes = cluster.getNodes();
-                for (CobarNode n : nodes.values()) {
-                    if (n != null && n.isOnline()) {
-                        rows.add(getRow(n, c.getCharset()));
-                    }
-                }
+        ClusterConfig cluster = CobarServer.getInstance().getConfig().getCluster();
+        for (ClusterConfig.Node n : cluster.getNodes().values()) {
+            if (n != null && n.isOnline()) {
+                rows.add(getRow(n, c.getCharset()));
             }
         }
 
@@ -136,11 +103,10 @@ public class ShowCobarCluster {
         return rows;
     }
 
-    private static RowDataPacket getRow(CobarNode node, String charset) {
-        CobarNodeConfig conf = node.getConfig();
+    private static RowDataPacket getRow(ClusterConfig.Node node, String charset) {
         RowDataPacket row = new RowDataPacket(FIELD_COUNT);
-        row.add(StringUtil.encode(conf.getHost(), charset));
-        row.add(IntegerUtil.toBytes(conf.getWeight()));
+        row.add(StringUtil.encode(node.getHost(), charset));
+        row.add(IntegerUtil.toBytes(node.getWeight()));
         return row;
     }
 
