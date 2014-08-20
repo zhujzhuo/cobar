@@ -16,9 +16,6 @@
 package com.alibaba.cobar.net.protocol;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-
-import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.net.AbstractConnection;
 
@@ -26,8 +23,6 @@ import com.alibaba.cobar.net.AbstractConnection;
  * @author xianmao.hexm
  */
 public class MySQLProtocol {
-
-    private static final Logger LOGGER = Logger.getLogger(MySQLProtocol.class);
 
     private final AbstractConnection c;
     private int packetHeaderSize;
@@ -64,11 +59,6 @@ public class MySQLProtocol {
                 buffer.position(offset);
                 byte[] data = new byte[size];
                 buffer.get(data, 0, size);
-                if (LOGGER.isDebugEnabled()) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(c).append(" << ").append(Arrays.toString(data));
-                    LOGGER.debug(sb.toString());
-                }
                 c.handle(data);
 
                 // 设置偏移量

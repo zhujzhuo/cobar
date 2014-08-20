@@ -17,8 +17,6 @@ package com.alibaba.cobar.net.packet;
 
 import java.nio.ByteBuffer;
 
-import org.apache.log4j.Logger;
-
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.util.ByteBufferUtil;
@@ -47,7 +45,6 @@ import com.alibaba.cobar.util.ByteBufferUtil;
  */
 public class HandshakePacket extends AbstractPacket {
 
-    private static final Logger LOGGER = Logger.getLogger(HandshakePacket.class);
     private static final byte[] FILLER_13 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     public byte protocolVersion;
@@ -104,11 +101,6 @@ public class HandshakePacket extends AbstractPacket {
         buffer.put(FILLER_13);
         ByteBufferUtil.writeWithNull(buffer, restOfScrambleBuff);
         c.write(buffer);
-        if (LOGGER.isDebugEnabled()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(this).append(" >> ").append(c);
-            LOGGER.debug(sb.toString());
-        }
     }
 
     @Override

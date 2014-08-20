@@ -9,32 +9,23 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import com.alibaba.cobar.config.loader.XmlLoader;
-import com.alibaba.cobar.config.model.ClusterModel;
-import com.alibaba.cobar.config.model.DataNodesModel;
-import com.alibaba.cobar.config.model.DataSourcesModel;
-import com.alibaba.cobar.config.model.InstancesModel;
-import com.alibaba.cobar.config.model.MachinesModel;
-import com.alibaba.cobar.config.model.QuarantineModel;
-import com.alibaba.cobar.config.model.SchemasModel;
-import com.alibaba.cobar.config.model.ServerModel;
-import com.alibaba.cobar.config.model.UsersModel;
 
 /**
  * @author xianmao.hexm
  */
-public class CobarModel {
+public class CobarConfig {
 
-    private ServerModel server;
-    private ClusterModel cluster;
-    private QuarantineModel quarantine;
-    private UsersModel users;
-    private SchemasModel schemas;
-    private DataNodesModel dataNodes;
-    private DataSourcesModel dataSources;
-    private InstancesModel instances;
-    private MachinesModel machines;
+    private ServerConfig server;
+    private ClusterConfig cluster;
+    private QuarantineConfig quarantine;
+    private UsersConfig users;
+    private SchemasConfig schemas;
+    private DataNodesConfig dataNodes;
+    private DataSourcesConfig dataSources;
+    private InstancesConfig instances;
+    private MachinesConfig machines;
 
-    public static final CobarModel getInstance() {
+    public static final CobarConfig getInstance() {
         XmlLoader loader = new XmlLoader();
         try {
             return loader.load("/server.xml");
@@ -55,75 +46,75 @@ public class CobarModel {
         }
     }
 
-    public ServerModel getServer() {
+    public ServerConfig getServer() {
         return server;
     }
 
-    public void setServer(ServerModel server) {
+    public void setServer(ServerConfig server) {
         this.server = server;
     }
 
-    public ClusterModel getCluster() {
+    public ClusterConfig getCluster() {
         return cluster;
     }
 
-    public void setCluster(ClusterModel cluster) {
+    public void setCluster(ClusterConfig cluster) {
         this.cluster = cluster;
     }
 
-    public QuarantineModel getQuarantine() {
+    public QuarantineConfig getQuarantine() {
         return quarantine;
     }
 
-    public void setQuarantine(QuarantineModel quarantine) {
+    public void setQuarantine(QuarantineConfig quarantine) {
         this.quarantine = quarantine;
     }
 
-    public UsersModel getUsers() {
+    public UsersConfig getUsers() {
         return users;
     }
 
-    public void setUsers(UsersModel users) {
+    public void setUsers(UsersConfig users) {
         this.users = users;
     }
 
-    public SchemasModel getSchemas() {
+    public SchemasConfig getSchemas() {
         return schemas;
     }
 
-    public void setSchemas(SchemasModel schemas) {
+    public void setSchemas(SchemasConfig schemas) {
         this.schemas = schemas;
     }
 
-    public DataNodesModel getDataNodes() {
+    public DataNodesConfig getDataNodes() {
         return dataNodes;
     }
 
-    public void setDataNodes(DataNodesModel dataNodes) {
+    public void setDataNodes(DataNodesConfig dataNodes) {
         this.dataNodes = dataNodes;
     }
 
-    public DataSourcesModel getDataSources() {
+    public DataSourcesConfig getDataSources() {
         return dataSources;
     }
 
-    public void setDataSources(DataSourcesModel dataSources) {
+    public void setDataSources(DataSourcesConfig dataSources) {
         this.dataSources = dataSources;
     }
 
-    public InstancesModel getInstances() {
+    public InstancesConfig getInstances() {
         return instances;
     }
 
-    public void setInstances(InstancesModel instances) {
+    public void setInstances(InstancesConfig instances) {
         this.instances = instances;
     }
 
-    public MachinesModel getMachines() {
+    public MachinesConfig getMachines() {
         return machines;
     }
 
-    public void setMachines(MachinesModel machines) {
+    public void setMachines(MachinesConfig machines) {
         this.machines = machines;
     }
 

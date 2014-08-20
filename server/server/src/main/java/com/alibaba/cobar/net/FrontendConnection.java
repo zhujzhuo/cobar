@@ -121,7 +121,6 @@ public abstract class FrontendConnection extends AbstractConnection {
         }
         if (isIdleTimeout) {
             close();
-
         }
     }
 
@@ -135,14 +134,6 @@ public abstract class FrontendConnection extends AbstractConnection {
         err.errno = errno;
         err.message = encodeString(msg, charset);
         err.write(this);
-    }
-
-    protected boolean isConnectionReset(Throwable t) {
-        if (t instanceof IOException) {
-            String msg = t.getMessage();
-            return (msg != null && msg.contains("Connection reset by peer"));
-        }
-        return false;
     }
 
     @Override
@@ -160,7 +151,7 @@ public abstract class FrontendConnection extends AbstractConnection {
         return sb.toString();
     }
 
-    protected static int getServerCapabilities() {
+    private static int getServerCapabilities() {
         int flag = 0;
         flag |= Capabilities.CLIENT_LONG_PASSWORD;
         flag |= Capabilities.CLIENT_FOUND_ROWS;
@@ -181,7 +172,7 @@ public abstract class FrontendConnection extends AbstractConnection {
         return flag;
     }
 
-    private final static byte[] encodeString(String src, String charset) {
+    private static byte[] encodeString(String src, String charset) {
         if (src == null) {
             return null;
         }

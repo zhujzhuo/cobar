@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.model;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.alibaba.cobar.config.model.QuarantineModel;
+import com.alibaba.cobar.config.QuarantineConfig;
 import com.alibaba.cobar.util.SplitUtil;
 
 /**
@@ -28,14 +28,14 @@ import com.alibaba.cobar.util.SplitUtil;
  * 
  * @author xianmao.hexm
  */
-public class QuarantineConfig {
+public class Quarantine {
 
     private Map<String, Host> hosts;
 
-    public QuarantineConfig(QuarantineModel model) {
+    public Quarantine(QuarantineConfig model) {
         hosts = new HashMap<String, Host>();
-        for (QuarantineModel.Host host : model.getHostList()) {
-            QuarantineConfig.Host qch = new QuarantineConfig.Host(host);
+        for (QuarantineConfig.Host host : model.getHostList()) {
+            Quarantine.Host qch = new Quarantine.Host(host);
             hosts.put(qch.getName(), qch);
         }
     }
@@ -52,7 +52,7 @@ public class QuarantineConfig {
         private String name;
         private Set<String> users;
 
-        public Host(QuarantineModel.Host model) {
+        public Host(QuarantineConfig.Host model) {
             String name = model.getName();
             if (name != null) {
                 this.name = name.trim();

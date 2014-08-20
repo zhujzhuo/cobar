@@ -19,8 +19,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.util.ByteBufferUtil;
@@ -49,7 +47,6 @@ import com.alibaba.cobar.util.ByteBufferUtil;
  */
 public class RowDataPacket extends AbstractPacket {
 
-    private static final Logger LOGGER = Logger.getLogger(RowDataPacket.class);
     private static final byte NULL_MARK = (byte) 251;
 
     public final int fieldCount;
@@ -90,11 +87,6 @@ public class RowDataPacket extends AbstractPacket {
                 ByteBufferUtil.writeLength(bb, fv.length);
                 bb = ByteBufferUtil.write(fv, bb, c);
             }
-        }
-        if (LOGGER.isDebugEnabled()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(this).append(" >> ").append(c);
-            LOGGER.debug(sb.toString());
         }
         return bb;
     }

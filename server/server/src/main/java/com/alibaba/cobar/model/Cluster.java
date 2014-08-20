@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.config.model.ClusterModel;
+import com.alibaba.cobar.config.ClusterConfig;
 
 /**
  * @author xianmao.hexm
  */
-public class ClusterConfig {
+public class Cluster {
 
     private Map<String, Node> nodes;
 
-    public ClusterConfig(ClusterModel model) {
+    public Cluster(ClusterConfig model) {
         nodes = new HashMap<String, Node>();
-        for (ClusterModel.Node node : model.getNodeList()) {
-            ClusterConfig.Node ccn = new ClusterConfig.Node(node);
+        for (ClusterConfig.Node node : model.getNodeList()) {
+            Cluster.Node ccn = new Cluster.Node(node);
             nodes.put(ccn.getName(), ccn);
         }
     }
@@ -49,7 +49,7 @@ public class ClusterConfig {
         private int weight;
         private boolean isOnline;
 
-        public Node(ClusterModel.Node model) {
+        public Node(ClusterConfig.Node model) {
             String name = model.getName();
             if (name != null) {
                 this.name = name.trim();

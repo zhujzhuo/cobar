@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.config.model.InstancesModel;
+import com.alibaba.cobar.config.InstancesConfig;
 
 /**
  * @author xianmao.hexm
  */
-public class InstancesConfig {
+public class Instances {
 
     private Map<String, Instance> instances;
 
-    public InstancesConfig(InstancesModel model) {
-        instances = new HashMap<String, InstancesConfig.Instance>();
-        for (InstancesModel.Instance instance : model.getInstanceList()) {
-            InstancesConfig.Instance ici = new Instance(instance);
+    public Instances(InstancesConfig model) {
+        instances = new HashMap<String, Instances.Instance>();
+        for (InstancesConfig.Instance instance : model.getInstanceList()) {
+            Instances.Instance ici = new Instance(instance);
             instances.put(ici.getName(), ici);
         }
     }
@@ -48,7 +48,7 @@ public class InstancesConfig {
         private String machine;
         private int port;
 
-        public Instance(InstancesModel.Instance model) {
+        public Instance(InstancesConfig.Instance model) {
             String name = model.getName();
             if (name != null) {
                 this.name = name.trim();

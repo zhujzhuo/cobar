@@ -122,6 +122,7 @@ import com.alibaba.cobar.parser.ast.statement.dal.ShowTriggers;
 import com.alibaba.cobar.parser.ast.statement.dal.ShowVariables;
 import com.alibaba.cobar.parser.ast.statement.dal.ShowWarnings;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLAlterTableStatement;
+import com.alibaba.cobar.parser.ast.statement.ddl.DDLAlterTableStatement.AlterSpecification;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLCreateIndexStatement;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLCreateTableStatement;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLDropIndexStatement;
@@ -129,7 +130,6 @@ import com.alibaba.cobar.parser.ast.statement.ddl.DDLDropTableStatement;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLRenameTableStatement;
 import com.alibaba.cobar.parser.ast.statement.ddl.DDLTruncateStatement;
 import com.alibaba.cobar.parser.ast.statement.ddl.DescTableStatement;
-import com.alibaba.cobar.parser.ast.statement.ddl.DDLAlterTableStatement.AlterSpecification;
 import com.alibaba.cobar.parser.ast.statement.dml.DMLCallStatement;
 import com.alibaba.cobar.parser.ast.statement.dml.DMLDeleteStatement;
 import com.alibaba.cobar.parser.ast.statement.dml.DMLInsertStatement;
@@ -152,8 +152,9 @@ public class EmptySQLASTVisitor implements SQLASTVisitor {
 
     @SuppressWarnings({ "rawtypes" })
     private void visitInternal(Object obj) {
-        if (obj == null)
+        if (obj == null) {
             return;
+        }
         if (obj instanceof ASTNode) {
             ((ASTNode) obj).accept(this);
         } else if (obj instanceof Collection) {

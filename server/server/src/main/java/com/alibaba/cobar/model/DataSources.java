@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.config.model.DataSourcesModel;
+import com.alibaba.cobar.config.DataSourcesConfig;
 
 /**
  * @author xianmao.hexm
  */
-public class DataSourcesConfig {
+public class DataSources {
 
     private Map<String, DataSource> dataSources;
 
-    public DataSourcesConfig(DataSourcesModel model) {
-        dataSources = new HashMap<String, DataSourcesConfig.DataSource>();
-        for (DataSourcesModel.DataSource source : model.getDataSourceList()) {
-            DataSourcesConfig.DataSource ds = new DataSource(source);
+    public DataSources(DataSourcesConfig model) {
+        dataSources = new HashMap<String, DataSources.DataSource>();
+        for (DataSourcesConfig.DataSource source : model.getDataSourceList()) {
+            DataSources.DataSource ds = new DataSource(source);
             dataSources.put(ds.getName(), ds);
         }
     }
@@ -50,7 +50,7 @@ public class DataSourcesConfig {
         private String user;
         private String password;
 
-        public DataSource(DataSourcesModel.DataSource model) {
+        public DataSource(DataSourcesConfig.DataSource model) {
             String name = model.getName();
             if (name != null) {
                 this.name = name.trim();

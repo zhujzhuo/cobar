@@ -16,6 +16,7 @@
 package com.alibaba.cobar.frontend.manager;
 
 import java.io.EOFException;
+import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
@@ -54,14 +55,14 @@ public class ManagerConnection extends FrontendConnection {
         // 根据异常类型和信息，选择日志输出级别。
         if (t instanceof EOFException) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(toString(), t);
+                LOGGER.debug(this, t);
             }
-        } else if (isConnectionReset(t)) {
+        } else if (t instanceof IOException) {
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info(toString(), t);
+                LOGGER.info(this, t);
             }
         } else {
-            LOGGER.warn(toString(), t);
+            LOGGER.warn(this, t);
         }
 
         // 异常返回码处理

@@ -23,28 +23,28 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.alibaba.cobar.config.CobarModel;
-import com.alibaba.cobar.config.model.ClusterModel;
-import com.alibaba.cobar.config.model.DataNodesModel;
-import com.alibaba.cobar.config.model.DataSourcesModel;
-import com.alibaba.cobar.config.model.InstancesModel;
-import com.alibaba.cobar.config.model.MachinesModel;
-import com.alibaba.cobar.config.model.QuarantineModel;
-import com.alibaba.cobar.config.model.SchemasModel;
-import com.alibaba.cobar.config.model.ServerModel;
-import com.alibaba.cobar.config.model.UsersModel;
+import com.alibaba.cobar.config.ClusterConfig;
+import com.alibaba.cobar.config.CobarConfig;
+import com.alibaba.cobar.config.DataNodesConfig;
+import com.alibaba.cobar.config.DataSourcesConfig;
+import com.alibaba.cobar.config.InstancesConfig;
+import com.alibaba.cobar.config.MachinesConfig;
+import com.alibaba.cobar.config.QuarantineConfig;
+import com.alibaba.cobar.config.SchemasConfig;
+import com.alibaba.cobar.config.ServerConfig;
+import com.alibaba.cobar.config.UsersConfig;
 
 /**
  * @author xianmao.hexm
  */
 public class XmlLoader {
 
-    public CobarModel load(String xml) throws ParserConfigurationException, SAXException, IOException,
+    public CobarConfig load(String xml) throws ParserConfigurationException, SAXException, IOException,
             IntrospectionException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        CobarModel config = null;
+        CobarConfig config = null;
         Element root = getRootElement(xml);
         if (root != null) {
-            config = new CobarModel();
+            config = new CobarConfig();
             config.setServer(loadServer(root));
             config.setCluster(loadCluster(root));
             config.setQuarantine(loadQuarantine(root));
@@ -58,7 +58,7 @@ public class XmlLoader {
         return config;
     }
 
-    ServerModel loadServer(Element root) throws IntrospectionException, IllegalArgumentException,
+    ServerConfig loadServer(Element root) throws IntrospectionException, IllegalArgumentException,
             IllegalAccessException, InvocationTargetException {
         Map<String, String> values = null;
         NodeList nodeList = root.getElementsByTagName("server");
@@ -69,14 +69,14 @@ public class XmlLoader {
                 break;
             }
         }
-        ServerModel server = new ServerModel();
+        ServerConfig server = new ServerConfig();
         setBeanProperties(values, server);
         return server;
     }
 
-    ClusterModel loadCluster(Element root) throws IllegalArgumentException, IntrospectionException,
+    ClusterConfig loadCluster(Element root) throws IllegalArgumentException, IntrospectionException,
             IllegalAccessException, InvocationTargetException {
-        List<ClusterModel.Node> list = new ArrayList<ClusterModel.Node>();
+        List<ClusterConfig.Node> list = new ArrayList<ClusterConfig.Node>();
         NodeList nodeList = root.getElementsByTagName("cluster");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -90,7 +90,7 @@ public class XmlLoader {
                         String name = e.getNodeName();
                         if ("node".equals(name)) {
                             Map<String, String> values = getNodeProperties(n);
-                            ClusterModel.Node clusterNode = new ClusterModel.Node();
+                            ClusterConfig.Node clusterNode = new ClusterConfig.Node();
                             setBeanProperties(values, clusterNode);
                             list.add(clusterNode);
                         }
@@ -99,14 +99,14 @@ public class XmlLoader {
                 break;
             }
         }
-        ClusterModel cluster = new ClusterModel();
+        ClusterConfig cluster = new ClusterConfig();
         cluster.setNodeList(list);
         return cluster;
     }
 
-    QuarantineModel loadQuarantine(Element root) throws IllegalArgumentException, IntrospectionException,
+    QuarantineConfig loadQuarantine(Element root) throws IllegalArgumentException, IntrospectionException,
             IllegalAccessException, InvocationTargetException {
-        List<QuarantineModel.Host> list = new ArrayList<QuarantineModel.Host>();
+        List<QuarantineConfig.Host> list = new ArrayList<QuarantineConfig.Host>();
         NodeList nodeList = root.getElementsByTagName("quarantine");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -120,7 +120,7 @@ public class XmlLoader {
                         String name = e.getNodeName();
                         if ("host".equals(name)) {
                             Map<String, String> values = getNodeProperties(n);
-                            QuarantineModel.Host host = new QuarantineModel.Host();
+                            QuarantineConfig.Host host = new QuarantineConfig.Host();
                             setBeanProperties(values, host);
                             list.add(host);
                         }
@@ -129,14 +129,14 @@ public class XmlLoader {
                 break;
             }
         }
-        QuarantineModel quarantine = new QuarantineModel();
+        QuarantineConfig quarantine = new QuarantineConfig();
         quarantine.setHostList(list);
         return quarantine;
     }
 
-    UsersModel loadUsers(Element root) throws IllegalArgumentException, IntrospectionException, IllegalAccessException,
+    UsersConfig loadUsers(Element root) throws IllegalArgumentException, IntrospectionException, IllegalAccessException,
             InvocationTargetException {
-        List<UsersModel.User> list = new ArrayList<UsersModel.User>();
+        List<UsersConfig.User> list = new ArrayList<UsersConfig.User>();
         NodeList nodeList = root.getElementsByTagName("users");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -150,7 +150,7 @@ public class XmlLoader {
                         String name = e.getNodeName();
                         if ("user".equals(name)) {
                             Map<String, String> values = getNodeProperties(n);
-                            UsersModel.User user = new UsersModel.User();
+                            UsersConfig.User user = new UsersConfig.User();
                             setBeanProperties(values, user);
                             list.add(user);
                         }
@@ -159,14 +159,14 @@ public class XmlLoader {
                 break;
             }
         }
-        UsersModel users = new UsersModel();
+        UsersConfig users = new UsersConfig();
         users.setUserList(list);
         return users;
     }
 
-    SchemasModel loadSchemas(Element root) throws IllegalArgumentException, IntrospectionException,
+    SchemasConfig loadSchemas(Element root) throws IllegalArgumentException, IntrospectionException,
             IllegalAccessException, InvocationTargetException {
-        List<SchemasModel.Schema> list = new ArrayList<SchemasModel.Schema>();
+        List<SchemasConfig.Schema> list = new ArrayList<SchemasConfig.Schema>();
         NodeList nodeList = root.getElementsByTagName("schemas");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -180,7 +180,7 @@ public class XmlLoader {
                         String name = e.getNodeName();
                         if ("schema".equals(name)) {
                             Map<String, String> values = getNodeProperties(n);
-                            SchemasModel.Schema schema = new SchemasModel.Schema();
+                            SchemasConfig.Schema schema = new SchemasConfig.Schema();
                             setBeanProperties(values, schema);
                             list.add(schema);
                         }
@@ -189,14 +189,14 @@ public class XmlLoader {
                 break;
             }
         }
-        SchemasModel schemas = new SchemasModel();
+        SchemasConfig schemas = new SchemasConfig();
         schemas.setSchemaList(list);
         return schemas;
     }
 
-    DataNodesModel loadDataNodes(Element root) throws IllegalArgumentException, IntrospectionException,
+    DataNodesConfig loadDataNodes(Element root) throws IllegalArgumentException, IntrospectionException,
             IllegalAccessException, InvocationTargetException {
-        List<DataNodesModel.DataNode> list = new ArrayList<DataNodesModel.DataNode>();
+        List<DataNodesConfig.DataNode> list = new ArrayList<DataNodesConfig.DataNode>();
         NodeList nodeList = root.getElementsByTagName("dataNodes");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -210,7 +210,7 @@ public class XmlLoader {
                         String name = e.getNodeName();
                         if ("dataNode".equals(name)) {
                             Map<String, String> values = getNodeProperties(n);
-                            DataNodesModel.DataNode dataNode = new DataNodesModel.DataNode();
+                            DataNodesConfig.DataNode dataNode = new DataNodesConfig.DataNode();
                             setBeanProperties(values, dataNode);
                             list.add(dataNode);
                         }
@@ -219,14 +219,14 @@ public class XmlLoader {
                 break;
             }
         }
-        DataNodesModel dataNodes = new DataNodesModel();
+        DataNodesConfig dataNodes = new DataNodesConfig();
         dataNodes.setDataNodeList(list);
         return dataNodes;
     }
 
-    DataSourcesModel loadDataSources(Element root) throws IllegalArgumentException, IntrospectionException,
+    DataSourcesConfig loadDataSources(Element root) throws IllegalArgumentException, IntrospectionException,
             IllegalAccessException, InvocationTargetException {
-        List<DataSourcesModel.DataSource> list = new ArrayList<DataSourcesModel.DataSource>();
+        List<DataSourcesConfig.DataSource> list = new ArrayList<DataSourcesConfig.DataSource>();
         NodeList nodeList = root.getElementsByTagName("dataSources");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -240,7 +240,7 @@ public class XmlLoader {
                         String name = e.getNodeName();
                         if ("dataSource".equals(name)) {
                             Map<String, String> values = getNodeProperties(n);
-                            DataSourcesModel.DataSource schema = new DataSourcesModel.DataSource();
+                            DataSourcesConfig.DataSource schema = new DataSourcesConfig.DataSource();
                             setBeanProperties(values, schema);
                             list.add(schema);
                         }
@@ -249,14 +249,14 @@ public class XmlLoader {
                 break;
             }
         }
-        DataSourcesModel scheams = new DataSourcesModel();
+        DataSourcesConfig scheams = new DataSourcesConfig();
         scheams.setDataSourceList(list);
         return scheams;
     }
 
-    InstancesModel loadInstances(Element root) throws IllegalArgumentException, IntrospectionException,
+    InstancesConfig loadInstances(Element root) throws IllegalArgumentException, IntrospectionException,
             IllegalAccessException, InvocationTargetException {
-        List<InstancesModel.Instance> list = new ArrayList<InstancesModel.Instance>();
+        List<InstancesConfig.Instance> list = new ArrayList<InstancesConfig.Instance>();
         NodeList nodeList = root.getElementsByTagName("instances");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -270,7 +270,7 @@ public class XmlLoader {
                         String name = e.getNodeName();
                         if ("instance".equals(name)) {
                             Map<String, String> values = getNodeProperties(n);
-                            InstancesModel.Instance instance = new InstancesModel.Instance();
+                            InstancesConfig.Instance instance = new InstancesConfig.Instance();
                             setBeanProperties(values, instance);
                             list.add(instance);
                         }
@@ -279,14 +279,14 @@ public class XmlLoader {
                 break;
             }
         }
-        InstancesModel instances = new InstancesModel();
+        InstancesConfig instances = new InstancesConfig();
         instances.setInstanceList(list);
         return instances;
     }
 
-    MachinesModel loadMachines(Element root) throws IllegalArgumentException, IntrospectionException,
+    MachinesConfig loadMachines(Element root) throws IllegalArgumentException, IntrospectionException,
             IllegalAccessException, InvocationTargetException {
-        List<MachinesModel.Machine> list = new ArrayList<MachinesModel.Machine>();
+        List<MachinesConfig.Machine> list = new ArrayList<MachinesConfig.Machine>();
         NodeList nodeList = root.getElementsByTagName("machines");
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -300,7 +300,7 @@ public class XmlLoader {
                         String name = e.getNodeName();
                         if ("machine".equals(name)) {
                             Map<String, String> values = getNodeProperties(n);
-                            MachinesModel.Machine machine = new MachinesModel.Machine();
+                            MachinesConfig.Machine machine = new MachinesConfig.Machine();
                             setBeanProperties(values, machine);
                             list.add(machine);
                         }
@@ -309,7 +309,7 @@ public class XmlLoader {
                 break;
             }
         }
-        MachinesModel machines = new MachinesModel();
+        MachinesConfig machines = new MachinesConfig();
         machines.setMachineList(list);
         return machines;
     }

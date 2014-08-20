@@ -28,9 +28,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.backend.mysql.MySQLConnection;
-import com.alibaba.cobar.config.CobarConfig;
 import com.alibaba.cobar.frontend.server.ServerConnection;
 import com.alibaba.cobar.frontend.server.ServerSession;
+import com.alibaba.cobar.model.Cobar;
 import com.alibaba.cobar.net.packet.ErrorPacket;
 import com.alibaba.cobar.net.packet.OkPacket;
 import com.alibaba.cobar.route.RouteResultsetNode;
@@ -100,7 +100,7 @@ public class MultiNodeQueryHandler extends MultiNodeHandler {
                     }
                 });
             } else {
-                CobarConfig conf = CobarServer.getInstance().getConfig();
+                Cobar conf = CobarServer.getInstance().getCobar();
                 MySQLDataNode dn = conf.getDataNodes().get(node.getName());
                 dn.getConnection(this, node);
             }
@@ -153,7 +153,7 @@ public class MultiNodeQueryHandler extends MultiNodeHandler {
         }
         final RouteResultsetNode node = (RouteResultsetNode) attachment;
         conn.setRunning(true);
-        session.bindConnection(node, conn);
+        session.addTarget(node, conn);
         session.getSource().getProcessor().getExecutor().execute(new Runnable() {
             @Override
             public void run() {

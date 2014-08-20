@@ -17,8 +17,6 @@ package com.alibaba.cobar.net.packet;
 
 import java.nio.ByteBuffer;
 
-import org.apache.log4j.Logger;
-
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.util.ByteBufferUtil;
@@ -43,7 +41,6 @@ import com.alibaba.cobar.util.ByteBufferUtil;
  */
 public class OkPacket extends AbstractPacket {
 
-    private static final Logger LOGGER = Logger.getLogger(OkPacket.class);
     public static final byte FIELD_COUNT = 0x00;
     public static final byte[] OK = new byte[] { 7, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0 };
 
@@ -83,8 +80,8 @@ public class OkPacket extends AbstractPacket {
     }
 
     public void write(FrontendConnection c) {
-        ByteBuffer buffer = c.allocate();
         packetLength = calcPacketLength();
+        ByteBuffer buffer = c.allocate();
         ByteBufferUtil.writeUB3(buffer, packetLength);
         buffer.put(packetId);
         buffer.put(fieldCount);
@@ -96,11 +93,6 @@ public class OkPacket extends AbstractPacket {
             ByteBufferUtil.writeWithLength(buffer, message);
         }
         c.write(buffer);
-        if (LOGGER.isDebugEnabled()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(this).append(" >> ").append(c);
-            LOGGER.debug(sb.toString());
-        }
     }
 
     @Override

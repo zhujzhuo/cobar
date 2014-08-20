@@ -23,6 +23,7 @@ import com.alibaba.cobar.frontend.manager.ManagerConnection;
  * @author xianmao.hexm
  */
 public final class ReloadConfig {
+
     private static final Logger LOGGER = Logger.getLogger(ReloadConfig.class);
 
     public static void execute(ManagerConnection c) {

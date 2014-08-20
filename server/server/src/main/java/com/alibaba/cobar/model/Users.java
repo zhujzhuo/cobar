@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.model;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.alibaba.cobar.config.model.UsersModel;
+import com.alibaba.cobar.config.UsersConfig;
 import com.alibaba.cobar.util.SplitUtil;
 
 /**
  * @author xianmao.hexm 2011-1-11 下午02:26:09
  */
-public class UsersConfig {
+public class Users {
 
     private Map<String, User> users;
 
-    public UsersConfig(UsersModel model) {
-        users = new HashMap<String, UsersConfig.User>();
-        for (UsersModel.User user : model.getUserList()) {
-            UsersConfig.User ucu = new User(user);
+    public Users(UsersConfig model) {
+        users = new HashMap<String, Users.User>();
+        for (UsersConfig.User user : model.getUserList()) {
+            Users.User ucu = new User(user);
             users.put(ucu.getName(), ucu);
         }
     }
@@ -51,7 +51,7 @@ public class UsersConfig {
         private String password;
         private Set<String> schemas;
 
-        public User(UsersModel.User user) {
+        public User(UsersConfig.User user) {
             String name = user.getName();
             if (name != null) {
                 this.name = name.trim();

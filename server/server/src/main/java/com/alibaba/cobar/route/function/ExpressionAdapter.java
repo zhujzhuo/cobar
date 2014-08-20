@@ -20,7 +20,7 @@ package com.alibaba.cobar.route.function;
 
 import java.util.Map;
 
-import com.alibaba.cobar.config.tt.RuleAlgorithm;
+import com.alibaba.cobar.model.tt.RuleAlgorithm;
 import com.alibaba.cobar.parser.ast.expression.Expression;
 
 /**

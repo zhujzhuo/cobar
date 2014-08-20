@@ -29,40 +29,39 @@ import com.alibaba.cobar.backend.mysql.MySQLConnection;
  * @author xianmao.hexm
  */
 public interface ResponseHandler {
-	/**
-	 * 已获得有效连接的处理
-	 */
-	void connectionAcquired(MySQLConnection c);
+    /**
+     * 已获得有效连接的处理
+     */
+    void connectionAcquired(MySQLConnection c);
 
-	/**
-	 * 连接发生异常的处理
-	 */
-	void connectionError(Throwable e, MySQLConnection c);
+    /**
+     * 连接发生异常的处理
+     */
+    void connectionError(Throwable e, MySQLConnection c);
 
-	/**
-	 * 收到错误数据包的响应处理
-	 */
-	void errorResponse(byte[] err, MySQLConnection c);
+    /**
+     * 收到错误数据包的响应处理
+     */
+    void errorResponse(byte[] err, MySQLConnection c);
 
-	/**
-	 * 收到OK数据包的响应处理
-	 */
-	void okResponse(byte[] ok, MySQLConnection c);
+    /**
+     * 收到OK数据包的响应处理
+     */
+    void okResponse(byte[] ok, MySQLConnection c);
 
-	/**
-	 * 收到字段数据包结束的响应处理
-	 */
-	void fieldEofResponse(byte[] header, List<byte[]> fields, byte[] eof,
-			MySQLConnection c);
+    /**
+     * 收到字段数据包结束的响应处理
+     */
+    void fieldEofResponse(byte[] header, List<byte[]> fields, byte[] eof, MySQLConnection c);
 
-	/**
-	 * 收到行数据包的响应处理
-	 */
-	void rowResponse(byte[] row, MySQLConnection c);
+    /**
+     * 收到行数据包的响应处理
+     */
+    void rowResponse(byte[] row, MySQLConnection c);
 
-	/**
-	 * 收到行数据包结束的响应处理
-	 */
-	void rowEofResponse(byte[] eof, MySQLConnection c);
+    /**
+     * 收到行数据包结束的响应处理
+     */
+    void rowEofResponse(byte[] eof, MySQLConnection c);
 
 }

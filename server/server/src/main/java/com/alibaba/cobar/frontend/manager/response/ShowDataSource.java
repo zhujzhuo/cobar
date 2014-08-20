@@ -17,9 +17,9 @@ package com.alibaba.cobar.frontend.manager.response;
 
 import java.nio.ByteBuffer;
 
-import com.alibaba.cobar.config.DataSourcesConfig;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.manager.ManagerConnection;
+import com.alibaba.cobar.model.DataSources;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.FieldPacket;
 import com.alibaba.cobar.net.packet.ResultSetHeaderPacket;
@@ -79,8 +79,8 @@ public final class ShowDataSource {
 
         // write rows
         byte packetId = eof.packetId;
-        DataSourcesConfig dsc = CobarServer.getInstance().getConfig().getDataSources();
-        for (DataSourcesConfig.DataSource ds : dsc.getDataSources().values()) {
+        DataSources dsc = CobarServer.getInstance().getCobar().getDataSources();
+        for (DataSources.DataSource ds : dsc.getDataSources().values()) {
             RowDataPacket row = getRow(ds, c.getCharset());
             row.packetId = ++packetId;
             buffer = row.write(buffer, c);
@@ -95,7 +95,7 @@ public final class ShowDataSource {
         c.write(buffer);
     }
 
-    static RowDataPacket getRow(DataSourcesConfig.DataSource dsc, String charset) {
+    static RowDataPacket getRow(DataSources.DataSource dsc, String charset) {
         RowDataPacket row = new RowDataPacket(FIELD_COUNT);
         row.add(StringUtil.encode(dsc.getName(), charset));
         row.add(StringUtil.encode(dsc.getInstance(), charset));

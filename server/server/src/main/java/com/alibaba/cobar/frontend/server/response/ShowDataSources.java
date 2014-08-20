@@ -17,13 +17,13 @@ package com.alibaba.cobar.frontend.server.response;
 
 import java.nio.ByteBuffer;
 
-import com.alibaba.cobar.config.CobarConfig;
-import com.alibaba.cobar.config.DataNodesConfig;
-import com.alibaba.cobar.config.DataSourcesConfig;
-import com.alibaba.cobar.config.InstancesConfig;
-import com.alibaba.cobar.config.MachinesConfig;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.server.ServerConnection;
+import com.alibaba.cobar.model.Cobar;
+import com.alibaba.cobar.model.DataNodes;
+import com.alibaba.cobar.model.DataSources;
+import com.alibaba.cobar.model.Instances;
+import com.alibaba.cobar.model.Machines;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.FieldPacket;
 import com.alibaba.cobar.net.packet.ResultSetHeaderPacket;
@@ -75,8 +75,8 @@ public class ShowDataSources {
 
         // write rows
         byte packetId = eof.packetId;
-        DataNodesConfig dataNodes = CobarServer.getInstance().getConfig().getDataNodes();
-        for (DataNodesConfig.DataNode node : dataNodes.getDataNodes().values()) {
+        DataNodes dataNodes = CobarServer.getInstance().getCobar().getDataNodes();
+        for (DataNodes.DataNode node : dataNodes.getDataNodes().values()) {
             RowDataPacket row = getRow(node, c.getCharset());
             row.packetId = ++packetId;
             buffer = row.write(buffer, c);
@@ -91,15 +91,15 @@ public class ShowDataSources {
         c.write(buffer);
     }
 
-    private static RowDataPacket getRow(DataNodesConfig.DataNode node, String charset) {
+    private static RowDataPacket getRow(DataNodes.DataNode node, String charset) {
         RowDataPacket row = new RowDataPacket(FIELD_COUNT);
         row.add(StringUtil.encode(node.getName(), charset));
         String ds = node.getDataSources()[0];
         if (ds != null) {
-            CobarConfig cc = CobarServer.getInstance().getConfig();
-            DataSourcesConfig.DataSource dsc = cc.getDataSources().getDataSource(ds);
-            InstancesConfig.Instance ici = cc.getInstances().getInstance(dsc.getInstance());
-            MachinesConfig.Machine mcm = cc.getMachines().getMachine(ici.getMachine());
+            Cobar cc = CobarServer.getInstance().getCobar();
+            DataSources.DataSource dsc = cc.getDataSources().getDataSource(ds);
+            Instances.Instance ici = cc.getInstances().getInstance(dsc.getInstance());
+            Machines.Machine mcm = cc.getMachines().getMachine(ici.getMachine());
             row.add(StringUtil.encode(mcm.getHost(), charset));
             row.add(IntegerUtil.toBytes(ici.getPort()));
             row.add(StringUtil.encode(dsc.getSchema(), charset));

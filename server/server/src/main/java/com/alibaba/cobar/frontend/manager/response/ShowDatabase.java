@@ -17,9 +17,9 @@ package com.alibaba.cobar.frontend.manager.response;
 
 import java.nio.ByteBuffer;
 
-import com.alibaba.cobar.config.SchemasConfig;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.manager.ManagerConnection;
+import com.alibaba.cobar.model.Schemas;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.FieldPacket;
 import com.alibaba.cobar.net.packet.ResultSetHeaderPacket;
@@ -66,7 +66,7 @@ public final class ShowDatabase {
 
         // write rows
         byte packetId = eof.packetId;
-        SchemasConfig sc = CobarServer.getInstance().getConfig().getSchemas();
+        Schemas sc = CobarServer.getInstance().getCobar().getSchemas();
         for (String schema : sc.getSchemas().keySet()) {
             RowDataPacket row = new RowDataPacket(FIELD_COUNT);
             row.add(StringUtil.encode(schema, c.getCharset()));

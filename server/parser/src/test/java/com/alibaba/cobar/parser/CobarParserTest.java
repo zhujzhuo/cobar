@@ -33,27 +33,27 @@ public class CobarParserTest extends AbstractSyntaxTest {
 
     public void testProperlyEnd() throws SQLSyntaxErrorException {
         String sql = "select * from tb1;";
-        SQLStatement stmt = CobarParser.parse(sql);
+        SQLStatement stmt = SQLParser.parse(sql);
         Assert.assertEquals(DMLSelectStatement.class, stmt.getClass());
 
         sql = "select * from tb1 ;;;  ";
-        stmt = CobarParser.parse(sql);
+        stmt = SQLParser.parse(sql);
         Assert.assertEquals(DMLSelectStatement.class, stmt.getClass());
 
         sql = "select * from tb1 /***/  ";
-        stmt = CobarParser.parse(sql);
+        stmt = SQLParser.parse(sql);
         Assert.assertEquals(DMLSelectStatement.class, stmt.getClass());
 
         sql = "select * from tb1 ,  ";
         try {
-            stmt = CobarParser.parse(sql);
+            stmt = SQLParser.parse(sql);
             Assert.fail("should detect inproperly end");
         } catch (SQLSyntaxErrorException e) {
         }
 
         sql = "select * from tb1 ;,  ";
         try {
-            stmt = CobarParser.parse(sql);
+            stmt = SQLParser.parse(sql);
             Assert.fail("should detect inproperly end");
         } catch (SQLSyntaxErrorException e) {
         }

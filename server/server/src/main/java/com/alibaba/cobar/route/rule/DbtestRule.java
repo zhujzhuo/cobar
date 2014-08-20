@@ -15,7 +15,6 @@
  */
 package com.alibaba.cobar.route.rule;
 
-
 /**
  * @author xianmao.hexm
  */

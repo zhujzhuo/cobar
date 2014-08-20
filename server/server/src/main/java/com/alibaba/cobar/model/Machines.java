@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.config.model.MachinesModel;
+import com.alibaba.cobar.config.MachinesConfig;
 
 /**
  * @author xianmao.hexm
  */
-public class MachinesConfig {
+public class Machines {
 
     private Map<String, Machine> machines;
 
-    public MachinesConfig(MachinesModel model) {
-        machines = new HashMap<String, MachinesConfig.Machine>();
-        for (MachinesModel.Machine machine : model.getMachineList()) {
-            MachinesConfig.Machine mcm = new Machine(machine);
+    public Machines(MachinesConfig model) {
+        machines = new HashMap<String, Machines.Machine>();
+        for (MachinesConfig.Machine machine : model.getMachineList()) {
+            Machines.Machine mcm = new Machine(machine);
             machines.put(mcm.getName(), mcm);
         }
     }
@@ -47,7 +47,7 @@ public class MachinesConfig {
         private String name;
         private String host;
 
-        public Machine(MachinesModel.Machine model) {
+        public Machine(MachinesConfig.Machine model) {
             String name = model.getName();
             if (name != null) {
                 this.name = name.trim();

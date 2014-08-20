@@ -18,9 +18,9 @@ package com.alibaba.cobar.frontend.manager.response;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.alibaba.cobar.config.DataNodesConfig;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.manager.ManagerConnection;
+import com.alibaba.cobar.model.DataNodes;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.FieldPacket;
 import com.alibaba.cobar.net.packet.ResultSetHeaderPacket;
@@ -71,8 +71,8 @@ public final class ShowDataNode {
 
         // write rows
         byte packetId = eof.packetId;
-        DataNodesConfig dnc = CobarServer.getInstance().getConfig().getDataNodes();
-        for (DataNodesConfig.DataNode dn : dnc.getDataNodes().values()) {
+        DataNodes dnc = CobarServer.getInstance().getCobar().getDataNodes();
+        for (DataNodes.DataNode dn : dnc.getDataNodes().values()) {
             RowDataPacket row = getRow(dn, c.getCharset());
             row.packetId = ++packetId;
             buffer = row.write(buffer, c);
@@ -87,7 +87,7 @@ public final class ShowDataNode {
         c.write(buffer);
     }
 
-    static RowDataPacket getRow(DataNodesConfig.DataNode node, String charset) {
+    static RowDataPacket getRow(DataNodes.DataNode node, String charset) {
         RowDataPacket row = new RowDataPacket(FIELD_COUNT);
         row.add(StringUtil.encode(node.getName(), charset));
         row.add(StringUtil.encode(Arrays.toString(node.getDataSources()), charset));

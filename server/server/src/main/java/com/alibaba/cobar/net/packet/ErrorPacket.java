@@ -17,8 +17,6 @@ package com.alibaba.cobar.net.packet;
 
 import java.nio.ByteBuffer;
 
-import org.apache.log4j.Logger;
-
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.util.ByteBufferUtil;
@@ -42,7 +40,6 @@ import com.alibaba.cobar.util.ByteBufferUtil;
  */
 public class ErrorPacket extends AbstractPacket {
 
-    private static final Logger LOGGER = Logger.getLogger(ErrorPacket.class);
     public static final byte FIELD_COUNT = (byte) 0xff;
     private static final byte SQLSTATE_MARKER = (byte) '#';
     private static final byte[] DEFAULT_SQLSTATE = "HY000".getBytes();
@@ -93,17 +90,13 @@ public class ErrorPacket extends AbstractPacket {
         if (message != null) {
             buffer = ByteBufferUtil.write(message, buffer, c);
         }
-        if (LOGGER.isDebugEnabled()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(this).append(" >> ").append(c);
-            LOGGER.debug(sb.toString());
-        }
         return buffer;
     }
 
     public void write(FrontendConnection c) {
+        packetLength = calcPacketLength();
         ByteBuffer buffer = c.allocate();
-        ByteBufferUtil.writeUB3(buffer, calcPacketLength());
+        ByteBufferUtil.writeUB3(buffer, packetLength);
         buffer.put(packetId);
         buffer.put(fieldCount);
         ByteBufferUtil.writeUB2(buffer, errno);

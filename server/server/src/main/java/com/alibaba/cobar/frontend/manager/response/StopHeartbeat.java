@@ -26,7 +26,7 @@ import com.alibaba.cobar.frontend.manager.ManagerConnection;
  */
 public final class StopHeartbeat {
 
-    private static final Logger logger = Logger.getLogger(StopHeartbeat.class);
+    private static final Logger LOGGER = Logger.getLogger(StopHeartbeat.class);
 
     public static void execute(String stmt, ManagerConnection c) {
         //        int count = 0;

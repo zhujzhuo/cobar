@@ -57,7 +57,7 @@ public final class NIOProcessor {
         this.name = name;
         this.reactor = new NIOReactor(name);
         this.bufferPool = new ByteBufferPool(buffer, chunk);
-        this.executor = (executor > 0) ? ExecutorUtil.create(name + "-Executor", executor) : null;
+        this.executor = (executor > 0) ? ExecutorUtil.create(name + "-E", executor) : null;
         this.frontends = new ConcurrentHashMap<Long, FrontendConnection>();
         this.backends = new ConcurrentHashMap<Long, BackendConnection>();
         this.statistic = new ProcessorStatistic();

@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.log4j.Logger;
+
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.net.nio.NIOConnection;
 import com.alibaba.cobar.net.nio.NIOHandler;
@@ -40,6 +42,7 @@ import com.alibaba.cobar.util.TimeUtil;
  */
 public abstract class AbstractConnection implements NIOConnection {
 
+    private static final Logger LOGGER = Logger.getLogger(AbstractConnection.class);
     private static final int OP_NOT_READ = ~SelectionKey.OP_READ;
     private static final int OP_NOT_WRITE = ~SelectionKey.OP_WRITE;
 
@@ -175,6 +178,11 @@ public abstract class AbstractConnection implements NIOConnection {
         statistic.setLastReadTime(TimeUtil.currentTimeMillis());
         if (got < 0) {
             throw new EOFException();
+        }
+        if (LOGGER.isDebugEnabled()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(this).append(" << ").append("[length=").append(got).append(']');
+            LOGGER.debug(sb.toString());
         }
         statistic.addNetInBytes(got);
         processor.getStatistic().addNetInBytes(got);
@@ -360,6 +368,11 @@ public abstract class AbstractConnection implements NIOConnection {
         if (buffer != null) {
             int written = channel.write(buffer);
             if (written > 0) {
+                if (LOGGER.isDebugEnabled()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(this).append(" >> ").append("[length=").append(written).append(']');
+                    LOGGER.debug(sb.toString());
+                }
                 statistic.addNetOutBytes(written);
                 processor.getStatistic().addNetOutBytes(written);
             }
@@ -383,6 +396,11 @@ public abstract class AbstractConnection implements NIOConnection {
             buffer.flip();
             int written = channel.write(buffer);
             if (written > 0) {
+                if (LOGGER.isDebugEnabled()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(this).append(" >> ").append("[length=").append(written).append(']');
+                    LOGGER.debug(sb.toString());
+                }
                 statistic.addNetOutBytes(written);
                 processor.getStatistic().addNetOutBytes(written);
             }

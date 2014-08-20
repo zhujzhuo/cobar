@@ -66,7 +66,7 @@ public class MySQLConnectionPool {
         return name;
     }
 
-    public void getConnection(final ResponseHandler handler, final Object attachment) throws Exception {
+    public void getConnection(ResponseHandler handler, Object attachment) throws Exception {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {

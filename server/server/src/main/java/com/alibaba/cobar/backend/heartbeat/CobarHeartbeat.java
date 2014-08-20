@@ -286,7 +286,7 @@ public class CobarHeartbeat {
      * 报警信息
      */
     private String alarmMessage(String reason) {
-        CobarNodeConfig cnc = node.getConfig();
+        CobarNodeConfig cnc = node.getCobar();
         return new StringBuilder().append(Alarms.DEFAULT)
                                   .append("[name=")
                                   .append(cnc.getName())
@@ -354,9 +354,9 @@ public class CobarHeartbeat {
                                   .append(", id=")
                                   .append(id)
                                   .append(", host=")
-                                  .append(node.getConfig().getHost())
+                                  .append(node.getCobar().getHost())
                                   .append(", port=")
-                                  .append(node.getConfig().getPort())
+                                  .append(node.getCobar().getPort())
                                   .append(", time=")
                                   .append(TimeUtil.currentTimeMillis())
                                   .toString();

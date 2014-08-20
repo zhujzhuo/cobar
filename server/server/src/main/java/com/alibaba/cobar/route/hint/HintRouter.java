@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.alibaba.cobar.route.hint;
 
 import java.sql.SQLSyntaxErrorException;
@@ -12,11 +9,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.SchemasConfig;
-import com.alibaba.cobar.config.tt.RuleAlgorithm;
-import com.alibaba.cobar.config.tt.RuleConfig;
-import com.alibaba.cobar.config.tt.TableConfig;
-import com.alibaba.cobar.config.tt.TableRuleConfig;
+import com.alibaba.cobar.frontend.server.ServerConnection;
+import com.alibaba.cobar.model.Schemas;
 import com.alibaba.cobar.parser.util.ArrayUtil;
 import com.alibaba.cobar.parser.util.Pair;
 import com.alibaba.cobar.route.RouteResultset;
@@ -48,8 +42,8 @@ public class HintRouter {
         }
     }
 
-    public static void routeFromHint(Object frontConn, SchemasConfig schema, RouteResultset rrs, int prefixIndex,
-                                     final String sql) throws SQLSyntaxErrorException {
+    public static void routeFromHint(ServerConnection c, Schemas.Schema schema, RouteResultset rrs,
+                                     int prefixIndex, final String sql) throws SQLSyntaxErrorException {
         CobarHint hint = CobarHint.parserCobarHint(sql, prefixIndex);
         final String outputSql = hint.getOutputSql();
         final int replica = hint.getReplica();
@@ -68,13 +62,13 @@ public class HintRouter {
                         && RouteResultsetNode.DEFAULT_REPLICA_INDEX.intValue() != replicaIndex.intValue()) {
                     // replica index indicated in dataNodes references
                     nodes[0] = new RouteResultsetNode(schema.getDataNode(), replicaIndex, outputSql);
-                    logExplicitReplicaSet(frontConn, sql, rrs);
+                    logExplicitReplicaSet(c, sql, rrs);
                     return;
                 }
             }
             nodes[0] = new RouteResultsetNode(schema.getDataNode(), replica, outputSql);
             if (replica != RouteResultsetNode.DEFAULT_REPLICA_INDEX) {
-                logExplicitReplicaSet(frontConn, sql, rrs);
+                logExplicitReplicaSet(c, sql, rrs);
             }
             return;
         }
@@ -98,7 +92,7 @@ public class HintRouter {
                 ++i;
             }
             if (replicaSet) {
-                logExplicitReplicaSet(frontConn, sql, rrs);
+                logExplicitReplicaSet(c, sql, rrs);
             }
             return;
         }
@@ -145,7 +139,7 @@ public class HintRouter {
                 nodes[i] = new RouteResultsetNode(tableDataNodes[i], replica, outputSql);
             }
             if (replicaSet) {
-                logExplicitReplicaSet(frontConn, sql, rrs);
+                logExplicitReplicaSet(c, sql, rrs);
             }
             return;
         }
@@ -160,7 +154,7 @@ public class HintRouter {
             nodes[i++] = new RouteResultsetNode(dataNode, replica, outputSql);
         }
         if (replicaSet) {
-            logExplicitReplicaSet(frontConn, sql, rrs);
+            logExplicitReplicaSet(c, sql, rrs);
         }
     }
 

@@ -27,7 +27,7 @@ public class CobarParserPerformanceMain {
         int count = 100 * 10000;
         long t = System.currentTimeMillis();
         for (int i = 0; i < count; i++) {
-            CobarParser.parse(sql);
+            SQLParser.parse(sql);
         }
         long t2 = System.currentTimeMillis();
 

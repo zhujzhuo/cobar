@@ -19,10 +19,10 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.QuarantineConfig;
-import com.alibaba.cobar.config.SchemasConfig;
-import com.alibaba.cobar.config.UsersConfig;
 import com.alibaba.cobar.defs.Alarms;
+import com.alibaba.cobar.model.Quarantine;
+import com.alibaba.cobar.model.Schemas;
+import com.alibaba.cobar.model.Users;
 import com.alibaba.cobar.startup.CobarServer;
 
 /**
@@ -33,12 +33,12 @@ public class ServerPrivileges {
     private static final Logger ALARM = Logger.getLogger("alarm");
 
     public boolean schemaExists(String schema) {
-        SchemasConfig sc = CobarServer.getInstance().getConfig().getSchemas();
+        Schemas sc = CobarServer.getInstance().getCobar().getSchemas();
         return sc.getSchemas().containsKey(schema);
     }
 
     public boolean userExists(String user, String host) {
-        QuarantineConfig quarantine = CobarServer.getInstance().getConfig().getQuarantine();
+        Quarantine quarantine = CobarServer.getInstance().getCobar().getQuarantine();
         if (quarantine.getHosts().containsKey(host)) {
             boolean rs = quarantine.getHost(host).getUsers().contains(user);
             if (!rs) {
@@ -52,7 +52,7 @@ public class ServerPrivileges {
             }
             return rs;
         } else {
-            UsersConfig users = CobarServer.getInstance().getConfig().getUsers();
+            Users users = CobarServer.getInstance().getCobar().getUsers();
             return users.getUsers().containsKey(user);
         }
     }
@@ -61,7 +61,7 @@ public class ServerPrivileges {
      * 取得用户密码
      */
     public String getPassword(String user) {
-        UsersConfig.User ucu = CobarServer.getInstance().getConfig().getUsers().getUser(user);
+        Users.User ucu = CobarServer.getInstance().getCobar().getUsers().getUser(user);
         if (ucu != null) {
             return ucu.getPassword();
         } else {
@@ -73,7 +73,7 @@ public class ServerPrivileges {
      * 取得用户schema集合
      */
     public Set<String> getUserSchemas(String user) {
-        UsersConfig.User ucu = CobarServer.getInstance().getConfig().getUsers().getUser(user);
+        Users.User ucu = CobarServer.getInstance().getCobar().getUsers().getUser(user);
         if (ucu != null) {
             return ucu.getSchemas();
         } else {

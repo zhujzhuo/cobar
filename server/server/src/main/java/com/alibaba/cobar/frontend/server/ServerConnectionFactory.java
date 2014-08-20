@@ -17,7 +17,8 @@ package com.alibaba.cobar.frontend.server;
 
 import java.nio.channels.SocketChannel;
 
-import com.alibaba.cobar.config.ServerConfig;
+import com.alibaba.cobar.frontend.server.handler.ServerPrepareHandler;
+import com.alibaba.cobar.model.Server;
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.factory.FrontendConnectionFactory;
 import com.alibaba.cobar.startup.CobarServer;
@@ -29,11 +30,14 @@ public class ServerConnectionFactory extends FrontendConnectionFactory {
 
     @Override
     protected FrontendConnection getConnection(SocketChannel channel) {
-        ServerConfig sc = CobarServer.getInstance().getConfig().getServer();
+        Server sc = CobarServer.getInstance().getCobar().getServer();
         ServerConnection c = new ServerConnection(channel);
-        c.setHandler(new ServerAuthenticator(c));
-        c.setSession(new ServerSession(c));
         c.setTxIsolation(sc.getTxIsolation());
+        c.setHandler(new ServerAuthenticator(c));
+        c.setPrivileges(new ServerPrivileges());
+        c.setQueryHandler(new ServerQueryHandler(c));
+        c.setPrepareHandler(new ServerPrepareHandler(c));
+        c.setSession(new ServerSession(c));
         return c;
     }
 

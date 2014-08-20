@@ -1,11 +1,11 @@
-package com.alibaba.cobar.config.model;
+package com.alibaba.cobar.config;
 
 import java.util.List;
 
 /**
  * @author xianmao.hexm
  */
-public class InstancesModel {
+public class InstancesConfig {
 
     private List<Instance> instanceList;
 

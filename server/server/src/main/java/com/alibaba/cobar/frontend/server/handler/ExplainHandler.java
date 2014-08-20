@@ -23,10 +23,10 @@ import java.sql.SQLNonTransientException;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.SchemasConfig;
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.server.ServerConnection;
+import com.alibaba.cobar.model.Schemas;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.FieldPacket;
 import com.alibaba.cobar.net.packet.ResultSetHeaderPacket;
@@ -108,13 +108,13 @@ public class ExplainHandler {
             c.writeErrMessage(ErrorCode.ER_NO_DB_ERROR, "No database selected");
             return null;
         }
-        SchemasConfig.Schema schema = CobarServer.getInstance().getConfig().getSchemas().getSchema(db);
+        Schemas.Schema schema = CobarServer.getInstance().getCobar().getSchemas().getSchema(db);
         if (schema == null) {
             c.writeErrMessage(ErrorCode.ER_BAD_DB_ERROR, "Unknown database '" + db + "'");
             return null;
         }
         try {
-            return ServerRouter.route(schema, stmt, c.getCharset(), c);
+            return ServerRouter.route(schema, stmt, c);
         } catch (SQLNonTransientException e) {
             StringBuilder s = new StringBuilder();
             logger.warn(s.append(c).append(stmt).toString(), e);

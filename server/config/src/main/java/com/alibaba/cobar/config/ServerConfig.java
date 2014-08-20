@@ -1,9 +1,9 @@
-package com.alibaba.cobar.config.model;
+package com.alibaba.cobar.config;
 
 /**
  * @author xianmao.hexm
  */
-public class ServerModel {
+public class ServerConfig {
 
     private String serverPort;
     private String managerPort;

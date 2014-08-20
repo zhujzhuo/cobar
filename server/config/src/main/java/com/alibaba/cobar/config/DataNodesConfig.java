@@ -1,11 +1,11 @@
-package com.alibaba.cobar.config.model;
+package com.alibaba.cobar.config;
 
 import java.util.List;
 
 /**
  * @author xianmao.hexm
  */
-public class DataNodesModel {
+public class DataNodesConfig {
 
     private List<DataNode> dataNodeList;
 

@@ -13,24 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.config.model.DataNodesModel;
+import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
+import com.alibaba.cobar.config.DataNodesConfig;
 import com.alibaba.cobar.util.SplitUtil;
 
 /**
  * @author xianmao.hexm
  */
-public class DataNodesConfig {
+public class DataNodes {
 
     private Map<String, DataNode> dataNodes;
 
-    public DataNodesConfig(DataNodesModel model) {
-        dataNodes = new HashMap<String, DataNodesConfig.DataNode>();
-        for (DataNodesModel.DataNode dataNode : model.getDataNodeList()) {
+    public DataNodes(DataNodesConfig model) {
+        dataNodes = new HashMap<String, DataNodes.DataNode>();
+        for (DataNodesConfig.DataNode dataNode : model.getDataNodeList()) {
             DataNode dn = new DataNode(dataNode);
             dataNodes.put(dn.getName(), dn);
         }
@@ -48,7 +49,7 @@ public class DataNodesConfig {
         private String name;
         private String[] dataSources;
 
-        public DataNode(DataNodesModel.DataNode model) {
+        public DataNode(DataNodesConfig.DataNode model) {
             String name = model.getName();
             if (name != null) {
                 this.name = name.trim();
@@ -65,6 +66,10 @@ public class DataNodesConfig {
 
         public String[] getDataSources() {
             return dataSources;
+        }
+
+        public void acquireConnection(ResponseHandler handler) {
+
         }
 
     }

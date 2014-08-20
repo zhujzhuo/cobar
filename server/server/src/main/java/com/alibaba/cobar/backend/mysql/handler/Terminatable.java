@@ -23,5 +23,5 @@ package com.alibaba.cobar.backend.mysql.handler;
  */
 public interface Terminatable {
 
-	void terminate(Runnable runnable);
+    void terminate(Runnable runnable);
 }

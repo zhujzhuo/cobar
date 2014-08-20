@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.cobar.config.tt.RuleAlgorithm;
 import com.alibaba.cobar.config.util.SplitUtil;
+import com.alibaba.cobar.model.tt.RuleAlgorithm;
 import com.alibaba.cobar.parser.ast.expression.Expression;
 import com.alibaba.cobar.parser.ast.expression.primary.function.FunctionExpression;
 import com.alibaba.cobar.parser.util.Pair;

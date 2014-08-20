@@ -25,10 +25,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
 import org.apache.log4j.helpers.LogLog;
 
-import com.alibaba.cobar.config.CobarConfig;
-import com.alibaba.cobar.config.ServerConfig;
 import com.alibaba.cobar.frontend.manager.ManagerConnectionFactory;
 import com.alibaba.cobar.frontend.server.ServerConnectionFactory;
+import com.alibaba.cobar.model.Cobar;
+import com.alibaba.cobar.model.Server;
 import com.alibaba.cobar.net.nio.NIOAcceptor;
 import com.alibaba.cobar.net.nio.NIOConnector;
 import com.alibaba.cobar.net.nio.NIOProcessor;
@@ -51,7 +51,7 @@ public final class CobarServer {
         return INSTANCE;
     }
 
-    private final CobarConfig config;
+    private final Cobar cobar;
     private final Timer timer;
     private final NameableExecutor serverExecutor;
     private final NameableExecutor managerExecutor;
@@ -63,9 +63,9 @@ public final class CobarServer {
     private final long startupTime;
 
     private CobarServer() {
-        this.config = new CobarConfig();
+        this.cobar = new Cobar();
         this.timer = new Timer(NAME + "Timer", true);
-        ServerConfig sc = config.getServer();
+        Server sc = cobar.getServer();
         this.serverExecutor = ExecutorUtil.create("ServerExecutor", sc.getServerExecutor());
         this.managerExecutor = ExecutorUtil.create("ManagerExecutor", sc.getManagerExecutor());
         this.processors = new NIOProcessor[sc.getProcessors()];
@@ -75,7 +75,7 @@ public final class CobarServer {
 
     public void startup() throws IOException {
         // before startup
-        ServerConfig sc = config.getServer();
+        Server sc = cobar.getServer();
         String home = System.getProperty("cobar.home");
         if (home == null) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -136,8 +136,8 @@ public final class CobarServer {
         LOGGER.info("==========================================");
     }
 
-    public CobarConfig getConfig() {
-        return config;
+    public Cobar getCobar() {
+        return cobar;
     }
 
     public NIOProcessor[] getProcessors() {

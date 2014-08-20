@@ -52,7 +52,6 @@ public class ServerSession {
     private final ConcurrentHashMap<RouteResultsetNode, MySQLConnection> target;
     private final AtomicBoolean terminating;
 
-    // life-cycle: each sql execution
     private volatile SingleNodeHandler singleNodeHandler;
     private volatile MultiNodeQueryHandler multiNodeHandler;
     private volatile CommitNodeHandler commitHandler;
@@ -84,10 +83,14 @@ public class ServerSession {
         return target.remove(key);
     }
 
+    public MySQLConnection addTarget(RouteResultsetNode key, MySQLConnection c) {
+        return target.put(key, c);
+    }
+
     public void execute(RouteResultset rrs, int type) {
         if (LOGGER.isDebugEnabled()) {
-            StringBuilder s = new StringBuilder();
-            LOGGER.debug(s.append(source).append(rrs).toString());
+            StringBuilder sb = new StringBuilder();
+            LOGGER.debug(sb.append(source).append(rrs).toString());
         }
 
         // 检查路由结果是否为空
@@ -99,14 +102,13 @@ public class ServerSession {
 
         if (nodes.length == 1) {
             singleNodeHandler = new SingleNodeHandler(nodes[0], this);
-            // singleNodeHandler.execute();
+            singleNodeHandler.execute();
         } else {
             boolean autocommit = source.isAutocommit();
             if (autocommit && isModifySQL(type)) {
                 autocommit = false;
             }
             multiNodeHandler = new MultiNodeQueryHandler(nodes, autocommit, this);
-            // multiNodeHandler.execute();
         }
     }
 
@@ -208,13 +210,6 @@ public class ServerSession {
                 }
             }
         }
-    }
-
-    /**
-     * @return previous bound connection
-     */
-    public MySQLConnection bindConnection(RouteResultsetNode key, MySQLConnection conn) {
-        return target.put(key, conn);
     }
 
     private static class Terminator {

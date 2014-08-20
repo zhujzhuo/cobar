@@ -16,26 +16,26 @@
 /**
  * (created at 2012-6-13)
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.config.model.SchemasModel;
+import com.alibaba.cobar.config.SchemasConfig;
 import com.alibaba.cobar.route.rule.Rule;
 import com.alibaba.cobar.util.SplitUtil;
 
 /**
  * @author xianmao.hexm
  */
-public class SchemasConfig {
+public class Schemas {
 
     private Map<String, Schema> schemas;
 
-    public SchemasConfig(SchemasModel model) {
-        schemas = new HashMap<String, SchemasConfig.Schema>();
-        for (SchemasModel.Schema schema : model.getSchemaList()) {
-            SchemasConfig.Schema scs = new SchemasConfig.Schema(schema);
+    public Schemas(SchemasConfig model) {
+        schemas = new HashMap<String, Schemas.Schema>();
+        for (SchemasConfig.Schema schema : model.getSchemaList()) {
+            Schemas.Schema scs = new Schemas.Schema(schema);
             schemas.put(scs.getName(), scs);
         }
     }
@@ -52,8 +52,9 @@ public class SchemasConfig {
         private String name;
         private String[] dataNodes;
         private Rule rule;
+        private boolean isSharding;
 
-        public Schema(SchemasModel.Schema model) {
+        public Schema(SchemasConfig.Schema model) {
             String name = model.getName();
             if (name != null) {
                 this.name = name.trim();
@@ -89,6 +90,14 @@ public class SchemasConfig {
 
         public Rule getRule() {
             return rule;
+        }
+
+        public boolean isSharding() {
+            return isSharding;
+        }
+
+        public void setSharding(boolean isSharding) {
+            this.isSharding = isSharding;
         }
 
     }

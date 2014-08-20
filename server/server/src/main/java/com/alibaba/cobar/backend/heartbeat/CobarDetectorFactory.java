@@ -18,7 +18,7 @@ package com.alibaba.cobar.backend.heartbeat;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
-import com.alibaba.cobar.config.ServerConfig;
+import com.alibaba.cobar.model.Server;
 import com.alibaba.cobar.net.factory.BackendConnectionFactory;
 import com.alibaba.cobar.startup.CobarServer;
 
@@ -33,8 +33,8 @@ public class CobarDetectorFactory extends BackendConnectionFactory {
 
     public CobarDetector make(CobarHeartbeat heartbeat) throws IOException {
         SocketChannel channel = openSocketChannel();
-        CobarNodeConfig cnc = heartbeat.getNode().getConfig();
-        ServerConfig sys = CobarServer.getInstance().getConfig().getSystem();
+        CobarNodeConfig cnc = heartbeat.getNode().getCobar();
+        Server sys = CobarServer.getInstance().getCobar().getSystem();
         CobarDetector detector = new CobarDetector(channel);
         detector.setHost(cnc.getHost());
         detector.setPort(cnc.getPort());

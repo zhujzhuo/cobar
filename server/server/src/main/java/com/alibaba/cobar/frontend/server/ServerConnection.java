@@ -16,6 +16,7 @@
 package com.alibaba.cobar.frontend.server;
 
 import java.io.EOFException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.SocketChannel;
 import java.sql.SQLNonTransientException;
@@ -23,9 +24,9 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.SchemasConfig;
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.frontend.server.handler.ServerPrepareHandler;
+import com.alibaba.cobar.model.Schemas;
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.packet.OkPacket;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
@@ -41,20 +42,20 @@ public class ServerConnection extends FrontendConnection {
 
     private static final Logger LOGGER = Logger.getLogger(ServerConnection.class);
 
-    protected String user;
-    protected ServerPrivileges privileges;
-    protected ServerQueryHandler queryHandler;
-    protected ServerPrepareHandler prepareHandler;
+    private String user;
     private volatile int txIsolation;
     private volatile boolean autocommit;
     private volatile boolean txInterrupted;
     private long lastInsertId;
+    private ServerPrivileges privileges;
+    private ServerQueryHandler queryHandler;
+    private ServerPrepareHandler prepareHandler;
     private ServerSession session;
 
     public ServerConnection(SocketChannel channel) {
         super(channel);
-        this.txInterrupted = false;
         this.autocommit = true;
+        this.txInterrupted = false;
     }
 
     public void initDB(byte[] data) {
@@ -237,7 +238,7 @@ public class ServerConnection extends FrontendConnection {
             writeErrMessage(ErrorCode.ER_NO_DB_ERROR, "No database selected");
             return;
         }
-        SchemasConfig.Schema schema = CobarServer.getInstance().getConfig().getSchemas().getSchema(db);
+        Schemas.Schema schema = CobarServer.getInstance().getCobar().getSchemas().getSchema(db);
         if (schema == null) {
             writeErrMessage(ErrorCode.ER_BAD_DB_ERROR, "Unknown database '" + db + "'");
             return;
@@ -246,7 +247,7 @@ public class ServerConnection extends FrontendConnection {
         // 路由计算
         RouteResultset rrs = null;
         try {
-            rrs = ServerRouter.route(schema, sql, this.charset, this);
+            rrs = ServerRouter.route(schema, sql, this);
         } catch (SQLNonTransientException e) {
             StringBuilder s = new StringBuilder();
             LOGGER.warn(s.append(this).append(sql).toString(), e);
@@ -302,14 +303,14 @@ public class ServerConnection extends FrontendConnection {
         // 根据异常类型和信息，选择日志输出级别。
         if (t instanceof EOFException) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(toString(), t);
+                LOGGER.debug(this, t);
             }
-        } else if (isConnectionReset(t)) {
+        } else if (t instanceof IOException) {
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info(toString(), t);
+                LOGGER.info(this, t);
             }
         } else {
-            LOGGER.warn(toString(), t);
+            LOGGER.warn(this, t);
         }
 
         // 异常返回码处理

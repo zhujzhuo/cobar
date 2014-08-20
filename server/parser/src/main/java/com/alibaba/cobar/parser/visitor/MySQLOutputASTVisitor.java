@@ -166,6 +166,7 @@ import com.alibaba.cobar.parser.util.Pair;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public final class MySQLOutputASTVisitor implements SQLASTVisitor {
+
     private static final Object[] EMPTY_OBJ_ARRAY = new Object[0];
     private static final int[] EMPTY_INT_ARRAY = new int[0];
     private final StringBuilder appendable;
@@ -177,10 +178,6 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         this(appendable, null);
     }
 
-    /**
-     * @param args parameters for {@link java.sql.PreparedStatement
-     *            preparedStmt}
-     */
     public MySQLOutputASTVisitor(StringBuilder appendable, Object[] args) {
         this.appendable = appendable;
         this.args = args == null ? EMPTY_OBJ_ARRAY : args;
@@ -195,9 +192,6 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         return appendable.toString();
     }
 
-    /**
-     * @return never null. rst[i] ≡ {@link #args}[{@link #argsIndex}[i]]
-     */
     public Object[] getArguments() {
         final int argsIndexSize = argsIndex.length;
         if (argsIndexSize <= 0)
@@ -220,16 +214,10 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         return rst;
     }
 
-    /**
-     * @param list never null
-     */
     private void printList(List<? extends ASTNode> list) {
         printList(list, ", ");
     }
 
-    /**
-     * @param list never null
-     */
     private void printList(List<? extends ASTNode> list, String sep) {
         boolean isFst = true;
         for (ASTNode arg : list) {
@@ -245,45 +233,54 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     public void visit(BetweenAndExpression node) {
         Expression comparee = node.getFirst();
         boolean paren = comparee.getPrecedence() <= node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         comparee.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
 
-        if (node.isNot())
+        if (node.isNot()) {
             appendable.append(" NOT BETWEEN ");
-        else
+        } else {
             appendable.append(" BETWEEN ");
+        }
 
         Expression start = node.getSecond();
         paren = start.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         start.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
 
         appendable.append(" AND ");
 
         Expression end = node.getThird();
         paren = end.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         end.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
     }
 
     @Override
     public void visit(ComparisionIsExpression node) {
         Expression comparee = node.getOperand();
         boolean paren = comparee.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         comparee.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
         switch (node.getMode()) {
         case IS_NULL:
             appendable.append(" IS NULL");
@@ -325,34 +322,41 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     public void visit(LikeExpression node) {
         Expression comparee = node.getFirst();
         boolean paren = comparee.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         comparee.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
 
-        if (node.isNot())
+        if (node.isNot()) {
             appendable.append(" NOT LIKE ");
-        else
+        } else {
             appendable.append(" LIKE ");
+        }
 
         Expression pattern = node.getSecond();
         paren = pattern.getPrecedence() <= node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         pattern.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
 
         Expression escape = node.getThird();
         if (escape != null) {
             appendable.append(" ESCAPE ");
             paren = escape.getPrecedence() <= node.getPrecedence();
-            if (paren)
+            if (paren) {
                 appendable.append('(');
+            }
             escape.accept(this);
-            if (paren)
+            if (paren) {
                 appendable.append(')');
+            }
         }
     }
 
@@ -360,12 +364,13 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     public void visit(CollateExpression node) {
         Expression string = node.getString();
         boolean paren = string.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         string.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
-
+        }
         appendable.append(" COLLATE ").append(node.getCollateName());
     }
 
@@ -378,11 +383,13 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     public void visit(UnaryOperatorExpression node) {
         appendable.append(node.getOperator()).append(' ');
         boolean paren = node.getOperand().getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         node.getOperand().accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
     }
 
     @Override
@@ -390,36 +397,42 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         Expression left = node.getLeftOprand();
         boolean paren = node.isLeftCombine()
                 ? left.getPrecedence() < node.getPrecedence() : left.getPrecedence() <= node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         left.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
-
+        }
         appendable.append(' ').append(node.getOperator()).append(' ');
 
         Expression right = node.getRightOprand();
         paren = node.isLeftCombine()
                 ? right.getPrecedence() <= node.getPrecedence() : right.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         right.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
     }
 
     @Override
     public void visit(PolyadicOperatorExpression node) {
         for (int i = 0, len = node.getArity(); i < len; ++i) {
-            if (i > 0)
+            if (i > 0) {
                 appendable.append(' ').append(node.getOperator()).append(' ');
+            }
             Expression operand = node.getOperand(i);
             boolean paren = operand.getPrecedence() < node.getPrecedence();
-            if (paren)
+            if (paren) {
                 appendable.append('(');
+            }
             operand.accept(this);
-            if (paren)
+            if (paren) {
                 appendable.append(')');
+            }
         }
     }
 
@@ -492,20 +505,23 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
             break;
         case BOTH:
             appendable.append("BOTH ");
-            if (remStr != null)
+            if (remStr != null) {
                 remStr.accept(this);
+            }
             appendable.append(" FROM ");
             break;
         case LEADING:
             appendable.append("LEADING ");
-            if (remStr != null)
+            if (remStr != null) {
                 remStr.accept(this);
+            }
             appendable.append(" FROM ");
             break;
         case TRAILING:
             appendable.append("TRAILING ");
-            if (remStr != null)
+            if (remStr != null) {
                 remStr.accept(this);
+            }
             appendable.append(" FROM ");
             break;
         default:
@@ -605,10 +621,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         if (orderBy != null) {
             appendable.append(" ORDER BY ");
             orderBy.accept(this);
-            if (node.isDesc())
+            if (node.isDesc()) {
                 appendable.append(" DESC");
-            else
+            } else {
                 appendable.append(" ASC");
+            }
             List<Expression> list = node.getAppendedColumnNames();
             if (list != null && !list.isEmpty()) {
                 appendable.append(", ");
@@ -671,11 +688,13 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         appendable.append("INTERVAL ");
         Expression quantity = node.getQuantity();
         boolean paren = quantity.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         quantity.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
         IntervalPrimary.Unit unit = node.getUnit();
         appendable.append(' ').append(unit.name());
     }
@@ -683,8 +702,9 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     @Override
     public void visit(LiteralBitField node) {
         String introducer = node.getIntroducer();
-        if (introducer != null)
+        if (introducer != null) {
             appendable.append(introducer).append(' ');
+        }
         appendable.append("b'").append(node.getText()).append('\'');
     }
 
@@ -700,8 +720,9 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     @Override
     public void visit(LiteralHexadecimal node) {
         String introducer = node.getIntroducer();
-        if (introducer != null)
+        if (introducer != null) {
             appendable.append(introducer).append(' ');
+        }
         appendable.append("x'");
         node.appendTo(appendable);
         appendable.append('\'');
@@ -776,8 +797,9 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     }
 
     private static boolean containsCompIn(Expression pat) {
-        if (pat.getPrecedence() > Expression.PRECEDENCE_COMPARISION)
+        if (pat.getPrecedence() > Expression.PRECEDENCE_COMPARISION) {
             return false;
+        }
         if (pat instanceof BinaryOperatorExpression) {
             if (pat instanceof InExpression) {
                 return true;
@@ -809,11 +831,13 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         appendable.append(") AGAINST (");
         Expression pattern = node.getPattern();
         boolean inparen = containsCompIn(pattern);
-        if (inparen)
+        if (inparen) {
             appendable.append('(');
+        }
         pattern.accept(this);
-        if (inparen)
+        if (inparen) {
             appendable.append(')');
+        }
         switch (node.getModifier()) {
         case IN_BOOLEAN_MODE:
             appendable.append(" IN BOOLEAN MODE");
@@ -841,8 +865,9 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         int i = ++index;
         if (argsIndex.length <= i) {
             int[] a = new int[i + 1];
-            if (i > 0)
+            if (i > 0) {
                 System.arraycopy(argsIndex, 0, a, 0, i);
+            }
             argsIndex = a;
         }
         argsIndex[i] = value;
@@ -929,10 +954,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         List<String> indexList = node.getIndexList();
         boolean isFst = true;
         for (String indexName : indexList) {
-            if (isFst)
+            if (isFst) {
                 isFst = false;
-            else
+            } else {
                 appendable.append(", ");
+            }
             appendable.append(indexName);
         }
         appendable.append(')');
@@ -947,20 +973,23 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     public void visit(InnerJoin node) {
         TableReference left = node.getLeftTableRef();
         boolean paren = left.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         left.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
-
+        }
         appendable.append(" INNER JOIN ");
         TableReference right = node.getRightTableRef();
         paren = right.getPrecedence() <= node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         right.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
 
         Expression on = node.getOnCond();
         List<String> using = node.getUsing();
@@ -971,10 +1000,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
             appendable.append(" USING (");
             boolean isFst = true;
             for (String col : using) {
-                if (isFst)
+                if (isFst) {
                     isFst = false;
-                else
+                } else {
                     appendable.append(", ");
+                }
                 appendable.append(col);
             }
             appendable.append(")");
@@ -985,50 +1015,56 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     public void visit(NaturalJoin node) {
         TableReference left = node.getLeftTableRef();
         boolean paren = left.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         left.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
-
+        }
         appendable.append(" NATURAL ");
         if (node.isOuter()) {
-            if (node.isLeft())
+            if (node.isLeft()) {
                 appendable.append("LEFT ");
-            else
+            } else {
                 appendable.append("RIGHT ");
+            }
         }
         appendable.append("JOIN ");
 
         TableReference right = node.getRightTableRef();
         paren = right.getPrecedence() <= node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         right.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
     }
 
     @Override
     public void visit(StraightJoin node) {
         TableReference left = node.getLeftTableRef();
         boolean paren = left.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         left.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
-
+        }
         appendable.append(" STRAIGHT_JOIN ");
 
         TableReference right = node.getRightTableRef();
         paren = right.getPrecedence() <= node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         right.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
-
+        }
         Expression on = node.getOnCond();
         if (on != null) {
             appendable.append(" ON ");
@@ -1040,24 +1076,28 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     public void visit(OuterJoin node) {
         TableReference left = node.getLeftTableRef();
         boolean paren = left.getPrecedence() < node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         left.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
 
-        if (node.isLeftJoin())
+        if (node.isLeftJoin()) {
             appendable.append(" LEFT JOIN ");
-        else
+        } else {
             appendable.append(" RIGHT JOIN ");
-
+        }
         TableReference right = node.getRightTableRef();
         paren = right.getPrecedence() <= node.getPrecedence();
-        if (paren)
+        if (paren) {
             appendable.append('(');
+        }
         right.accept(this);
-        if (paren)
+        if (paren) {
             appendable.append(')');
+        }
 
         Expression on = node.getOnCond();
         List<String> using = node.getUsing();
@@ -1068,10 +1108,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
             appendable.append(" USING (");
             boolean isFst = true;
             for (String col : using) {
-                if (isFst)
+                if (isFst) {
                     isFst = false;
-                else
+                } else {
                     appendable.append(", ");
+                }
                 appendable.append(col);
             }
             appendable.append(")");
@@ -1113,10 +1154,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         appendable.append("GROUP BY ");
         boolean isFst = true;
         for (Pair<Expression, SortOrder> p : node.getOrderByList()) {
-            if (isFst)
+            if (isFst) {
                 isFst = false;
-            else
+            } else {
                 appendable.append(", ");
+            }
             Expression col = p.getKey();
             col.accept(this);
             switch (p.getValue()) {
@@ -1137,10 +1179,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         appendable.append("ORDER BY ");
         boolean isFst = true;
         for (Pair<Expression, SortOrder> p : node.getOrderByList()) {
-            if (isFst)
+            if (isFst) {
                 isFst = false;
-            else
+            } else {
                 appendable.append(", ");
+            }
             Expression col = p.getKey();
             col.accept(this);
             switch (p.getValue()) {
@@ -1239,8 +1282,9 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     public void visit(ShowBinLogEvent node) {
         appendable.append("SHOW BINLOG EVENTS");
         String logName = node.getLogName();
-        if (logName != null)
+        if (logName != null) {
             appendable.append(" IN ").append(logName);
+        }
         Expression pos = node.getPos();
         if (pos != null) {
             appendable.append(" FROM ");
@@ -1280,8 +1324,9 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     @Override
     public void visit(ShowColumns node) {
         appendable.append("SHOW ");
-        if (node.isFull())
+        if (node.isFull()) {
             appendable.append("FULL ");
+        }
         appendable.append("COLUMNS FROM ");
         node.getTable().accept(this);
         printLikeOrWhere(node.getPattern(), node.getWhere());
@@ -1436,8 +1481,9 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     @Override
     public void visit(ShowProcesslist node) {
         appendable.append("SHOW ");
-        if (node.isFull())
+        if (node.isFull()) {
             appendable.append("FULL ");
+        }
         appendable.append("PROCESSLIST");
     }
 
@@ -1491,8 +1537,9 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     @Override
     public void visit(ShowTables node) {
         appendable.append("SHOW");
-        if (node.isFull())
+        if (node.isFull()) {
             appendable.append(" FULL");
+        }
         appendable.append(" TABLES");
         Identifier schema = node.getSchema();
         if (schema != null) {
@@ -1556,10 +1603,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         appendable.append("SET ");
         boolean isFst = true;
         for (Pair<VariableExpression, Expression> p : node.getAssignmentList()) {
-            if (isFst)
+            if (isFst) {
                 isFst = false;
-            else
+            } else {
                 appendable.append(", ");
+            }
             p.getKey().accept(this);
             appendable.append(" = ");
             p.getValue().accept(this);
@@ -1680,12 +1728,15 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
     @Override
     public void visit(DMLDeleteStatement node) {
         appendable.append("DELETE ");
-        if (node.isLowPriority())
+        if (node.isLowPriority()) {
             appendable.append("LOW_PRIORITY ");
-        if (node.isQuick())
+        }
+        if (node.isQuick()) {
             appendable.append("QUICK ");
-        if (node.isIgnore())
+        }
+        if (node.isIgnore()) {
             appendable.append("IGNORE ");
+        }
         TableReferences tableRefs = node.getTableRefs();
         if (tableRefs == null) {
             appendable.append("FROM ");
@@ -1730,8 +1781,9 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         default:
             throw new IllegalArgumentException("unknown mode for INSERT: " + node.getMode());
         }
-        if (node.isIgnore())
+        if (node.isIgnore()) {
             appendable.append("IGNORE ");
+        }
         appendable.append("INTO ");
         node.getTable().accept(this);
         appendable.append(' ');
@@ -1750,12 +1802,14 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
             if (rows != null && !rows.isEmpty()) {
                 boolean isFst = true;
                 for (RowExpression row : rows) {
-                    if (row == null || row.getRowExprList().isEmpty())
+                    if (row == null || row.getRowExprList().isEmpty()) {
                         continue;
-                    if (isFst)
+                    }
+                    if (isFst) {
                         isFst = false;
-                    else
+                    } else {
                         appendable.append(", ");
+                    }
                     appendable.append('(');
                     printList(row.getRowExprList());
                     appendable.append(')');
@@ -1772,10 +1826,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
             appendable.append(" ON DUPLICATE KEY UPDATE ");
             boolean isFst = true;
             for (Pair<Identifier, Expression> p : dup) {
-                if (isFst)
+                if (isFst) {
                     isFst = false;
-                else
+                } else {
                     appendable.append(", ");
+                }
                 p.getKey().accept(this);
                 appendable.append(" = ");
                 p.getValue().accept(this);
@@ -1816,12 +1871,14 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
             if (rows != null && !rows.isEmpty()) {
                 boolean isFst = true;
                 for (RowExpression row : rows) {
-                    if (row == null || row.getRowExprList().isEmpty())
+                    if (row == null || row.getRowExprList().isEmpty()) {
                         continue;
-                    if (isFst)
+                    }
+                    if (isFst) {
                         isFst = false;
-                    else
+                    } else {
                         appendable.append(", ");
+                    }
                     appendable.append('(');
                     printList(row.getRowExprList());
                     appendable.append(')');
@@ -1890,10 +1947,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         boolean isFst = true;
         List<Pair<Expression, String>> exprList = node.getSelectExprList();
         for (Pair<Expression, String> p : exprList) {
-            if (isFst)
+            if (isFst) {
                 isFst = false;
-            else
+            } else {
                 appendable.append(", ");
+            }
             p.getKey().accept(this);
             String alias = p.getValue();
             if (alias != null) {
@@ -1996,10 +2054,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         appendable.append(" SET ");
         boolean isFst = true;
         for (Pair<Identifier, Expression> p : node.getValues()) {
-            if (isFst)
+            if (isFst) {
                 isFst = false;
-            else
+            } else {
                 appendable.append(", ");
+            }
             p.getKey().accept(this);
             appendable.append(" = ");
             p.getValue().accept(this);
@@ -2047,10 +2106,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         appendable.append("RENAME TABLE ");
         boolean isFst = true;
         for (Pair<Identifier, Identifier> p : node.getList()) {
-            if (isFst)
+            if (isFst) {
                 isFst = false;
-            else
+            } else {
                 appendable.append(", ");
+            }
             p.getKey().accept(this);
             appendable.append(" TO ");
             p.getValue().accept(this);
@@ -2097,10 +2157,11 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         appendable.append(" (");
         boolean first = true;
         for (Pair<Integer, Expression> p : node.getProportion()) {
-            if (first)
+            if (first) {
                 first = false;
-            else
+            } else {
                 appendable.append(", ");
+            }
             appendable.append(p.getKey()).append(' ');
             p.getValue().accept(this);
         }
@@ -2112,4 +2173,5 @@ public final class MySQLOutputASTVisitor implements SQLASTVisitor {
         appendable.append("DROP POLICY ");
         node.getPolicyName().accept(this);
     }
+
 }

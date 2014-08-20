@@ -149,7 +149,7 @@ public class MySQLHeartbeat {
                     try {
                         detector = factory.make(this);
                     } catch (Throwable e) {
-                        LOGGER.warn(source.getConfig().toString(), e);
+                        LOGGER.warn(source.getCobar().toString(), e);
                         setError(null);
                         return;
                     }

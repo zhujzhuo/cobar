@@ -21,10 +21,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.config.ClusterConfig;
 import com.alibaba.cobar.defs.Alarms;
 import com.alibaba.cobar.defs.Fields;
 import com.alibaba.cobar.frontend.server.ServerConnection;
+import com.alibaba.cobar.model.Cluster;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.FieldPacket;
 import com.alibaba.cobar.net.packet.ResultSetHeaderPacket;
@@ -89,8 +89,8 @@ public class ShowCobarCluster {
     private static List<RowDataPacket> getRows(ServerConnection c) {
         List<RowDataPacket> rows = new LinkedList<RowDataPacket>();
 
-        ClusterConfig cluster = CobarServer.getInstance().getConfig().getCluster();
-        for (ClusterConfig.Node n : cluster.getNodes().values()) {
+        Cluster cluster = CobarServer.getInstance().getCobar().getCluster();
+        for (Cluster.Node n : cluster.getNodes().values()) {
             if (n != null && n.isOnline()) {
                 rows.add(getRow(n, c.getCharset()));
             }
@@ -103,7 +103,7 @@ public class ShowCobarCluster {
         return rows;
     }
 
-    private static RowDataPacket getRow(ClusterConfig.Node node, String charset) {
+    private static RowDataPacket getRow(Cluster.Node node, String charset) {
         RowDataPacket row = new RowDataPacket(FIELD_COUNT);
         row.add(StringUtil.encode(node.getHost(), charset));
         row.add(IntegerUtil.toBytes(node.getWeight()));

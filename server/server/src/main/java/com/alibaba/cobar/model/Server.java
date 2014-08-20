@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.config;
+package com.alibaba.cobar.model;
 
-import com.alibaba.cobar.config.model.ServerModel;
+import com.alibaba.cobar.config.ServerConfig;
 import com.alibaba.cobar.defs.Isolations;
 
 /**
@@ -23,7 +23,7 @@ import com.alibaba.cobar.defs.Isolations;
  * 
  * @author xianmao.hexm 2011-1-11 下午02:14:04
  */
-public final class ServerConfig {
+public final class Server {
 
     private static final int DEFAULT_PORT = 8066;
     private static final int DEFAULT_MANAGER_PORT = 9066;
@@ -55,7 +55,7 @@ public final class ServerConfig {
     private long clusterHeartbeatTimeout;
     private int clusterHeartbeatRetry;
 
-    public ServerConfig(ServerModel model) {
+    public Server(ServerConfig model) {
         this.serverPort = DEFAULT_PORT;
         this.managerPort = DEFAULT_MANAGER_PORT;
         this.serverExecutor = DEFAULT_PROCESSORS * 2;
@@ -138,7 +138,7 @@ public final class ServerConfig {
         return clusterHeartbeatRetry;
     }
 
-    protected void init(ServerModel model) {
+    protected void init(ServerConfig model) {
         String serverPort = model.getServerPort();
         if (serverPort != null) {
             this.serverPort = Integer.parseInt(serverPort.trim());
