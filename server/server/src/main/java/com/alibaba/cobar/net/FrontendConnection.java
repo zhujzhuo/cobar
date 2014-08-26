@@ -132,7 +132,7 @@ public abstract class FrontendConnection extends AbstractConnection {
         ErrorPacket err = new ErrorPacket();
         err.packetId = id;
         err.errno = errno;
-        err.message = encodeString(msg, charset);
+        err.message = encodeErrString(msg, charset);
         err.write(this);
     }
 
@@ -172,7 +172,7 @@ public abstract class FrontendConnection extends AbstractConnection {
         return flag;
     }
 
-    private static byte[] encodeString(String src, String charset) {
+    private static byte[] encodeErrString(String src, String charset) {
         if (src == null) {
             return null;
         }

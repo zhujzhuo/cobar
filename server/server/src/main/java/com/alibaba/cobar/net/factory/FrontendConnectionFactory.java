@@ -17,10 +17,11 @@ package com.alibaba.cobar.net.factory;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import com.alibaba.cobar.net.FrontendConnection;
-import com.alibaba.cobar.util.ByteBufferQueue;
+import com.alibaba.cobar.util.BufferQueue;
 
 /**
  * @author xianmao.hexm
@@ -42,7 +43,7 @@ public abstract class FrontendConnectionFactory {
         socket.setTcpNoDelay(true);
         socket.setKeepAlive(true);
         FrontendConnection c = getConnection(channel);
-        c.setWriteQueue(new ByteBufferQueue(writeQueueCapcity));
+        c.setWriteQueue(new BufferQueue<ByteBuffer>(writeQueueCapcity));
         c.setIdleTimeout(idleTimeout);
         c.setCharset(charset);
         return c;

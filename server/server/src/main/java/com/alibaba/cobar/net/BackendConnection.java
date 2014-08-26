@@ -37,11 +37,6 @@ public abstract class BackendConnection extends AbstractConnection {
         super(channel);
     }
 
-    public boolean isIdleTimeout() {
-        long last = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
-        return TimeUtil.currentTimeMillis() > last + idleTimeout;
-    }
-
     public void setConnector(NIOConnector connector) {
         this.connector = connector;
     }
@@ -68,9 +63,9 @@ public abstract class BackendConnection extends AbstractConnection {
         processor.addBackend(this);
     }
 
-    @Override
-    public void idleCheck() {
-        // nothing
+    public boolean isIdleTimeout() {
+        long last = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
+        return TimeUtil.currentTimeMillis() > last + idleTimeout;
     }
 
 }

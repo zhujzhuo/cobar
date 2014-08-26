@@ -56,8 +56,8 @@ public class MySQLProtocol {
 
             if (position >= offset + size) { // 至少有一个数据包的数据在buffer中
                 // 从buffer中复制一个数据包的数据，然后提交处理。
-                buffer.position(offset);
                 byte[] data = new byte[size];
+                buffer.position(offset);
                 buffer.get(data, 0, size);
                 c.handle(data);
 

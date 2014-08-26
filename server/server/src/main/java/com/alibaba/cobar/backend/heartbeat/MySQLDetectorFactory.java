@@ -31,7 +31,7 @@ public class MySQLDetectorFactory extends BackendConnectionFactory {
     }
 
     public MySQLDetector make(MySQLHeartbeat heartbeat) throws IOException {
-        SocketChannel channel = openSocketChannel();
+        SocketChannel channel = getChannel();
         DataSourceConfig dsc = heartbeat.getSource().getCobar();
         DataNodeConfig dnc = heartbeat.getSource().getNode().getCobar();
         MySQLDetector detector = new MySQLDetector(channel);

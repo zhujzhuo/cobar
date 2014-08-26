@@ -27,7 +27,6 @@ import com.alibaba.cobar.net.packet.ResultSetHeaderPacket;
 import com.alibaba.cobar.net.packet.RowDataPacket;
 import com.alibaba.cobar.startup.CobarServer;
 import com.alibaba.cobar.statistics.ConnectionStatistic;
-import com.alibaba.cobar.util.ByteBufferQueue;
 import com.alibaba.cobar.util.IntegerUtil;
 import com.alibaba.cobar.util.LongUtil;
 import com.alibaba.cobar.util.PacketUtil;
@@ -38,11 +37,10 @@ import com.alibaba.cobar.util.TimeUtil;
  * 查看当前有效连接信息
  * 
  * @author xianmao.hexm 2010-9-27 下午01:16:57
- * @author wenfeng.cenwf 2011-4-25
  */
 public final class ShowConnection {
 
-    private static final int FIELD_COUNT = 13;
+    private static final int FIELD_COUNT = 14;
     private static final ResultSetHeaderPacket header = PacketUtil.getHeader(FIELD_COUNT);
     private static final FieldPacket[] fields = new FieldPacket[FIELD_COUNT];
     private static final EOFPacket eof = new EOFPacket();
@@ -84,10 +82,13 @@ public final class ShowConnection {
         fields[i] = PacketUtil.getField("WRITE_ATTEMPTS", Fields.FIELD_TYPE_LONG);
         fields[i++].packetId = ++packetId;
 
-        fields[i] = PacketUtil.getField("RECV_BUFFER", Fields.FIELD_TYPE_LONG);
+        fields[i] = PacketUtil.getField("READ_BUFFER", Fields.FIELD_TYPE_LONG);
         fields[i++].packetId = ++packetId;
 
-        fields[i] = PacketUtil.getField("SEND_QUEUE", Fields.FIELD_TYPE_LONG);
+        fields[i] = PacketUtil.getField("HANDLE_QUEUE", Fields.FIELD_TYPE_LONG);
+        fields[i++].packetId = ++packetId;
+
+        fields[i] = PacketUtil.getField("WRITE_QUEUE", Fields.FIELD_TYPE_LONG);
         fields[i++].packetId = ++packetId;
 
         eof.packetId = ++packetId;
@@ -143,10 +144,9 @@ public final class ShowConnection {
         row.add(LongUtil.toBytes(statistic.getNetOutBytes()));
         row.add(LongUtil.toBytes((TimeUtil.currentTimeMillis() - statistic.getStartupTime()) / 1000L));
         row.add(IntegerUtil.toBytes(statistic.getWriteAttempts()));
-        ByteBuffer bb = c.getReadBuffer();
-        row.add(IntegerUtil.toBytes(bb == null ? 0 : bb.capacity()));
-        ByteBufferQueue bq = c.getWriteQueue();
-        row.add(IntegerUtil.toBytes(bq == null ? 0 : bq.size()));
+        row.add(IntegerUtil.toBytes(c.getReadBufferSize()));
+        row.add(IntegerUtil.toBytes(c.getHandleQueueSize()));
+        row.add(IntegerUtil.toBytes(c.getWriteQueueSize()));
         return row;
     }
 

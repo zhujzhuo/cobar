@@ -30,6 +30,7 @@ public interface ErrorCode {
     int ERR_WRITE_BY_EVENT = 3007;
     int ERR_WRITE_BY_QUEUE = 3008;
     int ERR_HANDLE_DATA = 3009;
+    int ERR_PUT_HANDLE_DATA = 3010;
 
     // mysql error code
     int ER_HASHCHK = 1000;

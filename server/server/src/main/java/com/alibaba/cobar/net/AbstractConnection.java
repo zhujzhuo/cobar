@@ -22,6 +22,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,7 +37,8 @@ import com.alibaba.cobar.net.nio.NIOHandler;
 import com.alibaba.cobar.net.nio.NIOProcessor;
 import com.alibaba.cobar.net.protocol.MySQLProtocol;
 import com.alibaba.cobar.statistics.ConnectionStatistic;
-import com.alibaba.cobar.util.ByteBufferQueue;
+import com.alibaba.cobar.util.BufferQueue;
+import com.alibaba.cobar.util.ExecutorUtil.NameableExecutor;
 import com.alibaba.cobar.util.TimeUtil;
 
 /**
@@ -55,10 +59,13 @@ public abstract class AbstractConnection implements NIOConnection {
     protected NIOProcessor processor;
     protected SelectionKey processKey;
     protected final ReentrantLock keyLock;
-    protected ByteBuffer readBuffer;
     protected final MySQLProtocol protocol;
     protected NIOHandler handler;
-    protected ByteBufferQueue writeQueue;
+
+    protected ByteBuffer readBuffer;
+    protected final BlockingQueue<byte[]> handleQueue;
+    protected BufferQueue<ByteBuffer> writeQueue;
+    protected final AtomicBoolean isHandling;
     protected final ReentrantLock writeLock;
     protected boolean isRegistered;
     protected final AtomicBoolean isClosed;
@@ -69,6 +76,8 @@ public abstract class AbstractConnection implements NIOConnection {
         this.channel = channel;
         this.keyLock = new ReentrantLock();
         this.protocol = new MySQLProtocol(this);
+        this.handleQueue = new LinkedBlockingQueue<byte[]>();
+        this.isHandling = new AtomicBoolean(false);
         this.writeLock = new ReentrantLock();
         this.isClosed = new AtomicBoolean(false);
         this.statistic = new ConnectionStatistic();
@@ -118,19 +127,23 @@ public abstract class AbstractConnection implements NIOConnection {
         return channel;
     }
 
-    public ByteBuffer getReadBuffer() {
-        return readBuffer;
+    public int getReadBufferSize() {
+        return readBuffer.capacity();
     }
 
     public void setReadBuffer(ByteBuffer readBuffer) {
         this.readBuffer = readBuffer;
     }
 
-    public ByteBufferQueue getWriteQueue() {
-        return writeQueue;
+    public int getHandleQueueSize() {
+        return handleQueue.size();
     }
 
-    public void setWriteQueue(ByteBufferQueue writeQueue) {
+    public int getWriteQueueSize() {
+        return writeQueue.size();
+    }
+
+    public void setWriteQueue(BufferQueue<ByteBuffer> writeQueue) {
         this.writeQueue = writeQueue;
     }
 
@@ -192,17 +205,16 @@ public abstract class AbstractConnection implements NIOConnection {
     }
 
     @Override
-    public void handle(final byte[] data) {
-        processor.getExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    handler.handle(data);
-                } catch (Throwable t) {
-                    error(ErrorCode.ERR_HANDLE_DATA, t);
-                }
-            }
-        });
+    public void handle(byte[] data) {
+        if (handleQueue.offer(data)) {
+            handleQueue(getExecutor());
+        } else {
+            error(ErrorCode.ERR_PUT_HANDLE_DATA, new RuntimeException("offer handleData error!"));
+        }
+    }
+
+    protected NameableExecutor getExecutor() {
+        return processor.getExecutor();
     }
 
     @Override
@@ -450,6 +462,29 @@ public abstract class AbstractConnection implements NIOConnection {
             return isSocketClosed && (!channel.isOpen());
         } else {
             return true;
+        }
+    }
+
+    private void handleQueue(final Executor exec) {
+        if (isHandling.compareAndSet(false, true)) {
+            exec.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        byte[] data = null;
+                        while ((data = handleQueue.poll()) != null) {
+                            handler.handle(data);
+                        }
+                    } catch (Throwable t) {
+                        error(ErrorCode.ERR_HANDLE_DATA, t);
+                    } finally {
+                        isHandling.set(false);
+                        if (handleQueue.size() > 0) {
+                            handleQueue(exec);
+                        }
+                    }
+                }
+            });
         }
     }
 

@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.startup.CobarServer;
+import com.alibaba.cobar.util.ExecutorUtil.NameableExecutor;
 
 /**
  * @author xianmao.hexm 2011-4-22 下午02:23:55
@@ -37,17 +38,8 @@ public class ManagerConnection extends FrontendConnection {
     }
 
     @Override
-    public void handle(final byte[] data) {
-        CobarServer.getInstance().getManagerExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    handler.handle(data);
-                } catch (Throwable t) {
-                    error(ErrorCode.ERR_HANDLE_DATA, t);
-                }
-            }
-        });
+    protected NameableExecutor getExecutor() {
+        return CobarServer.getInstance().getManagerExecutor();
     }
 
     @Override

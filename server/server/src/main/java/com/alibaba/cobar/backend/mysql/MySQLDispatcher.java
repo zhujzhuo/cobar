@@ -13,29 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.backend.heartbeat;
+package com.alibaba.cobar.backend.mysql;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.alibaba.cobar.backend.BackendAsyncHandler;
-import com.alibaba.cobar.defs.ErrorCode;
-import com.alibaba.cobar.exeception.HeartbeatException;
+import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.ErrorPacket;
 import com.alibaba.cobar.net.packet.OkPacket;
+import com.alibaba.cobar.util.BytesUtil;
 
 /**
- * @author xianmao.hexm
+ * @author xianmao.hexm 2012-4-12
  */
-public class CobarDetectorHandler extends BackendAsyncHandler {
+public class MySQLDispatcher extends BackendAsyncHandler {
+
     private static final int RESULT_STATUS_INIT = 0;
     private static final int RESULT_STATUS_HEADER = 1;
     private static final int RESULT_STATUS_FIELD_EOF = 2;
 
-    private final CobarDetector source;
+    private final MySQLConnection source;
     private volatile int resultStatus;
+    private volatile byte[] header;
+    private volatile List<byte[]> fields;
+    private volatile ResponseHandler responseHandler;
 
-    public CobarDetectorHandler(CobarDetector source) {
+    public MySQLDispatcher(MySQLConnection source) {
         this.source = source;
         this.resultStatus = RESULT_STATUS_INIT;
+    }
+
+    public void connectionError(Throwable e) {
+        // connError = e;
+        // handleQueue();
+    }
+
+    public MySQLConnection getSource() {
+        return source;
     }
 
     @Override
@@ -47,7 +63,7 @@ public class CobarDetectorHandler extends BackendAsyncHandler {
     protected void offerDataError() {
         dataQueue.clear();
         resultStatus = RESULT_STATUS_INIT;
-        throw new HeartbeatException("offer data error!");
+        throw new RuntimeException("offer data error!");
     }
 
     @Override
@@ -63,6 +79,8 @@ public class CobarDetectorHandler extends BackendAsyncHandler {
                 break;
             default:
                 resultStatus = RESULT_STATUS_HEADER;
+                header = data;
+                fields = new ArrayList<byte[]>((int) BytesUtil.readLength(data, 4));
             }
             break;
         case RESULT_STATUS_HEADER:
@@ -73,7 +91,10 @@ public class CobarDetectorHandler extends BackendAsyncHandler {
                 break;
             case EOFPacket.FIELD_COUNT:
                 resultStatus = RESULT_STATUS_FIELD_EOF;
+                handleFieldEofPacket(data);
                 break;
+            default:
+                fields.add(data);
             }
             break;
         case RESULT_STATUS_FIELD_EOF:
@@ -84,49 +105,61 @@ public class CobarDetectorHandler extends BackendAsyncHandler {
                 break;
             case EOFPacket.FIELD_COUNT:
                 resultStatus = RESULT_STATUS_INIT;
-                handleRowEofPacket();
+                handleRowEofPacket(data);
                 break;
+            default:
+                handleRowPacket(data);
             }
             break;
         default:
-            throw new HeartbeatException("unknown status!");
+            throw new RuntimeException("unknown status!");
         }
+    }
+
+    public void setResponseHandler(ResponseHandler responseHandler) {
+        this.responseHandler = responseHandler;
     }
 
     @Override
     protected void handleDataError(Throwable t) {
         dataQueue.clear();
         resultStatus = RESULT_STATUS_INIT;
-        source.error(ErrorCode.ERR_HANDLE_DATA, t);
+        responseHandler.connectionError(t, source);
     }
 
     /**
      * OK数据包处理
      */
     private void handleOkPacket(byte[] data) {
-        source.getHeartbeat().setResult(CobarHeartbeat.OK_STATUS, source, false, data);
+        responseHandler.okResponse(data, source);
     }
 
     /**
      * ERROR数据包处理
      */
     private void handleErrorPacket(byte[] data) {
-        ErrorPacket err = new ErrorPacket();
-        err.read(data);
-        switch (err.errno) {
-        case ErrorCode.ER_SERVER_SHUTDOWN:
-            source.getHeartbeat().setResult(CobarHeartbeat.OFF_STATUS, source, false, err.message);
-            break;
-        default:
-            throw new HeartbeatException(new String(err.message));
-        }
+        responseHandler.errorResponse(data, source);
+    }
+
+    /**
+     * 字段数据包结束处理
+     */
+    private void handleFieldEofPacket(byte[] data) {
+        responseHandler.fieldEofResponse(header, fields, data, source);
+    }
+
+    /**
+     * 行数据包处理
+     */
+    private void handleRowPacket(byte[] data) {
+        responseHandler.rowResponse(data, source);
     }
 
     /**
      * 行数据包结束处理
      */
-    private void handleRowEofPacket() {
-        source.getHeartbeat().setResult(CobarHeartbeat.OK_STATUS, source, false, null);
+    private void handleRowEofPacket(byte[] data) {
+        responseHandler.rowEofResponse(data, source);
     }
 
 }

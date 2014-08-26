@@ -24,7 +24,7 @@
         <property name="managerExecutor">8</property>
         <property name="processors">4</property>
         <property name="processorExecutor">16</property>
-        <property name="charset">utf-8</property>
+        <property name="charset">utf8</property>
         <property name="idleTimeout">3600</property>
     </server>
 
@@ -58,7 +58,7 @@
     <users>
         <user>
             <property name="name">test</property>
-            <property name="password"></property>
+            <property name="password">test</property>
             <property name="schemas">dbtest</property>
         </user>
         <user>

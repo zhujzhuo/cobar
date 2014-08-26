@@ -17,11 +17,13 @@ package com.alibaba.cobar.net.factory;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import com.alibaba.cobar.net.BackendConnection;
 import com.alibaba.cobar.net.nio.NIOConnector;
-import com.alibaba.cobar.util.ByteBufferQueue;
+import com.alibaba.cobar.startup.CobarServer;
+import com.alibaba.cobar.util.BufferQueue;
 
 /**
  * @author xianmao.hexm
@@ -30,10 +32,39 @@ public abstract class BackendConnectionFactory {
 
     protected int socketRecvBuffer = 16 * 1024;
     protected int socketSendBuffer = 8 * 1024;
-    protected int writeQueueCapcity = 8;
+    protected int writeQueueCapacity = 8;
     protected long idleTimeout = 8 * 3600 * 1000L;
 
-    protected SocketChannel openSocketChannel() throws IOException {
+    public void setSocketRecvBuffer(int socketRecvBuffer) {
+        this.socketRecvBuffer = socketRecvBuffer;
+    }
+
+    public void setSocketSendBuffer(int socketSendBuffer) {
+        this.socketSendBuffer = socketSendBuffer;
+    }
+
+    public void setWriteQueueCapacity(int writeQueueCapacity) {
+        this.writeQueueCapacity = writeQueueCapacity;
+    }
+
+    public void setIdleTimeout(long idleTimeout) {
+        this.idleTimeout = idleTimeout;
+    }
+
+    protected abstract BackendConnection getConnection(SocketChannel channel);
+
+    public BackendConnection make() throws IOException {
+        SocketChannel channel = getChannel();
+        BackendConnection c = getConnection(channel);
+        c.setWriteQueue(new BufferQueue<ByteBuffer>(writeQueueCapacity));
+        c.setIdleTimeout(idleTimeout);
+        NIOConnector connector = CobarServer.getInstance().getConnector();
+        c.setConnector(connector);
+        connector.postConnect(c);
+        return c;
+    }
+
+    protected SocketChannel getChannel() throws IOException {
         SocketChannel channel = null;
         try {
             channel = SocketChannel.open();
@@ -51,45 +82,6 @@ public abstract class BackendConnectionFactory {
             throw e;
         }
         return channel;
-    }
-
-    protected void postConnect(BackendConnection c, NIOConnector connector) {
-        c.setWriteQueue(new ByteBufferQueue(writeQueueCapcity));
-        c.setIdleTimeout(idleTimeout);
-        c.setConnector(connector);
-        connector.postConnect(c);
-    }
-
-    public int getSocketRecvBuffer() {
-        return socketRecvBuffer;
-    }
-
-    public void setSocketRecvBuffer(int socketRecvBuffer) {
-        this.socketRecvBuffer = socketRecvBuffer;
-    }
-
-    public int getSocketSendBuffer() {
-        return socketSendBuffer;
-    }
-
-    public void setSocketSendBuffer(int socketSendBuffer) {
-        this.socketSendBuffer = socketSendBuffer;
-    }
-
-    public int getWriteQueueCapcity() {
-        return writeQueueCapcity;
-    }
-
-    public void setWriteQueueCapcity(int writeQueueCapcity) {
-        this.writeQueueCapcity = writeQueueCapcity;
-    }
-
-    public long getIdleTimeout() {
-        return idleTimeout;
-    }
-
-    public void setIdleTimeout(long idleTimeout) {
-        this.idleTimeout = idleTimeout;
     }
 
     private static void closeChannel(SocketChannel channel) {

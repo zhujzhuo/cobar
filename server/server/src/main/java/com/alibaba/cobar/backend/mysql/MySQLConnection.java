@@ -48,68 +48,10 @@ import com.alibaba.cobar.util.TimeUtil;
 public class MySQLConnection extends BackendConnection {
 
     private static final Logger LOGGER = Logger.getLogger(MySQLConnection.class);
-    private static final long CLIENT_FLAGS = initClientFlags();
-
-    private static long initClientFlags() {
-        int flag = 0;
-        flag |= Capabilities.CLIENT_LONG_PASSWORD;
-        flag |= Capabilities.CLIENT_FOUND_ROWS;
-        flag |= Capabilities.CLIENT_LONG_FLAG;
-        flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
-        // flag |= Capabilities.CLIENT_NO_SCHEMA;
-        // flag |= Capabilities.CLIENT_COMPRESS;
-        flag |= Capabilities.CLIENT_ODBC;
-        // flag |= Capabilities.CLIENT_LOCAL_FILES;
-        flag |= Capabilities.CLIENT_IGNORE_SPACE;
-        flag |= Capabilities.CLIENT_PROTOCOL_41;
-        flag |= Capabilities.CLIENT_INTERACTIVE;
-        // flag |= Capabilities.CLIENT_SSL;
-        flag |= Capabilities.CLIENT_IGNORE_SIGPIPE;
-        flag |= Capabilities.CLIENT_TRANSACTIONS;
-        // flag |= Capabilities.CLIENT_RESERVED;
-        flag |= Capabilities.CLIENT_SECURE_CONNECTION;
-        // client extension
-        // flag |= Capabilities.CLIENT_MULTI_STATEMENTS;
-        // flag |= Capabilities.CLIENT_MULTI_RESULTS;
-        return flag;
-    }
-
-    private static final CommandPacket _READ_UNCOMMITTED = new CommandPacket();
-    private static final CommandPacket _READ_COMMITTED = new CommandPacket();
-    private static final CommandPacket _REPEATED_READ = new CommandPacket();
-    private static final CommandPacket _SERIALIZABLE = new CommandPacket();
-    private static final CommandPacket _AUTOCOMMIT_ON = new CommandPacket();
-    private static final CommandPacket _AUTOCOMMIT_OFF = new CommandPacket();
-    private static final CommandPacket _COMMIT = new CommandPacket();
-    private static final CommandPacket _ROLLBACK = new CommandPacket();
-    static {
-        _READ_UNCOMMITTED.packetId = 0;
-        _READ_UNCOMMITTED.command = AbstractPacket.COM_QUERY;
-        _READ_UNCOMMITTED.arg = "SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED".getBytes();
-        _READ_COMMITTED.packetId = 0;
-        _READ_COMMITTED.command = AbstractPacket.COM_QUERY;
-        _READ_COMMITTED.arg = "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED".getBytes();
-        _REPEATED_READ.packetId = 0;
-        _REPEATED_READ.command = AbstractPacket.COM_QUERY;
-        _REPEATED_READ.arg = "SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ".getBytes();
-        _SERIALIZABLE.packetId = 0;
-        _SERIALIZABLE.command = AbstractPacket.COM_QUERY;
-        _SERIALIZABLE.arg = "SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE".getBytes();
-        _AUTOCOMMIT_ON.packetId = 0;
-        _AUTOCOMMIT_ON.command = AbstractPacket.COM_QUERY;
-        _AUTOCOMMIT_ON.arg = "SET autocommit=1".getBytes();
-        _AUTOCOMMIT_OFF.packetId = 0;
-        _AUTOCOMMIT_OFF.command = AbstractPacket.COM_QUERY;
-        _AUTOCOMMIT_OFF.arg = "SET autocommit=0".getBytes();
-        _COMMIT.packetId = 0;
-        _COMMIT.command = AbstractPacket.COM_QUERY;
-        _COMMIT.arg = "commit".getBytes();
-        _ROLLBACK.packetId = 0;
-        _ROLLBACK.command = AbstractPacket.COM_QUERY;
-        _ROLLBACK.arg = "rollback".getBytes();
-    }
+    private static final long CLIENT_FLAGS = getClientFlags();
 
     private MySQLConnectionPool pool;
+
     private long threadId;
     private HandshakePacket handshake;
     private int charsetIndex;
@@ -122,9 +64,8 @@ public class MySQLConnection extends BackendConnection {
     private String password;
     private String schema;
     private Object attachment;
-
     private final AtomicBoolean isRunning;
-    private long lastTime; // QS_TODO
+    private long lastTime;
     private final AtomicBoolean isQuit;
     private volatile StatusSync statusSync;
 
@@ -135,6 +76,12 @@ public class MySQLConnection extends BackendConnection {
         this.isRunning = new AtomicBoolean(false);
         this.isQuit = new AtomicBoolean(false);
         this.autocommit = true;
+    }
+
+    @Override
+    public void idleCheck() {
+        // TODO Auto-generated method stub
+
     }
 
     public MySQLConnectionPool getPool() {
@@ -253,6 +200,153 @@ public class MySQLConnection extends BackendConnection {
         return isClosed() || isQuit.get();
     }
 
+    public boolean syncAndExcute() throws UnsupportedEncodingException {
+        StatusSync sync = statusSync;
+        if (sync.isExecuted()) {
+            return true;
+        }
+        if (sync.isSync()) {
+            sync.update();
+            sync.execute();
+        } else {
+            sync.update();
+            sync.sync();
+        }
+        return false;
+    }
+
+    public void execute(RouteResultsetNode rrn, ServerConnection sc, boolean autocommit)
+            throws UnsupportedEncodingException {
+        StatusSync sync = new StatusSync(this, rrn, sc, autocommit);
+        statusSync = sync;
+        if (sync.isSync() || !sync.sync()) {
+            sync.execute();
+        }
+    }
+
+    public void quit() {
+        if (isQuit.compareAndSet(false, true) && !isClosed()) {
+            if (isAuthenticated) {
+                // QS_TODO check
+                ByteBufferUtil.write(QuitPacket.QUIT, this);
+                write(processor.getBufferPool().allocate());
+            } else {
+                close();
+            }
+        }
+    }
+
+    @Override
+    public boolean close() {
+        isQuit.set(true);
+        boolean closed = super.close();
+        if (closed) {
+            pool.deActive();
+        }
+        return closed;
+    }
+
+    public void commit() {
+        MySQLInitPacket._COMMIT.write(this);
+    }
+
+    public void rollback() {
+        MySQLInitPacket._ROLLBACK.write(this);
+    }
+
+    public void release() {
+        attachment = null;
+        statusSync = null;
+        setResponseHandler(null);
+        pool.releaseChannel(this);
+    }
+
+    @Override
+    public void error(int errCode, Throwable t) {
+        LOGGER.warn(toString(), t);
+        switch (errCode) {
+        case ErrorCode.ERR_HANDLE_DATA:
+            // handle error ..
+            break;
+        case ErrorCode.ERR_PUT_WRITE_QUEUE:
+            // QS_TODO
+            break;
+        default:
+            close();
+            if (handler instanceof MySQLDispatcher) {
+                ((MySQLDispatcher) handler).connectionError(t);
+            }
+        }
+    }
+
+    public boolean setResponseHandler(ResponseHandler queryHandler) {
+        if (handler instanceof MySQLDispatcher) {
+            ((MySQLDispatcher) handler).setResponseHandler(queryHandler);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 记录sql执行信息
+     */
+    public void recordSql(String host, String schema, String stmt) {
+        final long now = TimeUtil.currentTimeMillis();
+        if (now > this.lastTime) {
+            long time = now - this.lastTime;
+            SQLStatistic sqlRecorder = this.pool.getSqlRecorder();
+            if (sqlRecorder.check(time)) {
+                SQLRecord recorder = new SQLRecord();
+                recorder.host = host;
+                recorder.schema = schema;
+                recorder.statement = stmt;
+                recorder.startTime = lastTime;
+                recorder.executeTime = time;
+                recorder.dataNode = pool.getName();
+                recorder.dataNodeIndex = pool.getIndex();
+                sqlRecorder.add(recorder);
+            }
+        }
+        this.lastTime = now;
+    }
+
+    private static byte[] passwd(String pass, HandshakePacket hs) throws NoSuchAlgorithmException {
+        if (pass == null || pass.length() == 0) {
+            return null;
+        }
+        byte[] passwd = pass.getBytes();
+        int sl1 = hs.seed.length;
+        int sl2 = hs.restOfScrambleBuff.length;
+        byte[] seed = new byte[sl1 + sl2];
+        System.arraycopy(hs.seed, 0, seed, 0, sl1);
+        System.arraycopy(hs.restOfScrambleBuff, 0, seed, sl1, sl2);
+        return SecurityUtil.scramble411(passwd, seed);
+    }
+
+    private static long getClientFlags() {
+        int flag = 0;
+        flag |= Capabilities.CLIENT_LONG_PASSWORD;
+        flag |= Capabilities.CLIENT_FOUND_ROWS;
+        flag |= Capabilities.CLIENT_LONG_FLAG;
+        flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
+        // flag |= Capabilities.CLIENT_NO_SCHEMA;
+        // flag |= Capabilities.CLIENT_COMPRESS;
+        flag |= Capabilities.CLIENT_ODBC;
+        // flag |= Capabilities.CLIENT_LOCAL_FILES;
+        flag |= Capabilities.CLIENT_IGNORE_SPACE;
+        flag |= Capabilities.CLIENT_PROTOCOL_41;
+        flag |= Capabilities.CLIENT_INTERACTIVE;
+        // flag |= Capabilities.CLIENT_SSL;
+        flag |= Capabilities.CLIENT_IGNORE_SIGPIPE;
+        flag |= Capabilities.CLIENT_TRANSACTIONS;
+        // flag |= Capabilities.CLIENT_RESERVED;
+        flag |= Capabilities.CLIENT_SECURE_CONNECTION;
+        // client extension
+        // flag |= Capabilities.CLIENT_MULTI_STATEMENTS;
+        // flag |= Capabilities.CLIENT_MULTI_RESULTS;
+        return flag;
+    }
+
     private static class StatusSync {
         private final RouteResultsetNode rrn;
         private final MySQLConnection conn;
@@ -267,12 +361,13 @@ public class MySQLConnection extends BackendConnection {
         public StatusSync(MySQLConnection conn, RouteResultsetNode rrn, ServerConnection sc, boolean autocommit) {
             this.conn = conn;
             this.rrn = rrn;
-            this.charIndex = sc.getCharsetIndex();
+            this.charIndex = CharsetUtil.getIndex(sc.getCharset());
             this.charCmd = conn.charsetIndex != charIndex ? getCharsetCommand(charIndex) : null;
             this.txIsolation = sc.getTxIsolation();
             this.isoCmd = conn.txIsolation != txIsolation ? getTxIsolationCommand(txIsolation) : null;
             this.autocommit = autocommit;
-            this.acCmd = conn.autocommit != autocommit ? (autocommit ? _AUTOCOMMIT_ON : _AUTOCOMMIT_OFF) : null;
+            this.acCmd = conn.autocommit != autocommit ? (autocommit
+                    ? MySQLInitPacket._AUTOCOMMIT_ON : MySQLInitPacket._AUTOCOMMIT_OFF) : null;
         }
 
         private Runnable updater;
@@ -292,9 +387,6 @@ public class MySQLConnection extends BackendConnection {
             }
         }
 
-        /**
-         * @return false if sync complete
-         */
         public boolean sync() {
             CommandPacket cmd;
             if (charCmd != null) {
@@ -351,13 +443,13 @@ public class MySQLConnection extends BackendConnection {
         private static CommandPacket getTxIsolationCommand(int txIsolation) {
             switch (txIsolation) {
             case Isolations.READ_UNCOMMITTED:
-                return _READ_UNCOMMITTED;
+                return MySQLInitPacket._READ_UNCOMMITTED;
             case Isolations.READ_COMMITTED:
-                return _READ_COMMITTED;
+                return MySQLInitPacket._READ_COMMITTED;
             case Isolations.REPEATED_READ:
-                return _REPEATED_READ;
+                return MySQLInitPacket._REPEATED_READ;
             case Isolations.SERIALIZABLE:
-                return _SERIALIZABLE;
+                return MySQLInitPacket._SERIALIZABLE;
             default:
                 throw new UnknownTxIsolationException("txIsolation:" + txIsolation);
             }
@@ -375,131 +467,42 @@ public class MySQLConnection extends BackendConnection {
         }
     }
 
-    /**
-     * @return if synchronization finished and execute-sql has already been sent
-     *         before
-     */
-    public boolean syncAndExcute() throws UnsupportedEncodingException {
-        StatusSync sync = statusSync;
-        if (sync.isExecuted()) {
-            return true;
+    private static class MySQLInitPacket {
+
+        private static final CommandPacket _READ_UNCOMMITTED = new CommandPacket();
+        private static final CommandPacket _READ_COMMITTED = new CommandPacket();
+        private static final CommandPacket _REPEATED_READ = new CommandPacket();
+        private static final CommandPacket _SERIALIZABLE = new CommandPacket();
+        private static final CommandPacket _AUTOCOMMIT_ON = new CommandPacket();
+        private static final CommandPacket _AUTOCOMMIT_OFF = new CommandPacket();
+        private static final CommandPacket _COMMIT = new CommandPacket();
+        private static final CommandPacket _ROLLBACK = new CommandPacket();
+        static {
+            _READ_UNCOMMITTED.packetId = 0;
+            _READ_UNCOMMITTED.command = AbstractPacket.COM_QUERY;
+            _READ_UNCOMMITTED.arg = "SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED".getBytes();
+            _READ_COMMITTED.packetId = 0;
+            _READ_COMMITTED.command = AbstractPacket.COM_QUERY;
+            _READ_COMMITTED.arg = "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED".getBytes();
+            _REPEATED_READ.packetId = 0;
+            _REPEATED_READ.command = AbstractPacket.COM_QUERY;
+            _REPEATED_READ.arg = "SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ".getBytes();
+            _SERIALIZABLE.packetId = 0;
+            _SERIALIZABLE.command = AbstractPacket.COM_QUERY;
+            _SERIALIZABLE.arg = "SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE".getBytes();
+            _AUTOCOMMIT_ON.packetId = 0;
+            _AUTOCOMMIT_ON.command = AbstractPacket.COM_QUERY;
+            _AUTOCOMMIT_ON.arg = "SET autocommit=1".getBytes();
+            _AUTOCOMMIT_OFF.packetId = 0;
+            _AUTOCOMMIT_OFF.command = AbstractPacket.COM_QUERY;
+            _AUTOCOMMIT_OFF.arg = "SET autocommit=0".getBytes();
+            _COMMIT.packetId = 0;
+            _COMMIT.command = AbstractPacket.COM_QUERY;
+            _COMMIT.arg = "commit".getBytes();
+            _ROLLBACK.packetId = 0;
+            _ROLLBACK.command = AbstractPacket.COM_QUERY;
+            _ROLLBACK.arg = "rollback".getBytes();
         }
-        if (sync.isSync()) {
-            sync.update();
-            sync.execute();
-        } else {
-            sync.update();
-            sync.sync();
-        }
-        return false;
-    }
-
-    public void execute(RouteResultsetNode rrn, ServerConnection sc, boolean autocommit)
-            throws UnsupportedEncodingException {
-        StatusSync sync = new StatusSync(this, rrn, sc, autocommit);
-        statusSync = sync;
-        if (sync.isSync() || !sync.sync()) {
-            sync.execute();
-        }
-    }
-
-    public void quit() {
-        if (isQuit.compareAndSet(false, true) && !isClosed()) {
-            if (isAuthenticated) {
-                // QS_TODO check
-                ByteBufferUtil.write(QuitPacket.QUIT, this);
-                write(processor.getBufferPool().allocate());
-            } else {
-                close();
-            }
-        }
-    }
-
-    @Override
-    public boolean close() {
-        isQuit.set(true);
-        boolean closed = super.close();
-        if (closed) {
-            pool.deActive();
-        }
-        return closed;
-    }
-
-    public void commit() {
-        _COMMIT.write(this);
-    }
-
-    public void rollback() {
-        _ROLLBACK.write(this);
-    }
-
-    public void release() {
-        attachment = null;
-        statusSync = null;
-        setResponseHandler(null);
-        pool.releaseChannel(this);
-    }
-
-    @Override
-    public void error(int errCode, Throwable t) {
-        LOGGER.warn(toString(), t);
-        switch (errCode) {
-        case ErrorCode.ERR_HANDLE_DATA:
-            // handle error ..
-            break;
-        case ErrorCode.ERR_PUT_WRITE_QUEUE:
-            // QS_TODO
-            break;
-        default:
-            close();
-            if (handler instanceof MySQLConnectionHandler) {
-                ((MySQLConnectionHandler) handler).connectionError(t);
-            }
-        }
-    }
-
-    public boolean setResponseHandler(ResponseHandler queryHandler) {
-        if (handler instanceof MySQLConnectionHandler) {
-            ((MySQLConnectionHandler) handler).setResponseHandler(queryHandler);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 记录sql执行信息
-     */
-    public void recordSql(String host, String schema, String stmt) {
-        final long now = TimeUtil.currentTimeMillis();
-        if (now > this.lastTime) {
-            long time = now - this.lastTime;
-            SQLStatistic sqlRecorder = this.pool.getSqlRecorder();
-            if (sqlRecorder.check(time)) {
-                SQLRecord recorder = new SQLRecord();
-                recorder.host = host;
-                recorder.schema = schema;
-                recorder.statement = stmt;
-                recorder.startTime = lastTime;
-                recorder.executeTime = time;
-                recorder.dataNode = pool.getName();
-                recorder.dataNodeIndex = pool.getIndex();
-                sqlRecorder.add(recorder);
-            }
-        }
-        this.lastTime = now;
-    }
-
-    private static byte[] passwd(String pass, HandshakePacket hs) throws NoSuchAlgorithmException {
-        if (pass == null || pass.length() == 0) {
-            return null;
-        }
-        byte[] passwd = pass.getBytes();
-        int sl1 = hs.seed.length;
-        int sl2 = hs.restOfScrambleBuff.length;
-        byte[] seed = new byte[sl1 + sl2];
-        System.arraycopy(hs.seed, 0, seed, 0, sl1);
-        System.arraycopy(hs.restOfScrambleBuff, 0, seed, sl1, sl2);
-        return SecurityUtil.scramble411(passwd, seed);
     }
 
 }

@@ -30,13 +30,20 @@ import com.alibaba.cobar.util.SecurityUtil;
  * 
  * @author xianmao.hexm
  */
-public class MySQLConnectionAuthenticator implements NIOHandler {
+public class MySQLAuthenticator implements NIOHandler {
 
     private final MySQLConnection source;
-    private final ResponseHandler listener;
+    private ResponseHandler listener;
 
-    public MySQLConnectionAuthenticator(MySQLConnection source, ResponseHandler listener) {
+    public MySQLAuthenticator(MySQLConnection source) {
         this.source = source;
+    }
+
+    public ResponseHandler getListener() {
+        return listener;
+    }
+
+    public void setListener(ResponseHandler listener) {
         this.listener = listener;
     }
 
@@ -67,7 +74,7 @@ public class MySQLConnectionAuthenticator implements NIOHandler {
             } else { // 处理认证结果
                 switch (data[4]) {
                 case OkPacket.FIELD_COUNT:
-                    source.setHandler(new MySQLConnectionHandler(source));
+                    source.setHandler(new MySQLDispatcher(source));
                     source.setAuthenticated(true);
                     if (listener != null) {
                         listener.connectionAcquired(source);
@@ -81,7 +88,7 @@ public class MySQLConnectionAuthenticator implements NIOHandler {
                     auth323(data[3]);
                     break;
                 default:
-                    throw new RuntimeException("Unknown Packet!");
+                    throw new RuntimeException("Unknown packet!");
                 }
             }
         } catch (RuntimeException e) {

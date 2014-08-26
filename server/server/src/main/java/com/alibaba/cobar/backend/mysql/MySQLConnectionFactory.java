@@ -15,31 +15,42 @@
  */
 package com.alibaba.cobar.backend.mysql;
 
-import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
-import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
+import com.alibaba.cobar.net.BackendConnection;
 import com.alibaba.cobar.net.factory.BackendConnectionFactory;
-import com.alibaba.cobar.startup.CobarServer;
 
 /**
  * @author xianmao.hexm 2012-4-12
  */
 public class MySQLConnectionFactory extends BackendConnectionFactory {
 
-    public MySQLConnection make(MySQLConnectionPool pool, ResponseHandler handler) throws IOException {
-        SocketChannel channel = openSocketChannel();
-        DataSourceConfig dsc = pool.getConfig();
+    private MySQLConnectionPool pool;
+
+    public void setPool(MySQLConnectionPool pool) {
+        this.pool = pool;
+    }
+
+    protected BackendConnection getConnection(SocketChannel channel) {
         MySQLConnection c = new MySQLConnection(channel);
-        c.setHost(dsc.getHost());
-        c.setPort(dsc.getPort());
-        c.setUser(dsc.getUser());
-        c.setPassword(dsc.getPassword());
-        c.setSchema(dsc.getDatabase());
-        c.setHandler(new MySQLConnectionAuthenticator(c, handler));
+        c.setHandler(new MySQLAuthenticator(c));
         c.setPool(pool);
-        postConnect(c, CobarServer.getInstance().getConnector());
         return c;
     }
+
+    //    public MySQLConnection make(MySQLConnectionPool pool, ResponseHandler handler) throws IOException {
+    //        DataSourceConfig dsc = pool.getConfig();
+    //        SocketChannel channel = this.getChannel();
+    //        MySQLConnection c = new MySQLConnection(channel);
+    //        c.setHost(dsc.getHost());
+    //        c.setPort(dsc.getPort());
+    //        c.setUser(dsc.getUser());
+    //        c.setPassword(dsc.getPassword());
+    //        c.setSchema(dsc.getDatabase());
+    //        c.setHandler(new MySQLAuthenticator(c, handler));
+    //        c.setPool(pool);
+    //        postConnect(c, CobarServer.getInstance().getConnector());
+    //        return c;
+    //    }
 
 }

@@ -15,34 +15,34 @@
  */
 package com.alibaba.cobar.util;
 
-import java.nio.ByteBuffer;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author xianmao.hexm
  */
-public final class ByteBufferQueue {
+public final class BufferQueue<T> {
 
     private int takeIndex;
     private int putIndex;
     private int count;
-    private final ByteBuffer[] items;
+    private final T[] items;
     private final ReentrantLock lock;
     private final Condition notFull;
-    private ByteBuffer attachment;
+    private T attachment;
 
-    public ByteBufferQueue(int capacity) {
-        items = new ByteBuffer[capacity];
+    @SuppressWarnings("unchecked")
+    public BufferQueue(int capacity) {
+        items = (T[]) new Object[capacity];
         lock = new ReentrantLock();
         notFull = lock.newCondition();
     }
 
-    public ByteBuffer attachment() {
+    public T attachment() {
         return attachment;
     }
 
-    public void attach(ByteBuffer buffer) {
+    public void attach(T buffer) {
         this.attachment = buffer;
     }
 
@@ -56,8 +56,8 @@ public final class ByteBufferQueue {
         }
     }
 
-    public void put(ByteBuffer buffer) throws InterruptedException {
-        final ByteBuffer[] items = this.items;
+    public void put(T buffer) throws InterruptedException {
+        final T[] items = this.items;
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();
         try {
@@ -75,7 +75,7 @@ public final class ByteBufferQueue {
         }
     }
 
-    public ByteBuffer poll() {
+    public T poll() {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
@@ -88,15 +88,15 @@ public final class ByteBufferQueue {
         }
     }
 
-    private void insert(ByteBuffer buffer) {
+    private void insert(T buffer) {
         items[putIndex] = buffer;
         putIndex = inc(putIndex);
         ++count;
     }
 
-    private ByteBuffer extract() {
-        final ByteBuffer[] items = this.items;
-        ByteBuffer buffer = items[takeIndex];
+    private T extract() {
+        final T[] items = this.items;
+        T buffer = items[takeIndex];
         items[takeIndex] = null;
         takeIndex = inc(takeIndex);
         --count;

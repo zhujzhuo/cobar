@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.backend.mysql;
+package com.alibaba.cobar.backend;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -46,7 +46,6 @@ public abstract class BackendAsyncHandler implements NIOHandler {
 
     protected void handleQueue(final Executor executor) {
         if (isHandling.compareAndSet(false, true)) {
-            // 异步处理后端数据
             executor.execute(new Runnable() {
                 @Override
                 public void run() {

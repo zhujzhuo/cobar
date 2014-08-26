@@ -32,7 +32,7 @@ public class CobarDetectorFactory extends BackendConnectionFactory {
     }
 
     public CobarDetector make(CobarHeartbeat heartbeat) throws IOException {
-        SocketChannel channel = openSocketChannel();
+        SocketChannel channel = getChannel();
         CobarNodeConfig cnc = heartbeat.getNode().getCobar();
         Server sys = CobarServer.getInstance().getCobar().getSystem();
         CobarDetector detector = new CobarDetector(channel);
