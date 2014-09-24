@@ -18,7 +18,7 @@ package com.alibaba.cobar.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
+import com.alibaba.cobar.backend.mysql.callback.ResponseHandler;
 import com.alibaba.cobar.config.DataNodesConfig;
 import com.alibaba.cobar.util.SplitUtil;
 

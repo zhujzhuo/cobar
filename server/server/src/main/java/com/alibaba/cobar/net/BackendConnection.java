@@ -21,6 +21,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
+import com.alibaba.cobar.model.DataSources.DataSource;
 import com.alibaba.cobar.net.nio.NIOConnector;
 import com.alibaba.cobar.net.nio.NIOProcessor;
 import com.alibaba.cobar.util.TimeUtil;
@@ -32,6 +33,7 @@ public abstract class BackendConnection extends AbstractConnection {
 
     protected NIOConnector connector;
     protected boolean isFinishConnect;
+    protected DataSource dataSource;
 
     public BackendConnection(SocketChannel channel) {
         super(channel);
@@ -61,6 +63,14 @@ public abstract class BackendConnection extends AbstractConnection {
         this.processor = processor;
         this.readBuffer = processor.getBufferPool().allocate();
         processor.addBackend(this);
+    }
+
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public boolean isIdleTimeout() {

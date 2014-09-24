@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2012 Alibaba Group.
+ * Copyright 1999-2014 Alibaba Group.
  *  
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,91 +22,110 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.backend.mysql.handler.DelegateResponseHandler;
-import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
+import com.alibaba.cobar.backend.mysql.callback.DelegateResponseHandler;
+import com.alibaba.cobar.backend.mysql.callback.ResponseHandler;
 import com.alibaba.cobar.defs.Alarms;
-import com.alibaba.cobar.statistics.SQLStatistic;
+import com.alibaba.cobar.model.DataSources.DataSource;
+import com.alibaba.cobar.model.Instances.Instance;
 import com.alibaba.cobar.util.TimeUtil;
 
 /**
- * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+ * @author xianmao.hexm
  */
 public class MySQLConnectionPool {
 
     private static final Logger alarm = Logger.getLogger("alarm");
 
-    private final int index;
-    private final String name;
-    private final ReentrantLock lock = new ReentrantLock();
+    private final Instance instance;
     private final MySQLConnectionFactory factory;
-    private final DataSourceConfig config;
-    private final int size;
-
     private final MySQLConnection[] items;
+    private final ReentrantLock lock = new ReentrantLock();
+
+    private final int size;
     private int activeCount;
     private int idleCount;
-    private final SQLStatistic sqlRecorder;
 
-    public MySQLConnectionPool(MySQLDataNode node, int index, DataSourceConfig config, int size) {
-        // this.dataNode = node;
+    public MySQLConnectionPool(Instance instance, int size) {
+        this.instance = instance;
         this.size = size;
         this.items = new MySQLConnection[size];
-        this.config = config;
-        this.name = config.getName();
-        this.index = index;
         this.factory = new MySQLConnectionFactory();
-        this.sqlRecorder = new SQLStatistic(config.getSqlRecordCount());
     }
 
-    public int getIndex() {
-        return index;
+    public Instance getInstance() {
+        return instance;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void getConnection(ResponseHandler handler, Object attachment) throws Exception {
+    public void acquireConnection(DataSource dataSource, final ResponseHandler handler) throws Exception {
+        MySQLConnection candidate = null;
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            // too many active connections
+            // 激活的连接数大于可池化的连接数，输出日志告知。
             if (activeCount >= size) {
                 StringBuilder s = new StringBuilder();
-                s.append(Alarms.DEFAULT).append("[name=").append(name).append(",active=");
+                s.append(Alarms.DEFAULT).append("[instance=").append(instance.getName()).append(",active=");
                 s.append(activeCount).append(",size=").append(size).append(']');
-                alarm.error(s.toString());
+                alarm.warn(s.toString());
             }
 
-            // get connection from pool
+            // 扫描连接池是否有空闲连接
             final MySQLConnection[] items = this.items;
+            int candidateIndex = -1;
             for (int i = 0, len = items.length; idleCount > 0 && i < len; ++i) {
                 if (items[i] != null) {
-                    MySQLConnection conn = items[i];
-                    items[i] = null;
-                    --idleCount;
-                    if (conn.isClosedOrQuit()) {
+                    MySQLConnection c = items[i];
+
+                    // 当前连接已关闭或者退出
+                    if (c.isClosedOrQuit()) {
+                        items[i] = null;
+                        --idleCount;
                         continue;
-                    } else {
+                    }
+
+                    // 有对应数据源的连接
+                    if (c.getDataSource().equals(dataSource)) {
+                        items[i] = null;
+                        --idleCount;
                         ++activeCount;
-                        conn.setAttachment(attachment);
-                        handler.connectionAcquired(conn);
+                        c.acquired();
                         return;
+                    }
+
+                    // 有空闲连接，但数据源不匹配，记录该连接。
+                    if (candidateIndex == -1) {
+                        candidateIndex = i;
+                        continue;
                     }
                 }
             }
 
-            ++activeCount;
+            // 表示有空闲连接，但需要做数据源切换。
+            if (candidateIndex != -1) {
+                candidate = items[candidateIndex];
+                items[candidateIndex] = null;
+                --idleCount;
+                ++activeCount;
+            } else {
+                ++activeCount;
+            }
         } finally {
             lock.unlock();
         }
 
-        // create connection
-        factory.make(this, new DelegateResponseHandler(handler) {
+        // 池中有空闲连接，但需要切换数据源。
+        if (candidate != null) {
+            candidate.switchDataSource();
+            return;
+        }
+
+        // 池中没有空闲连接，创建新的连接。
+        factory.make(dataSource, new DelegateResponseHandler(handler) {
+
             private boolean deactived;
 
             @Override
-            public void connectionError(Throwable e, MySQLConnection conn) {
+            public void connectionError(Throwable e, MySQLConnection c) {
                 lock.lock();
                 try {
                     if (!deactived) {
@@ -116,13 +135,7 @@ public class MySQLConnectionPool {
                 } finally {
                     lock.unlock();
                 }
-                handler.connectionError(e, conn);
-            }
-
-            @Override
-            public void connectionAcquired(MySQLConnection conn) {
-                conn.setAttachment(attachment);
-                handler.connectionAcquired(conn);
+                handler.connectionError(e, c);
             }
         });
     }
@@ -162,14 +175,6 @@ public class MySQLConnectionPool {
         } finally {
             lock.unlock();
         }
-    }
-
-    public SQLStatistic getSqlRecorder() {
-        return sqlRecorder;
-    }
-
-    public DataSourceConfig getConfig() {
-        return config;
     }
 
 }

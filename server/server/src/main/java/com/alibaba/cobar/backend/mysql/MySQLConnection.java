@@ -17,29 +17,25 @@ package com.alibaba.cobar.backend.mysql;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.SocketChannel;
-import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
+import com.alibaba.cobar.backend.mysql.callback.ResponseHandler;
 import com.alibaba.cobar.defs.Capabilities;
 import com.alibaba.cobar.defs.ErrorCode;
 import com.alibaba.cobar.defs.Isolations;
 import com.alibaba.cobar.exeception.UnknownTxIsolationException;
 import com.alibaba.cobar.frontend.server.ServerConnection;
+import com.alibaba.cobar.model.DataSources.DataSource;
 import com.alibaba.cobar.net.BackendConnection;
 import com.alibaba.cobar.net.packet.AbstractPacket;
-import com.alibaba.cobar.net.packet.AuthPacket;
 import com.alibaba.cobar.net.packet.CommandPacket;
-import com.alibaba.cobar.net.packet.HandshakePacket;
 import com.alibaba.cobar.net.packet.QuitPacket;
 import com.alibaba.cobar.route.RouteResultsetNode;
 import com.alibaba.cobar.statistics.SQLStatistic;
 import com.alibaba.cobar.statistics.SQLStatistic.SQLRecord;
 import com.alibaba.cobar.util.ByteBufferUtil;
-import com.alibaba.cobar.util.CharsetUtil;
-import com.alibaba.cobar.util.SecurityUtil;
 import com.alibaba.cobar.util.TimeUtil;
 
 /**
@@ -48,24 +44,22 @@ import com.alibaba.cobar.util.TimeUtil;
 public class MySQLConnection extends BackendConnection {
 
     private static final Logger LOGGER = Logger.getLogger(MySQLConnection.class);
-    private static final long CLIENT_FLAGS = getClientFlags();
+    private static final long CLIENT_FLAGS = initClientFlags();
 
     private MySQLConnectionPool pool;
+    private DataSource dataSource;
 
+    private long clientFlags;
     private long threadId;
-    private HandshakePacket handshake;
-    private int charsetIndex;
     private String charset;
+    private boolean isAuthenticated;
+
     private volatile int txIsolation;
     private volatile boolean autocommit;
-    private long clientFlags;
-    private boolean isAuthenticated;
-    private String user;
-    private String password;
-    private String schema;
-    private Object attachment;
     private final AtomicBoolean isRunning;
     private long lastTime;
+    private Object attachment;
+
     private final AtomicBoolean isQuit;
     private volatile StatusSync statusSync;
 
@@ -76,6 +70,22 @@ public class MySQLConnection extends BackendConnection {
         this.isRunning = new AtomicBoolean(false);
         this.isQuit = new AtomicBoolean(false);
         this.autocommit = true;
+    }
+
+    public void acquired() {
+
+    }
+
+    public void switchDataSource() {
+
+    }
+
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    public long getClientFlags() {
+        return clientFlags;
     }
 
     @Override
@@ -90,38 +100,6 @@ public class MySQLConnection extends BackendConnection {
 
     public void setPool(MySQLConnectionPool pool) {
         this.pool = pool;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getSchema() {
-        return schema;
-    }
-
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public HandshakePacket getHandshake() {
-        return handshake;
-    }
-
-    public void setHandshake(HandshakePacket handshake) {
-        this.handshake = handshake;
-    }
-
-    public void setCharsetIndex(int charsetIndex) {
-        this.charsetIndex = charsetIndex;
     }
 
     public long getThreadId() {
@@ -146,26 +124,6 @@ public class MySQLConnection extends BackendConnection {
 
     public void setAuthenticated(boolean isAuthenticated) {
         this.isAuthenticated = isAuthenticated;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void authenticate() {
-        AuthPacket packet = new AuthPacket();
-        packet.packetId = 1;
-        packet.clientFlags = clientFlags;
-        packet.maxPacketSize = protocol.getMaxPacketSize();
-        packet.charsetIndex = charsetIndex;
-        packet.user = user;
-        try {
-            packet.password = passwd(password, handshake);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-        packet.database = schema;
-        packet.write(this);
     }
 
     public long getLastTime() {
@@ -310,20 +268,7 @@ public class MySQLConnection extends BackendConnection {
         this.lastTime = now;
     }
 
-    private static byte[] passwd(String pass, HandshakePacket hs) throws NoSuchAlgorithmException {
-        if (pass == null || pass.length() == 0) {
-            return null;
-        }
-        byte[] passwd = pass.getBytes();
-        int sl1 = hs.seed.length;
-        int sl2 = hs.restOfScrambleBuff.length;
-        byte[] seed = new byte[sl1 + sl2];
-        System.arraycopy(hs.seed, 0, seed, 0, sl1);
-        System.arraycopy(hs.restOfScrambleBuff, 0, seed, sl1, sl2);
-        return SecurityUtil.scramble411(passwd, seed);
-    }
-
-    private static long getClientFlags() {
+    private static long initClientFlags() {
         int flag = 0;
         flag |= Capabilities.CLIENT_LONG_PASSWORD;
         flag |= Capabilities.CLIENT_FOUND_ROWS;
@@ -353,7 +298,7 @@ public class MySQLConnection extends BackendConnection {
         private CommandPacket charCmd;
         private CommandPacket isoCmd;
         private CommandPacket acCmd;
-        private final int charIndex;
+        private String charset;
         private final int txIsolation;
         private final boolean autocommit;
         private volatile boolean executed;
@@ -361,8 +306,10 @@ public class MySQLConnection extends BackendConnection {
         public StatusSync(MySQLConnection conn, RouteResultsetNode rrn, ServerConnection sc, boolean autocommit) {
             this.conn = conn;
             this.rrn = rrn;
-            this.charIndex = CharsetUtil.getIndex(sc.getCharset());
-            this.charCmd = conn.charsetIndex != charIndex ? getCharsetCommand(charIndex) : null;
+            this.charset = sc.getCharset();
+            if (!charset.equals(conn.getCharset())) {
+                this.charCmd = getCharsetCommand(charset);
+            }
             this.txIsolation = sc.getTxIsolation();
             this.isoCmd = conn.txIsolation != txIsolation ? getTxIsolationCommand(txIsolation) : null;
             this.autocommit = autocommit;
@@ -393,9 +340,7 @@ public class MySQLConnection extends BackendConnection {
                 updater = new Runnable() {
                     @Override
                     public void run() {
-                        int ci = StatusSync.this.charIndex;
-                        conn.charsetIndex = ci;
-                        conn.charset = CharsetUtil.getCharset(ci);
+                        conn.charset = StatusSync.this.charset;
                     }
                 };
                 cmd = charCmd;
@@ -455,8 +400,7 @@ public class MySQLConnection extends BackendConnection {
             }
         }
 
-        private static CommandPacket getCharsetCommand(int ci) {
-            String charset = CharsetUtil.getCharset(ci);
+        private static CommandPacket getCharsetCommand(String charset) {
             StringBuilder s = new StringBuilder();
             s.append("SET names ").append(charset);
             CommandPacket cmd = new CommandPacket();

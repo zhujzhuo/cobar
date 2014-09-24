@@ -25,10 +25,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.backend.mysql.MySQLConnection;
-import com.alibaba.cobar.frontend.server.ServerSession;
+import com.alibaba.cobar.backend.mysql.callback.ResponseHandler;
 import com.alibaba.cobar.net.packet.AbstractPacket;
 import com.alibaba.cobar.net.packet.CommandPacket;
 import com.alibaba.cobar.net.packet.ErrorPacket;
+import com.alibaba.cobar.session.ServerSession;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

@@ -20,6 +20,8 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
+import com.alibaba.cobar.backend.mysql.callback.ResponseHandler;
+import com.alibaba.cobar.model.DataSources.DataSource;
 import com.alibaba.cobar.net.BackendConnection;
 import com.alibaba.cobar.net.nio.NIOConnector;
 import com.alibaba.cobar.startup.CobarServer;
@@ -53,11 +55,12 @@ public abstract class BackendConnectionFactory {
 
     protected abstract BackendConnection getConnection(SocketChannel channel);
 
-    public BackendConnection make() throws IOException {
+    public BackendConnection make(DataSource dataSource, ResponseHandler response) throws IOException {
         SocketChannel channel = getChannel();
         BackendConnection c = getConnection(channel);
         c.setWriteQueue(new BufferQueue<ByteBuffer>(writeQueueCapacity));
         c.setIdleTimeout(idleTimeout);
+        c.setDataSource(dataSource);
         NIOConnector connector = CobarServer.getInstance().getConnector();
         c.setConnector(connector);
         connector.postConnect(c);

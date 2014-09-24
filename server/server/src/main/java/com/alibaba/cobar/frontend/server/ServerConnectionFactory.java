@@ -21,6 +21,7 @@ import com.alibaba.cobar.frontend.server.handler.ServerPrepareHandler;
 import com.alibaba.cobar.model.Server;
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.factory.FrontendConnectionFactory;
+import com.alibaba.cobar.session.ServerSession;
 import com.alibaba.cobar.startup.CobarServer;
 
 /**

@@ -18,8 +18,8 @@ package com.alibaba.cobar.backend.mysql;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alibaba.cobar.backend.BackendAsyncHandler;
-import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
+import com.alibaba.cobar.backend.mysql.callback.ResponseHandler;
+import com.alibaba.cobar.net.nio.NIOHandler;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.ErrorPacket;
 import com.alibaba.cobar.net.packet.OkPacket;
@@ -28,7 +28,7 @@ import com.alibaba.cobar.util.BytesUtil;
 /**
  * @author xianmao.hexm 2012-4-12
  */
-public class MySQLDispatcher extends BackendAsyncHandler {
+public class MySQLDispatcher implements NIOHandler {
 
     private static final int RESULT_STATUS_INIT = 0;
     private static final int RESULT_STATUS_HEADER = 1;

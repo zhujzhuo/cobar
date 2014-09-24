@@ -24,10 +24,10 @@ import java.util.concurrent.Executor;
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.backend.mysql.MySQLConnection;
-import com.alibaba.cobar.frontend.server.ServerSession;
 import com.alibaba.cobar.net.packet.ErrorPacket;
 import com.alibaba.cobar.net.packet.OkPacket;
 import com.alibaba.cobar.route.RouteResultsetNode;
+import com.alibaba.cobar.session.ServerSession;
 import com.alibaba.cobar.util.ByteBufferUtil;
 
 /**

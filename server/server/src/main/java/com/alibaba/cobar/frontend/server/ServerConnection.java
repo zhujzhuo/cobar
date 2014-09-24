@@ -32,6 +32,7 @@ import com.alibaba.cobar.net.packet.OkPacket;
 import com.alibaba.cobar.net.protocol.MySQLMessage;
 import com.alibaba.cobar.route.RouteResultset;
 import com.alibaba.cobar.route.ServerRouter;
+import com.alibaba.cobar.session.ServerSession;
 import com.alibaba.cobar.startup.CobarServer;
 import com.alibaba.cobar.util.ByteBufferUtil;
 
@@ -43,14 +44,14 @@ public class ServerConnection extends FrontendConnection {
     private static final Logger LOGGER = Logger.getLogger(ServerConnection.class);
 
     private String user;
-    private volatile int txIsolation;
-    private volatile boolean autocommit;
-    private volatile boolean txInterrupted;
-    private long lastInsertId;
     private ServerPrivileges privileges;
     private ServerQueryHandler queryHandler;
     private ServerPrepareHandler prepareHandler;
     private ServerSession session;
+    private volatile int txIsolation;
+    private volatile boolean autocommit;
+    private volatile boolean txInterrupted;
+    private long lastInsertId;
 
     public ServerConnection(SocketChannel channel) {
         super(channel);

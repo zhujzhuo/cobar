@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.frontend.server;
+package com.alibaba.cobar.session;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +34,7 @@ import com.alibaba.cobar.backend.mysql.handler.RollbackReleaseHandler;
 import com.alibaba.cobar.backend.mysql.handler.SingleNodeHandler;
 import com.alibaba.cobar.backend.mysql.handler.Terminatable;
 import com.alibaba.cobar.defs.ErrorCode;
+import com.alibaba.cobar.frontend.server.ServerConnection;
 import com.alibaba.cobar.frontend.server.parser.ServerParse;
 import com.alibaba.cobar.net.FrontendConnection;
 import com.alibaba.cobar.net.packet.OkPacket;
@@ -51,7 +52,6 @@ public class ServerSession {
     private final ServerConnection source;
     private final ConcurrentHashMap<RouteResultsetNode, MySQLConnection> target;
     private final AtomicBoolean terminating;
-
     private volatile SingleNodeHandler singleNodeHandler;
     private volatile MultiNodeQueryHandler multiNodeHandler;
     private volatile CommitNodeHandler commitHandler;

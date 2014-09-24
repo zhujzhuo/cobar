@@ -16,19 +16,19 @@
 /**
  * (created at 2012-4-19)
  */
-package com.alibaba.cobar.backend.mysql.handler;
+package com.alibaba.cobar.backend.mysql.callback;
 
 import java.util.List;
 
 import com.alibaba.cobar.backend.mysql.MySQLConnection;
 
 /**
- * 对不同的响应返回进行处理
+ * MySQL执行结果回调处理
  * 
- * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  * @author xianmao.hexm
  */
 public interface ResponseHandler {
+
     /**
      * 已获得有效连接的处理
      */

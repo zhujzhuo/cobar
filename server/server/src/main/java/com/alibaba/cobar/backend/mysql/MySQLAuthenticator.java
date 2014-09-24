@@ -15,8 +15,12 @@
  */
 package com.alibaba.cobar.backend.mysql;
 
-import com.alibaba.cobar.backend.mysql.handler.ResponseHandler;
+import java.security.NoSuchAlgorithmException;
+
+import com.alibaba.cobar.backend.mysql.callback.ResponseHandler;
+import com.alibaba.cobar.model.DataSources.DataSource;
 import com.alibaba.cobar.net.nio.NIOHandler;
+import com.alibaba.cobar.net.packet.AuthPacket;
 import com.alibaba.cobar.net.packet.EOFPacket;
 import com.alibaba.cobar.net.packet.ErrorPacket;
 import com.alibaba.cobar.net.packet.HandshakePacket;
@@ -32,52 +36,64 @@ import com.alibaba.cobar.util.SecurityUtil;
  */
 public class MySQLAuthenticator implements NIOHandler {
 
-    private final MySQLConnection source;
-    private ResponseHandler listener;
+    private MySQLConnection source;
+    private HandshakePacket handshake;
+    private ResponseHandler callback;
 
     public MySQLAuthenticator(MySQLConnection source) {
         this.source = source;
     }
 
-    public ResponseHandler getListener() {
-        return listener;
+    public ResponseHandler getCallback() {
+        return callback;
     }
 
-    public void setListener(ResponseHandler listener) {
-        this.listener = listener;
+    public void setCallback(ResponseHandler callback) {
+        this.callback = callback;
     }
 
     @Override
     public void handle(byte[] data) {
         try {
-            HandshakePacket packet = source.getHandshake();
-            if (packet == null) {
+            HandshakePacket hsp = this.handshake;
+            if (hsp == null) {
                 // 设置握手数据包
-                packet = new HandshakePacket();
-                packet.read(data);
-                source.setHandshake(packet);
+                hsp = new HandshakePacket();
+                hsp.read(data);
+                this.handshake = hsp;
 
-                source.setThreadId(packet.threadId);
-
-                // 设置字符集编码
-                int charsetIndex = (packet.serverCharsetIndex & 0xff);
+                // 设置连接属性
+                source.setThreadId(hsp.threadId);
+                int charsetIndex = (hsp.serverCharsetIndex & 0xff);
                 String charset = CharsetUtil.getCharset(charsetIndex);
                 if (charset != null) {
-                    source.setCharsetIndex(charsetIndex);
                     source.setCharset(charset);
                 } else {
                     throw new RuntimeException("Unknown charsetIndex:" + charsetIndex);
                 }
 
                 // 发送认证数据包
-                source.authenticate();
+                DataSource ds = source.getDataSource();
+                AuthPacket ap = new AuthPacket();
+                ap.packetId = 1;
+                ap.clientFlags = source.getClientFlags();
+                ap.maxPacketSize = source.getProtocol().getMaxPacketSize();
+                ap.charsetIndex = charsetIndex;
+                ap.user = ds.getUser();
+                try {
+                    ap.password = passwd(ds.getPassword(), hsp);
+                } catch (NoSuchAlgorithmException e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+                ap.database = ds.getSchema();
+                ap.write(source);
             } else { // 处理认证结果
                 switch (data[4]) {
                 case OkPacket.FIELD_COUNT:
-                    source.setHandler(new MySQLDispatcher(source));
                     source.setAuthenticated(true);
-                    if (listener != null) {
-                        listener.connectionAcquired(source);
+                    source.setHandler(new MySQLDispatcher(source));
+                    if (callback != null) {
+                        callback.connectionAcquired(source);
                     }
                     break;
                 case ErrorPacket.FIELD_COUNT:
@@ -92,8 +108,8 @@ public class MySQLAuthenticator implements NIOHandler {
                 }
             }
         } catch (RuntimeException e) {
-            if (listener != null) {
-                listener.connectionError(e, source);
+            if (callback != null) {
+                callback.connectionError(e, source);
             }
             throw e;
         }
@@ -103,12 +119,25 @@ public class MySQLAuthenticator implements NIOHandler {
         // 发送323响应认证数据包
         Reply323Packet r323 = new Reply323Packet();
         r323.packetId = ++packetId;
-        String pass = source.getPassword();
+        String pass = source.getDataSource().getPassword();
         if (pass != null && pass.length() > 0) {
-            byte[] seed = source.getHandshake().seed;
+            byte[] seed = this.handshake.seed;
             r323.seed = SecurityUtil.scramble323(pass, new String(seed)).getBytes();
         }
         r323.write(source);
+    }
+
+    private static byte[] passwd(String pass, HandshakePacket hs) throws NoSuchAlgorithmException {
+        if (pass == null || pass.length() == 0) {
+            return null;
+        }
+        byte[] passwd = pass.getBytes();
+        int sl1 = hs.seed.length;
+        int sl2 = hs.restOfScrambleBuff.length;
+        byte[] seed = new byte[sl1 + sl2];
+        System.arraycopy(hs.seed, 0, seed, 0, sl1);
+        System.arraycopy(hs.restOfScrambleBuff, 0, seed, sl1, sl2);
+        return SecurityUtil.scramble411(passwd, seed);
     }
 
 }

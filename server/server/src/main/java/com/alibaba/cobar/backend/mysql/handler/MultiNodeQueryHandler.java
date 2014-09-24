@@ -29,11 +29,11 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.backend.mysql.MySQLConnection;
 import com.alibaba.cobar.frontend.server.ServerConnection;
-import com.alibaba.cobar.frontend.server.ServerSession;
 import com.alibaba.cobar.model.Cobar;
 import com.alibaba.cobar.net.packet.ErrorPacket;
 import com.alibaba.cobar.net.packet.OkPacket;
 import com.alibaba.cobar.route.RouteResultsetNode;
+import com.alibaba.cobar.session.ServerSession;
 import com.alibaba.cobar.startup.CobarServer;
 import com.alibaba.cobar.util.ByteBufferUtil;
 
@@ -102,7 +102,7 @@ public class MultiNodeQueryHandler extends MultiNodeHandler {
             } else {
                 Cobar conf = CobarServer.getInstance().getCobar();
                 MySQLDataNode dn = conf.getDataNodes().get(node.getName());
-                dn.getConnection(this, node);
+                dn.acquireConnection(this, node);
             }
         }
     }
