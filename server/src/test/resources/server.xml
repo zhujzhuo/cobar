@@ -20,11 +20,11 @@
     <server>
         <property name="serverPort">8066</property>
         <property name="managerPort">9066</property>
-        <property name="serverExecutor">16</property>
-        <property name="managerExecutor">16</property>
+        <property name="serverExecutor">8</property>
+        <property name="managerExecutor">8</property>
         <property name="processors">4</property>
-        <property name="processorExecutor">32</property>
-        <property name="charset">utf-8</property>
+        <property name="processorExecutor">16</property>
+        <property name="charset">utf8</property>
         <property name="idleTimeout">3600</property>
     </server>
 
@@ -46,11 +46,11 @@
     <quarantine>
         <host>
             <property name="name">192.168.0.10</property>
-            <property name="users">test,root</property>
+            <property name="users">test</property>
         </host>
         <host>
             <property name="name">192.168.0.11</property>
-            <property name="users">root</property>
+            <property name="users">test</property>
         </host>
     </quarantine>
     
@@ -63,7 +63,7 @@
         </user>
         <user>
             <property name="name">root</property>
-            <property name="password">test</property>
+            <property name="password"></property>
         </user>
     </users>
     
@@ -71,24 +71,24 @@
     <schemas>
         <schema>
             <property name="name">dbtest</property>
-            <property name="dataNodes">N1,N2</property>
-            <property name="rule">com.alibaba.cobar.rule.DbtestRule</property>
+            <property name="dataNodes">N1</property>
+            <property name="rule">com.alibaba.cobar.route.rule.DbtestRule</property>
         </schema>
         <schema>
             <property name="name">dbtest2</property>
             <property name="dataNodes">N1,N2</property>
-            <property name="rule">com.alibaba.cobar.rule.Dbtest2Rule</property>
+            <property name="rule">com.alibaba.cobar.route.rule.Dbtest2Rule</property>
         </schema>
     </schemas>
 
     <!-- 数据节点定义，一个数据节点代表一份数据 -->
     <dataNodes>
         <dataNode>
-            <property name="id">N1</property>
+            <property name="name">N1</property>
             <property name="dataSources">S1,S3</property>
         </dataNode>
         <dataNode>
-            <property name="id">N2</property>
+            <property name="name">N2</property>
             <property name="dataSources">S2,S4</property>
         </dataNode>
     </dataNodes>
@@ -96,52 +96,52 @@
     <!-- 数据源定义，代表一个mysql的schema，并且关联访问用户以及密码 -->
     <dataSources>
         <dataSource>
-            <property name="id">S1</property>
+            <property name="name">S1</property>
             <property name="instance">I1</property>
-            <property name="schema">dbtest1</property>
+            <property name="schema">test</property>
             <property name="user">test</property>
-            <property name="password"></property>
+            <property name="password">test</property>
         </dataSource>
         <dataSource>
-            <property name="id">S2</property>
+            <property name="name">S2</property>
             <property name="instance">I1</property>
-            <property name="schema">dbtest2</property>
+            <property name="schema">test</property>
             <property name="user">test</property>
-            <property name="password"></property>
+            <property name="password">test</property>
         </dataSource>
         <dataSource>
-            <property name="id">S3</property>
+            <property name="name">S3</property>
             <property name="instance">I2</property>
-            <property name="schema">dbtest1</property>
+            <property name="schema">test</property>
             <property name="user">test</property>
-            <property name="password"></property>
+            <property name="password">test</property>
         </dataSource>
         <dataSource>
-            <property name="id">S4</property>
+            <property name="name">S4</property>
             <property name="instance">I2</property>
-            <property name="schema">dbtest2</property>
+            <property name="schema">test</property>
             <property name="user">test</property>
-            <property name="password"></property>
+            <property name="password">test</property>
         </dataSource>
     </dataSources>
 
     <instances>
         <instance>
-            <property name="id">I1</property>
+            <property name="name">I1</property>
             <property name="machine">M1</property>
             <property name="port">3306</property>
         </instance>
         <instance>
-            <property name="id">I2</property>
+            <property name="name">I2</property>
             <property name="machine">M1</property>
-            <property name="port">3307</property>
+            <property name="port">3306</property>
         </instance>
     </instances>
 
     <machines>
         <machine>
-            <property name="id">M1</property>
-            <property name="host">192.168.0.1</property>
+            <property name="name">M1</property>
+            <property name="host">127.0.0.1</property>
         </machine>
     </machines>
 
