@@ -107,7 +107,7 @@
                 <configuration>
                     <finalName>cobar-manager-${app.version}</finalName>
                     <descriptors>
-                        <descriptor>assembly.xml</descriptor>
+                        <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
                 </configuration>
                 <executions>
