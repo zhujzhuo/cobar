@@ -1,10 +1,10 @@
-package com.alibaba.cobar.config2.loader;
+package com.alibaba.cobar.server.config.loader;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.cobar.config.CobarConfig;
-import com.alibaba.cobar.config.loader.XmlLoader;
+import com.alibaba.cobar.server.config.CobarConfig;
+import com.alibaba.cobar.server.config.loader.XmlLoader;
 
 /**
  * @author xianmao.hexm

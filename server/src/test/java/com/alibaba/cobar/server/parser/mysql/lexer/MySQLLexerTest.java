@@ -16,15 +16,15 @@
 /**
  * (created at 2011-3-14)
  */
-package com.alibaba.cobar.parser.mysql.lexer;
+package com.alibaba.cobar.server.parser.mysql.lexer;
 
 import java.sql.SQLSyntaxErrorException;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.cobar.parser.PerformanceSQL;
-import com.alibaba.cobar.parser.mysql.MySQLToken;
+import com.alibaba.cobar.server.parser.PerformanceSQL;
+import com.alibaba.cobar.server.parser.mysql.MySQLToken;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

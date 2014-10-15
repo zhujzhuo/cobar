@@ -16,17 +16,17 @@
 /**
  * (created at 2011-9-12)
  */
-package com.alibaba.cobar.parser.mysql.syntax;
+package com.alibaba.cobar.server.parser.mysql.syntax;
 
 import java.sql.SQLSyntaxErrorException;
 
 import junit.framework.Assert;
 
-import com.alibaba.cobar.parser.ast.statement.mts.MTSReleaseStatement;
-import com.alibaba.cobar.parser.ast.statement.mts.MTSRollbackStatement;
-import com.alibaba.cobar.parser.ast.statement.mts.MTSSavepointStatement;
-import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
-import com.alibaba.cobar.parser.mysql.syntax.MySQLMTSParser;
+import com.alibaba.cobar.server.parser.ast.statement.mts.MTSReleaseStatement;
+import com.alibaba.cobar.server.parser.ast.statement.mts.MTSRollbackStatement;
+import com.alibaba.cobar.server.parser.ast.statement.mts.MTSSavepointStatement;
+import com.alibaba.cobar.server.parser.mysql.lexer.MySQLLexer;
+import com.alibaba.cobar.server.parser.mysql.syntax.MySQLMTSParser;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

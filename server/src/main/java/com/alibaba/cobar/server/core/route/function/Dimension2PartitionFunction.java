@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.cobar.server.config.util.SplitUtil;
-import com.alibaba.cobar.server.core.model.tt.RuleAlgorithm;
 import com.alibaba.cobar.server.parser.ast.expression.Expression;
 import com.alibaba.cobar.server.parser.ast.expression.primary.function.FunctionExpression;
+import com.alibaba.cobar.server.server.config.util.SplitUtil;
+import com.alibaba.cobar.server.server.core.model.tt.RuleAlgorithm;
 import com.alibaba.cobar.server.util.Pair;
 import com.alibaba.cobar.server.util.PairUtil;
 import com.alibaba.cobar.server.util.PartitionUtil;

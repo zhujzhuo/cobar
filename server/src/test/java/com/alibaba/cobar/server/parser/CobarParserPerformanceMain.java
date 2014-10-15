@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.parser;
+package com.alibaba.cobar.server.parser;
 
 import java.sql.SQLSyntaxErrorException;
 

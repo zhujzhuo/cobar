@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.startup;
+package com.alibaba.cobar.server.startup;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

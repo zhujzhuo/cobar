@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.parser.mysql.syntax;
+package com.alibaba.cobar.server.parser.mysql.syntax;
 
 import junit.framework.TestCase;
 
-import com.alibaba.cobar.parser.ast.ASTNode;
-import com.alibaba.cobar.parser.visitor.MySQLOutputASTVisitor;
+import com.alibaba.cobar.server.parser.ast.ASTNode;
+import com.alibaba.cobar.server.parser.visitor.MySQLOutputASTVisitor;
 
 public abstract class AbstractSyntaxTest extends TestCase {
     private static final boolean debug = false;

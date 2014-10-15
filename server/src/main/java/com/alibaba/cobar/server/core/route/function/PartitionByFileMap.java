@@ -29,9 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.cobar.server.core.model.tt.RuleAlgorithm;
 import com.alibaba.cobar.server.parser.ast.expression.Expression;
 import com.alibaba.cobar.server.parser.ast.expression.primary.function.FunctionExpression;
+import com.alibaba.cobar.server.server.core.model.tt.RuleAlgorithm;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

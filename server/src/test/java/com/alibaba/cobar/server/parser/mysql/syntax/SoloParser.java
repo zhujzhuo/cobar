@@ -16,22 +16,22 @@
 /**
  * (created at 2011-5-9)
  */
-package com.alibaba.cobar.parser.mysql.syntax;
+package com.alibaba.cobar.server.parser.mysql.syntax;
 
-import static com.alibaba.cobar.parser.mysql.MySQLToken.KW_AS;
-import static com.alibaba.cobar.parser.mysql.MySQLToken.KW_JOIN;
-import static com.alibaba.cobar.parser.mysql.MySQLToken.KW_SELECT;
-import static com.alibaba.cobar.parser.mysql.MySQLToken.KW_UNION;
-import static com.alibaba.cobar.parser.mysql.MySQLToken.PUNC_COMMA;
-import static com.alibaba.cobar.parser.mysql.MySQLToken.PUNC_LEFT_PAREN;
-import static com.alibaba.cobar.parser.mysql.MySQLToken.PUNC_RIGHT_PAREN;
+import static com.alibaba.cobar.server.parser.mysql.MySQLToken.KW_AS;
+import static com.alibaba.cobar.server.parser.mysql.MySQLToken.KW_JOIN;
+import static com.alibaba.cobar.server.parser.mysql.MySQLToken.KW_SELECT;
+import static com.alibaba.cobar.server.parser.mysql.MySQLToken.KW_UNION;
+import static com.alibaba.cobar.server.parser.mysql.MySQLToken.PUNC_COMMA;
+import static com.alibaba.cobar.server.parser.mysql.MySQLToken.PUNC_LEFT_PAREN;
+import static com.alibaba.cobar.server.parser.mysql.MySQLToken.PUNC_RIGHT_PAREN;
 
 import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alibaba.cobar.parser.mysql.lexer.MySQLLexer;
-import com.alibaba.cobar.parser.mysql.syntax.MySQLParser;
+import com.alibaba.cobar.server.parser.mysql.lexer.MySQLLexer;
+import com.alibaba.cobar.server.parser.mysql.syntax.MySQLParser;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.alibaba.cobar.server.core.model.tt.TableConfig;
 import com.alibaba.cobar.server.parser.ast.ASTNode;
 import com.alibaba.cobar.server.parser.ast.expression.BinaryOperatorExpression;
 import com.alibaba.cobar.server.parser.ast.expression.Expression;
@@ -160,6 +159,7 @@ import com.alibaba.cobar.server.parser.ast.statement.mts.MTSRollbackStatement;
 import com.alibaba.cobar.server.parser.ast.statement.mts.MTSSavepointStatement;
 import com.alibaba.cobar.server.parser.ast.statement.mts.MTSSetTransactionStatement;
 import com.alibaba.cobar.server.parser.visitor.SQLASTVisitor;
+import com.alibaba.cobar.server.server.core.model.tt.TableConfig;
 import com.alibaba.cobar.server.util.ExprEvalUtils;
 import com.alibaba.cobar.server.util.Pair;
 import com.alibaba.cobar.server.util.SmallSet;

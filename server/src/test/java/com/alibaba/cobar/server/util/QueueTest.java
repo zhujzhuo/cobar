@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.util;
+package com.alibaba.cobar.server.util;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.alibaba.cobar.util.ExecutorUtil.NameableExecutor;
+import com.alibaba.cobar.server.util.ExecutorUtil.NameableExecutor;
 
 /**
  * @author xianmao.hexm

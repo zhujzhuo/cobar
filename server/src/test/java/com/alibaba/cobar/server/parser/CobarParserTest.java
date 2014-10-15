@@ -16,15 +16,15 @@
 /**
  * (created at 2012-3-13)
  */
-package com.alibaba.cobar.parser;
+package com.alibaba.cobar.server.parser;
 
 import java.sql.SQLSyntaxErrorException;
 
 import junit.framework.Assert;
 
-import com.alibaba.cobar.parser.ast.statement.SQLStatement;
-import com.alibaba.cobar.parser.ast.statement.dml.DMLSelectStatement;
-import com.alibaba.cobar.parser.mysql.syntax.AbstractSyntaxTest;
+import com.alibaba.cobar.server.parser.ast.statement.SQLStatement;
+import com.alibaba.cobar.server.parser.ast.statement.dml.DMLSelectStatement;
+import com.alibaba.cobar.server.parser.mysql.syntax.AbstractSyntaxTest;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

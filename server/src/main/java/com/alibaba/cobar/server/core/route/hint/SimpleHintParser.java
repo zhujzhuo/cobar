@@ -22,7 +22,7 @@ import java.sql.SQLSyntaxErrorException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.cobar.server.config.util.ParameterMapping;
+import com.alibaba.cobar.server.server.config.util.ParameterMapping;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

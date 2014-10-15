@@ -16,7 +16,7 @@
 /**
  * (created at 2011-4-11)
  */
-package com.alibaba.cobar.parser;
+package com.alibaba.cobar.server.parser;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
