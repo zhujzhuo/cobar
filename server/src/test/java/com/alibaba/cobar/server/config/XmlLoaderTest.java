@@ -1,4 +1,4 @@
-package com.alibaba.cobar.server.config.loader;
+package com.alibaba.cobar.server.config;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

@@ -91,10 +91,10 @@ import com.alibaba.cobar.server.parser.ast.expression.primary.DefaultValue;
 import com.alibaba.cobar.server.parser.ast.expression.primary.ExistsPrimary;
 import com.alibaba.cobar.server.parser.ast.expression.primary.Identifier;
 import com.alibaba.cobar.server.parser.ast.expression.primary.MatchExpression;
+import com.alibaba.cobar.server.parser.ast.expression.primary.MatchExpression.Modifier;
 import com.alibaba.cobar.server.parser.ast.expression.primary.RowExpression;
 import com.alibaba.cobar.server.parser.ast.expression.primary.UsrDefVarPrimary;
 import com.alibaba.cobar.server.parser.ast.expression.primary.Wildcard;
-import com.alibaba.cobar.server.parser.ast.expression.primary.MatchExpression.Modifier;
 import com.alibaba.cobar.server.parser.ast.expression.primary.function.FunctionExpression;
 import com.alibaba.cobar.server.parser.ast.expression.primary.function.cast.Cast;
 import com.alibaba.cobar.server.parser.ast.expression.primary.function.cast.Convert;
@@ -637,9 +637,12 @@ public class MySQLExprParser extends MySQLParser {
                 lexer.nextToken();
                 expr = unaryOpExpression(null, null);
                 return new CastBinaryExpression(expr).setCacheEvalRst(cacheEvalRst);
+            default:
+                return collateExpression(consumed, consumedUp);
             }
+        } else {
+            return collateExpression(consumed, consumedUp);
         }
-        return collateExpression(consumed, consumedUp);
     }
 
     private Expression collateExpression(String consumed, String consumedUp) throws SQLSyntaxErrorException {
@@ -1232,6 +1235,8 @@ public class MySQLExprParser extends MySQLParser {
                     tempStr = LiteralString.getUnescapedString(tempSb.toString());
                     match(LITERAL_CHARS);
                     break;
+                default:
+                    break;
                 }
                 match(PUNC_RIGHT_PAREN);
                 return new GroupConcat(tempGroupDistinct, tempExprList, tempExpr, isDesc, appendedColumnNames, tempStr).setCacheEvalRst(cacheEvalRst);
@@ -1385,6 +1390,8 @@ public class MySQLExprParser extends MySQLParser {
                 modifier = Modifier.IN_BOOLEAN_MODE;
                 break;
             }
+        default:
+            break;
         }
         match(PUNC_RIGHT_PAREN);
         return new MatchExpression(colList, pattern, modifier).setCacheEvalRst(cacheEvalRst);

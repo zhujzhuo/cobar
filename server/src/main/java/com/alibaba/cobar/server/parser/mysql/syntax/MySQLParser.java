@@ -194,9 +194,12 @@ public abstract class MySQLParser {
                     default:
                         throw err("expect digit or ? after , for limit");
                     }
+                } else {
+                    return new Limit(new Integer(0), num1);
                 }
+            default:
+                return new Limit(new Integer(0), num1);
             }
-            return new Limit(new Integer(0), num1);
         case QUESTION_MARK:
             paramIndex1 = lexer.paramIndex();
             switch (lexer.nextToken()) {
@@ -227,9 +230,12 @@ public abstract class MySQLParser {
                     default:
                         throw err("expect digit or ? after , for limit");
                     }
+                } else {
+                    return new Limit(new Integer(0), createParam(paramIndex1));
                 }
+            default:
+                return new Limit(new Integer(0), createParam(paramIndex1));
             }
-            return new Limit(new Integer(0), createParam(paramIndex1));
         default:
             throw err("expect digit or ? after limit");
         }
@@ -278,8 +284,9 @@ public abstract class MySQLParser {
      * @throws SQLSyntaxErrorException if no token is matched
      */
     protected int match(MySQLToken... expectToken) throws SQLSyntaxErrorException {
-        if (expectToken == null || expectToken.length <= 0)
+        if (expectToken == null || expectToken.length <= 0) {
             throw new IllegalArgumentException("at least one expect token");
+        }
         MySQLToken token = lexer.token();
         for (int i = 0; i < expectToken.length; ++i) {
             if (token == expectToken[i]) {

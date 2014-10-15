@@ -73,6 +73,8 @@ public class MySQLDMLReplaceParser extends MySQLDMLInsertReplaceParser {
             lexer.nextToken();
             mode = DMLReplaceStatement.ReplaceMode.DELAY;
             break;
+        default:
+            break;
         }
         if (lexer.token() == KW_INTO) {
             lexer.nextToken();
@@ -122,6 +124,8 @@ public class MySQLDMLReplaceParser extends MySQLDMLInsertReplaceParser {
                 select = selectPrimary();
                 match(PUNC_RIGHT_PAREN);
                 return new DMLReplaceStatement(mode, table, columnNameList, select);
+            default:
+                break;
             }
             columnNameList = idList();
             match(PUNC_RIGHT_PAREN);
@@ -138,6 +142,8 @@ public class MySQLDMLReplaceParser extends MySQLDMLInsertReplaceParser {
             }
             rowList = rowList();
             return new DMLReplaceStatement(mode, table, columnNameList, rowList);
+        default:
+            break;
         }
         throw err("unexpected token for replace: " + lexer.token());
     }

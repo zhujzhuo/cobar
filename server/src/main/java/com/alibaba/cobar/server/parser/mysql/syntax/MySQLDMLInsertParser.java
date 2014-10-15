@@ -85,6 +85,8 @@ public class MySQLDMLInsertParser extends MySQLDMLInsertReplaceParser {
             lexer.nextToken();
             mode = DMLInsertStatement.InsertMode.HIGH;
             break;
+        default:
+            break;
         }
         if (lexer.token() == KW_IGNORE) {
             ignore = true;
@@ -143,6 +145,8 @@ public class MySQLDMLInsertParser extends MySQLDMLInsertReplaceParser {
                 match(PUNC_RIGHT_PAREN);
                 dupUpdate = onDuplicateUpdate();
                 return new DMLInsertStatement(mode, ignore, table, columnNameList, select, dupUpdate);
+            default:
+                break;
             }
             columnNameList = idList();
             match(PUNC_RIGHT_PAREN);
@@ -161,6 +165,8 @@ public class MySQLDMLInsertParser extends MySQLDMLInsertReplaceParser {
             rowList = rowList();
             dupUpdate = onDuplicateUpdate();
             return new DMLInsertStatement(mode, ignore, table, columnNameList, rowList, dupUpdate);
+        default:
+            break;
         }
         throw err("unexpected token for insert: " + lexer.token());
     }

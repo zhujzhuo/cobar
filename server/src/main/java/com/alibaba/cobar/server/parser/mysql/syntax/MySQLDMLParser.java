@@ -162,6 +162,8 @@ public abstract class MySQLDMLParser extends MySQLParser {
                 order = SortOrder.DESC;
             case KW_ASC:
                 lexer.nextToken();
+            default:
+                break;
             }
             orderBy.addOrderByItem(expr, order);
         }
@@ -549,6 +551,8 @@ public abstract class MySQLDMLParser extends MySQLParser {
                 isAll = true;
             case KW_DISTINCT:
                 lexer.nextToken();
+                break;
+            default:
                 break;
             }
             select = selectPrimary();

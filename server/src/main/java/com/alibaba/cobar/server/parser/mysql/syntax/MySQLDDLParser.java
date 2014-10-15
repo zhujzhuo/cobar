@@ -279,6 +279,8 @@ public class MySQLDDLParser extends MySQLParser {
                         lexer.nextToken();
                         Identifier policyName = identifier();
                         return new ExtDDLDropPolicy(policyName);
+                    default:
+                        break;
                     }
                 }
             default:
@@ -312,6 +314,8 @@ public class MySQLDDLParser extends MySQLParser {
                 switch (si) {
                 case TRUNCATE:
                     return truncate();
+                default:
+                    break;
                 }
             }
         default:
@@ -352,6 +356,8 @@ public class MySQLDDLParser extends MySQLParser {
         case KW_CASCADE:
             lexer.nextToken();
             mode = DDLDropTableStatement.Mode.CASCADE;
+            break;
+        default:
             break;
         }
         return new DDLDropTableStatement(list, temp, ifExists, mode);
@@ -578,6 +584,9 @@ public class MySQLDDLParser extends MySQLParser {
                     case KW_INDEX:
                     case KW_KEY:
                         lexer.nextToken();
+                        break;
+                    default:
+                        break;
                     }
                     id = null;
                     if (lexer.token() == IDENTIFIER) {
@@ -593,6 +602,9 @@ public class MySQLDDLParser extends MySQLParser {
                     case KW_INDEX:
                     case KW_KEY:
                         lexer.nextToken();
+                        break;
+                    default:
+                        break;
                     }
                     id = null;
                     if (lexer.token() == IDENTIFIER) {
@@ -608,6 +620,9 @@ public class MySQLDDLParser extends MySQLParser {
                     case KW_INDEX:
                     case KW_KEY:
                         lexer.nextToken();
+                        break;
+                    default:
+                        break;
                     }
                     id = null;
                     if (lexer.token() == IDENTIFIER) {
@@ -671,6 +686,8 @@ public class MySQLDDLParser extends MySQLParser {
                             stmt.addAlterSpecification(new DDLAlterTableStatement.ModifyColumn(id, colDef));
                         }
                         break main_switch;
+                    default:
+                        break;
                     }
                 }
             default:
@@ -763,6 +780,8 @@ public class MySQLDDLParser extends MySQLParser {
                 case KW_KEY:
                     lexer.nextToken();
                     break;
+                default:
+                    break;
                 }
                 if (lexer.token() == IDENTIFIER) {
                     id = identifier();
@@ -777,6 +796,8 @@ public class MySQLDDLParser extends MySQLParser {
                 case KW_INDEX:
                 case KW_KEY:
                     lexer.nextToken();
+                    break;
+                default:
                     break;
                 }
                 if (lexer.token() == IDENTIFIER) {
@@ -795,6 +816,8 @@ public class MySQLDDLParser extends MySQLParser {
                 case KW_INDEX:
                 case KW_KEY:
                     lexer.nextToken();
+                    break;
+                default:
                     break;
                 }
                 if (lexer.token() == IDENTIFIER) {
@@ -904,6 +927,8 @@ public class MySQLDDLParser extends MySQLParser {
                         }
                         list.add(new IndexOption(string));
                         break main_switch;
+                    default:
+                        break;
                     }
                 }
             default:
@@ -1344,6 +1369,8 @@ public class MySQLDDLParser extends MySQLParser {
                         collation = identifier();
                     }
                     break typeName;
+                default:
+                    break;
                 }
             }
         default:
@@ -1397,6 +1424,8 @@ public class MySQLDDLParser extends MySQLParser {
             match(KW_KEY);
             sindex = ColumnDefinition.SpecialIndex.PRIMARY;
             break;
+        default:
+            break;
         }
         if (lexer.token() == IDENTIFIER && "COMMENT".equals(lexer.stringValueUppercase())) {
             lexer.nextToken();
@@ -1420,8 +1449,12 @@ public class MySQLDDLParser extends MySQLParser {
                         lexer.nextToken();
                         format = ColumnDefinition.ColumnFormat.DYNAMIC;
                         break;
+                    default:
+                        break;
                     }
                 }
+            default:
+                break;
             }
         }
         return new ColumnDefinition(dataType, notNull, defaultVal, autoIncrement, sindex, comment, format);
@@ -1502,6 +1535,8 @@ public class MySQLDDLParser extends MySQLParser {
                         id = identifier();
                         options.setCharSet(id);
                         break os;
+                    default:
+                        break;
                     }
                 }
             default:
@@ -1759,11 +1794,15 @@ public class MySQLDDLParser extends MySQLParser {
                                 lexer.nextToken();
                                 options.setRowFormat(TableOptions.RowFormat.COMPACT);
                                 break os;
+                            default:
+                                break;
                             }
                         }
                     default:
                         throw new SQLSyntaxErrorException("table option of ROW_FORMAT error");
                     }
+                default:
+                    break;
                 }
             }
         default:

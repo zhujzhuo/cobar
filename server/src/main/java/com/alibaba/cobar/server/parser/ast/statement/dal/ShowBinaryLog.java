@@ -24,8 +24,10 @@ import com.alibaba.cobar.server.parser.visitor.SQLASTVisitor;
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
 public class ShowBinaryLog extends DALShowStatement {
+
     @Override
     public void accept(SQLASTVisitor visitor) {
         visitor.visit(this);
     }
+
 }

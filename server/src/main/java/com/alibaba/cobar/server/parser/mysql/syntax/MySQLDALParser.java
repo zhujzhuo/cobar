@@ -284,6 +284,8 @@ public class MySQLDALParser extends MySQLParser {
                     case VIEW:
                         showCreateType = ShowCreate.Type.VIEW;
                         break switch1;
+                    default:
+                        break;
                     }
                 }
             default:
@@ -302,6 +304,8 @@ public class MySQLDALParser extends MySQLParser {
             case KW_WHERE:
                 tempExpr = where();
                 return new ShowDatabases(tempExpr);
+            default:
+                break;
             }
             return new ShowDatabases();
         case KW_KEYS:
@@ -329,6 +333,8 @@ public class MySQLDALParser extends MySQLParser {
                     default:
                         return new ShowProcedureStatus();
                     }
+                default:
+                    break;
                 }
             }
             throw err("unexpect token for SHOW PROCEDURE");
@@ -347,6 +353,8 @@ public class MySQLDALParser extends MySQLParser {
             case KW_WHERE:
                 tempExpr = where();
                 return new ShowTableStatus(tempId, tempExpr);
+            default:
+                break;
             }
             return new ShowTableStatus(tempId);
         case IDENTIFIER:
@@ -395,6 +403,8 @@ public class MySQLDALParser extends MySQLParser {
                 case KW_WHERE:
                     tempExpr = where();
                     return new ShowCollation(tempExpr);
+                default:
+                    break;
                 }
                 return new ShowCollation();
             case COLUMNS:
@@ -421,12 +431,16 @@ public class MySQLDALParser extends MySQLParser {
                                 case MUTEX:
                                     lexer.nextToken();
                                     return new ShowEngine(ShowEngine.Type.INNODB_MUTEX);
+                                default:
+                                    break;
                                 }
                             }
                         case PERFORMANCE_SCHEMA:
                             lexer.nextToken();
                             matchIdentifier("STATUS");
                             return new ShowEngine(ShowEngine.Type.PERFORMANCE_SCHEMA_STATUS);
+                        default:
+                            break;
                         }
                     }
                 default:
@@ -457,6 +471,9 @@ public class MySQLDALParser extends MySQLParser {
                 case KW_FROM:
                     lexer.nextToken();
                     tempId = identifier();
+                    break;
+                default:
+                    break;
                 }
                 switch (lexer.token()) {
                 case KW_LIKE:
@@ -486,6 +503,9 @@ public class MySQLDALParser extends MySQLParser {
                         case KW_FROM:
                             lexer.nextToken();
                             tempId = identifier();
+                            break;
+                        default:
+                            break;
                         }
                         switch (lexer.token()) {
                         case KW_LIKE:
@@ -497,6 +517,8 @@ public class MySQLDALParser extends MySQLParser {
                         default:
                             return new ShowTables(true, tempId);
                         }
+                    default:
+                        break;
                     }
                 }
                 throw err("unexpected token for SHOW FULL");
@@ -521,6 +543,8 @@ public class MySQLDALParser extends MySQLParser {
                         default:
                             return new ShowFunctionStatus();
                         }
+                    default:
+                        break;
                     }
                 }
                 throw err("unexpected token for SHOW FUNCTION");
@@ -552,6 +576,8 @@ public class MySQLDALParser extends MySQLParser {
                         default:
                             return new ShowVariables(VariableScope.GLOBAL);
                         }
+                    default:
+                        break;
                     }
                 }
                 throw err("unexpected token for SHOW GLOBAL");
@@ -574,6 +600,9 @@ public class MySQLDALParser extends MySQLParser {
                 case KW_FROM:
                     lexer.nextToken();
                     tempId = identifier();
+                    break;
+                default:
+                    break;
                 }
                 switch (lexer.token()) {
                 case KW_LIKE:
@@ -628,6 +657,8 @@ public class MySQLDALParser extends MySQLParser {
                         default:
                             return new ShowVariables(VariableScope.SESSION);
                         }
+                    default:
+                        break;
                     }
                 }
                 throw err("unexpected token for SHOW SESSION");
@@ -643,6 +674,8 @@ public class MySQLDALParser extends MySQLParser {
                     case STATUS:
                         lexer.nextToken();
                         return new ShowSlaveStatus();
+                    default:
+                        break;
                     }
                 }
                 throw err("unexpected token for SHOW SLAVE");
@@ -668,6 +701,9 @@ public class MySQLDALParser extends MySQLParser {
                 case KW_FROM:
                     lexer.nextToken();
                     tempId = identifier();
+                    break;
+                default:
+                    break;
                 }
                 switch (lexer.token()) {
                 case KW_LIKE:
@@ -686,6 +722,9 @@ public class MySQLDALParser extends MySQLParser {
                 case KW_FROM:
                     lexer.nextToken();
                     tempId = identifier();
+                    break;
+                default:
+                    break;
                 }
                 switch (lexer.token()) {
                 case KW_LIKE:
@@ -712,7 +751,11 @@ public class MySQLDALParser extends MySQLParser {
                 lexer.nextToken();
                 tempLimit = limit();
                 return new ShowWarnings(false, tempLimit);
+            default:
+                break;
             }
+            break;
+        default:
             break;
         }
         throw err("unexpect token for SHOW");
@@ -798,6 +841,8 @@ public class MySQLDALParser extends MySQLParser {
                 case SWAPS:
                     lexer.nextToken();
                     return ShowProfile.Type.SWAPS;
+                default:
+                    break;
                 }
             }
         default:
@@ -822,6 +867,9 @@ public class MySQLDALParser extends MySQLParser {
         case KW_IN:
             lexer.nextToken();
             database = identifier();
+            break;
+        default:
+            break;
         }
         switch (lexer.token()) {
         case KW_LIKE:
@@ -830,6 +878,8 @@ public class MySQLDALParser extends MySQLParser {
         case KW_WHERE:
             Expression where = where();
             return new ShowColumns(full, table, database, where);
+        default:
+            break;
         }
         return new ShowColumns(full, table, database);
     }
@@ -944,6 +994,8 @@ public class MySQLDALParser extends MySQLParser {
                     return new MTSSetTransactionStatement(
                             scope,
                             MTSSetTransactionStatement.IsolationLevel.READ_UNCOMMITTED);
+                default:
+                    break;
                 }
             }
             throw err("unknown isolation read level: " + lexer.stringValue());
@@ -960,8 +1012,12 @@ public class MySQLDALParser extends MySQLParser {
                 case SERIALIZABLE:
                     lexer.nextToken();
                     return new MTSSetTransactionStatement(scope, MTSSetTransactionStatement.IsolationLevel.SERIALIZABLE);
+                default:
+                    break;
                 }
             }
+        default:
+            break;
         }
         throw err("unknown isolation level: " + lexer.stringValue());
     }

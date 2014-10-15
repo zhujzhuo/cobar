@@ -15,8 +15,6 @@
  */
 package com.alibaba.cobar.server.util;
 
-
-
 /**
  * 数据分区工具
  * 

@@ -196,6 +196,8 @@ public class MySQLDMLSelectParser extends MySQLDMLParser {
                 matchIdentifier("MODE");
                 option.lockMode = DMLSelectStatement.LockMode.LOCK_IN_SHARE_MODE;
                 break;
+            default:
+                break;
             }
         }
         return new DMLSelectStatement(option, exprList, tables, where, group, having, order, limit);
