@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- - Copyright 1999-2012 Alibaba Group.
+ - Copyright 1999-2014 Alibaba Group.
  -  
  - Licensed under the Apache License, Version 2.0 (the "License");
  - you may not use this file except in compliance with the License.
@@ -72,12 +72,12 @@
         <schema>
             <property name="name">dbtest</property>
             <property name="dataNodes">N1</property>
-            <property name="rule">com.alibaba.cobar.route.rule.DbtestRule</property>
+            <property name="rule">com.alibaba.cobar.server.route.rule.Dbtest2Rule</property>
         </schema>
         <schema>
             <property name="name">dbtest2</property>
             <property name="dataNodes">N1,N2</property>
-            <property name="rule">com.alibaba.cobar.route.rule.Dbtest2Rule</property>
+            <property name="rule">com.alibaba.cobar.server.route.rule.DbtestRule</property>
         </schema>
     </schemas>
 

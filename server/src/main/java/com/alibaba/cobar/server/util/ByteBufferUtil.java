@@ -17,7 +17,7 @@ package com.alibaba.cobar.server.util;
 
 import java.nio.ByteBuffer;
 
-import com.alibaba.cobar.server.core.net.AbstractConnection;
+import com.alibaba.cobar.server.net.AbstractConnection;
 
 /**
  * @author xianmao.hexm 2010-9-3 下午02:29:44

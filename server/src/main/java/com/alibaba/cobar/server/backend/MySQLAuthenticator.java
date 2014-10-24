@@ -1,0 +1,140 @@
+/*
+ * Copyright 1999-2012 Alibaba Group.
+ *  
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.alibaba.cobar.server.backend;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
+import org.apache.log4j.Logger;
+
+import com.alibaba.cobar.server.backend.rshandler.ConnectionAquiredHandler;
+import com.alibaba.cobar.server.model.DataSources.DataSource;
+import com.alibaba.cobar.server.net.nio.NIOHandler;
+import com.alibaba.cobar.server.net.packet.AuthPacket;
+import com.alibaba.cobar.server.net.packet.EOFPacket;
+import com.alibaba.cobar.server.net.packet.ErrorPacket;
+import com.alibaba.cobar.server.net.packet.HandshakePacket;
+import com.alibaba.cobar.server.net.packet.OkPacket;
+import com.alibaba.cobar.server.net.packet.Reply323Packet;
+import com.alibaba.cobar.server.route.RouteResultsetNode;
+import com.alibaba.cobar.server.util.CharsetUtil;
+import com.alibaba.cobar.server.util.SecurityUtil;
+
+/**
+ * MySQL 验证处理器
+ * 
+ * @author xianmao.hexm
+ */
+public class MySQLAuthenticator implements NIOHandler {
+
+    private static final Logger LOGGER = Logger.getLogger(MySQLAuthenticator.class);
+
+    private MySQLConnection source;
+    private HandshakePacket handshake;
+
+    public MySQLAuthenticator(MySQLConnection source) {
+        this.source = source;
+    }
+
+    @Override
+    public void handle(byte[] data) {
+        HandshakePacket hsp = this.handshake;
+        if (hsp == null) {
+            // 设置握手数据包
+            hsp = new HandshakePacket();
+            hsp.read(data);
+            this.handshake = hsp;
+
+            // 设置连接属性
+            source.setThreadId(hsp.threadId);
+            int charsetIndex = (hsp.serverCharsetIndex & 0xff);
+            String charset = CharsetUtil.getCharset(charsetIndex);
+            if (charset != null) {
+                source.setCharset(charset);
+            } else {
+                throw new RuntimeException("Unknown charsetIndex:" + charsetIndex);
+            }
+
+            // 发送认证数据包
+            DataSource ds = source.getDataSource();
+            AuthPacket ap = new AuthPacket();
+            ap.packetId = 1;
+            ap.clientFlags = source.getClientFlags();
+            ap.maxPacketSize = source.getProtocol().getMaxPacketSize();
+            ap.charsetIndex = charsetIndex;
+            ap.user = ds.getUser();
+            try {
+                ap.password = passwd(ds.getPassword(), hsp);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+            ap.database = ds.getSchema();
+            ap.write(source);
+        } else { // 处理认证结果
+            switch (data[4]) {
+            case OkPacket.FIELD_COUNT:
+                source.setAuthenticated(true);
+                source.connectionAquired(new ConnectionAquiredHandler() {
+                    @Override
+                    public void handle(MySQLConnection c) {
+                        try {
+                            c.execute(new RouteResultsetNode("S1", "select * from t_1"));
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                break;
+            case ErrorPacket.FIELD_COUNT:
+                ErrorPacket err = new ErrorPacket();
+                err.read(data);
+                throw new RuntimeException(new String(err.message));
+            case EOFPacket.FIELD_COUNT:
+                auth323(data[3]);
+                break;
+            default:
+                throw new RuntimeException("Unknown packet!");
+            }
+        }
+    }
+
+    // 发送323响应认证数据包
+    private void auth323(byte packetId) {
+        Reply323Packet r323 = new Reply323Packet();
+        r323.packetId = ++packetId;
+        String pass = source.getDataSource().getPassword();
+        if (pass != null && pass.length() > 0) {
+            byte[] seed = this.handshake.seed;
+            r323.seed = SecurityUtil.scramble323(pass, new String(seed)).getBytes();
+        }
+        r323.write(source);
+    }
+
+    private static byte[] passwd(String pass, HandshakePacket hs) throws NoSuchAlgorithmException {
+        if (pass == null || pass.length() == 0) {
+            return null;
+        }
+        byte[] passwd = pass.getBytes();
+        int sl1 = hs.seed.length;
+        int sl2 = hs.restOfScrambleBuff.length;
+        byte[] seed = new byte[sl1 + sl2];
+        System.arraycopy(hs.seed, 0, seed, 0, sl1);
+        System.arraycopy(hs.restOfScrambleBuff, 0, seed, sl1, sl2);
+        return SecurityUtil.scramble411(passwd, seed);
+    }
+
+}

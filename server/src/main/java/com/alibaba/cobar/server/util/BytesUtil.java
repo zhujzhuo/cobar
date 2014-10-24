@@ -15,7 +15,7 @@
  */
 package com.alibaba.cobar.server.util;
 
-import com.alibaba.cobar.server.core.net.protocol.MySQLMessage;
+import com.alibaba.cobar.server.net.protocol.MySQLMessage;
 
 /**
  * @author xianmao.hexm

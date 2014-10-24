@@ -29,7 +29,7 @@ public class CobarStartupTest {
 
     public static void main(String[] args) {
         try {
-            CobarServer server = CobarServer.getInstance();
+            CobarContainer server = CobarContainer.getInstance();
             server.startup();
         } catch (Throwable e) {
             SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);

@@ -1,5 +1,5 @@
 <!--
- - Copyright 1999-2012 Alibaba Group.
+ - Copyright 1999-2014 Alibaba Group.
  -  
  - Licensed under the Apache License, Version 2.0 (the "License");
  - you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <app.version>1.2.8</app.version>
         <junit.version>4.8.2</junit.version>
-        <log4j.version>1.2.7</log4j.version>
+        <log4j.version>1.2.17</log4j.version>
     </properties>
 
     <dependencies>

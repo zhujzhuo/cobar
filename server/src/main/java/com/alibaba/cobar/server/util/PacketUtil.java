@@ -17,11 +17,11 @@ package com.alibaba.cobar.server.util;
 
 import java.io.UnsupportedEncodingException;
 
-import com.alibaba.cobar.server.core.defs.ErrorCode;
-import com.alibaba.cobar.server.core.net.packet.BinaryPacket;
-import com.alibaba.cobar.server.core.net.packet.ErrorPacket;
-import com.alibaba.cobar.server.core.net.packet.FieldPacket;
-import com.alibaba.cobar.server.core.net.packet.ResultSetHeaderPacket;
+import com.alibaba.cobar.server.defs.ErrorCode;
+import com.alibaba.cobar.server.net.packet.BinaryPacket;
+import com.alibaba.cobar.server.net.packet.ErrorPacket;
+import com.alibaba.cobar.server.net.packet.FieldPacket;
+import com.alibaba.cobar.server.net.packet.ResultSetHeaderPacket;
 
 /**
  * @author xianmao.hexm

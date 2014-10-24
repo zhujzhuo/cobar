@@ -17,8 +17,8 @@ package com.alibaba.cobar.server.util;
 
 import java.io.UnsupportedEncodingException;
 
-import com.alibaba.cobar.server.core.defs.Fields;
-import com.alibaba.cobar.server.core.net.protocol.MySQLMessage;
+import com.alibaba.cobar.server.defs.Fields;
+import com.alibaba.cobar.server.net.protocol.MySQLMessage;
 
 /**
  * @author xianmao.hexm 2012-8-28
