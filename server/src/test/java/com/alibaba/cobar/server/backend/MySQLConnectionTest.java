@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.server.model.CobarModel;
 import com.alibaba.cobar.server.model.DataSources.DataSource;
+import com.alibaba.cobar.server.net.nio.NIOConnector;
 import com.alibaba.cobar.server.startup.CobarContainer;
 
 /**
@@ -36,11 +37,15 @@ public class MySQLConnectionTest {
         container.startup();
 
         // 创建指定数据源的连接
+        NIOConnector connector = container.getConnector();
         CobarModel cm = container.getConfigModel();
         DataSource dataSource = cm.getDataSources().getDataSource("S1");
         MySQLConnectionFactory factory = new MySQLConnectionFactory();
-        MySQLConnection c = (MySQLConnection) factory.make(dataSource);
-        container.getConnector().postConnect(c);
+
+        for (int i = 0; i < 10; i++) {
+            MySQLConnection c = (MySQLConnection) factory.make(dataSource);
+            connector.postConnect(c);
+        }
     }
 
 }

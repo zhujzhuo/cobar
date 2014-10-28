@@ -60,6 +60,7 @@ public abstract class BackendConnection extends AbstractConnection {
     public boolean finishConnect() throws IOException {
         if (channel.isConnectionPending()) {
             channel.finishConnect();
+            localHost = channel.socket().getLocalAddress().getHostAddress();
             localPort = channel.socket().getLocalPort();
             isFinishConnect = true;
             return true;
@@ -85,6 +86,17 @@ public abstract class BackendConnection extends AbstractConnection {
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder().append("[class=")
+                                              .append(getClass().getSimpleName())
+                                              .append(",localHost=")
+                                              .append(localHost)
+                                              .append(",localPort=")
+                                              .append(localPort)
+                                              .append("]");
+        return sb.toString();
     }
 
 }

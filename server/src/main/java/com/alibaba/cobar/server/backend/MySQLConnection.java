@@ -27,7 +27,6 @@ import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.net.BackendConnection;
 import com.alibaba.cobar.server.net.packet.AbstractPacket;
 import com.alibaba.cobar.server.net.packet.CommandPacket;
-import com.alibaba.cobar.server.route.RouteResultsetNode;
 
 /**
  * @author xianmao.hexm
@@ -98,37 +97,47 @@ public class MySQLConnection extends BackendConnection {
         }
     }
 
-    public void execute(RouteResultsetNode rrn) throws IOException {
-        CommandPacket packet = new CommandPacket();
-        packet.packetId = 0;
-        packet.command = AbstractPacket.COM_QUERY;
-        packet.arg = rrn.getStatement().getBytes(charset);
-        packet.write(this);
-    }
-
     public void connectionAquired(ConnectionAquiredHandler handler) {
         setHandler(new MySQLDispatcher(this));
         handler.handle(this);
     }
 
     public void okPacket(byte[] data) {
-        LOGGER.info("okPacket");
+        //LOGGER.info("okPacket");
     }
 
     public void errorPacket(byte[] data) {
-        LOGGER.info("errorPacket");
+        //LOGGER.info("errorPacket");
     }
 
     public void fieldEofPacket(byte[] header, List<byte[]> fields, byte[] data) {
-        LOGGER.info("fieldEofPacket");
-    }
-
-    public void rowEofPacket(byte[] data) {
-        LOGGER.info("rowEofPacket");
+        //LOGGER.info("fieldEofPacket");
     }
 
     public void rowDataPacket(byte[] data) {
-        LOGGER.info("rowDataPacket");
+        //LOGGER.info("rowDataPacket");
+    }
+
+    public void rowEofPacket(byte[] data) {
+        //LOGGER.info("rowEofPacket");
+        try {
+            this.testExecute();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    private static CommandPacket testPacket;
+    static {
+        testPacket = new CommandPacket();
+        testPacket.packetId = 0;
+        testPacket.command = AbstractPacket.COM_QUERY;
+        testPacket.arg = "select * from t_1".getBytes();
+    }
+
+    public void testExecute() throws IOException {
+        testPacket.write(this);
     }
 
     private static long defaultClientFlags() {

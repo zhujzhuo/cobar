@@ -48,6 +48,7 @@ public abstract class FrontendConnection extends AbstractConnection {
         Socket socket = channel.socket();
         this.host = socket.getInetAddress().getHostAddress();
         this.port = socket.getPort();
+        this.localHost = socket.getLocalAddress().getHostAddress();
         this.localPort = socket.getLocalPort();
     }
 

@@ -18,8 +18,6 @@ package com.alibaba.cobar.server.backend;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.log4j.Logger;
-
 import com.alibaba.cobar.server.backend.rshandler.ConnectionAquiredHandler;
 import com.alibaba.cobar.server.model.DataSources.DataSource;
 import com.alibaba.cobar.server.net.nio.NIOHandler;
@@ -29,7 +27,6 @@ import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.net.packet.HandshakePacket;
 import com.alibaba.cobar.server.net.packet.OkPacket;
 import com.alibaba.cobar.server.net.packet.Reply323Packet;
-import com.alibaba.cobar.server.route.RouteResultsetNode;
 import com.alibaba.cobar.server.util.CharsetUtil;
 import com.alibaba.cobar.server.util.SecurityUtil;
 
@@ -39,8 +36,6 @@ import com.alibaba.cobar.server.util.SecurityUtil;
  * @author xianmao.hexm
  */
 public class MySQLAuthenticator implements NIOHandler {
-
-    private static final Logger LOGGER = Logger.getLogger(MySQLAuthenticator.class);
 
     private MySQLConnection source;
     private HandshakePacket handshake;
@@ -91,7 +86,7 @@ public class MySQLAuthenticator implements NIOHandler {
                     @Override
                     public void handle(MySQLConnection c) {
                         try {
-                            c.execute(new RouteResultsetNode("S1", "select * from t_1"));
+                            c.testExecute();
                         } catch (IOException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();

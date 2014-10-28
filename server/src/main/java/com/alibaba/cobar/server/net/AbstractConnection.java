@@ -53,6 +53,7 @@ public abstract class AbstractConnection implements NIOConnection {
     protected long id;
     protected String host;
     protected int port;
+    protected String localHost;
     protected int localPort;
     protected long idleTimeout;
     protected SocketChannel channel;
@@ -106,12 +107,12 @@ public abstract class AbstractConnection implements NIOConnection {
         this.port = port;
     }
 
-    public int getLocalPort() {
-        return localPort;
+    public String getLocalHost() {
+        return localHost;
     }
 
-    public void setLocalPort(int localPort) {
-        this.localPort = localPort;
+    public int getLocalPort() {
+        return localPort;
     }
 
     public long getIdleTimeout() {
