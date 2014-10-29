@@ -43,7 +43,7 @@ public class ManagerConnection extends FrontendConnection {
     }
 
     @Override
-    public void error(int errCode, Throwable t) {
+    public void error(int code, Throwable t) {
         // 根据异常类型和信息，选择日志输出级别。
         if (t instanceof EOFException) {
             if (LOGGER.isDebugEnabled()) {
@@ -58,7 +58,7 @@ public class ManagerConnection extends FrontendConnection {
         }
 
         // 异常返回码处理
-        switch (errCode) {
+        switch (code) {
         case ErrorCode.ERR_HANDLE_DATA:
             String msg = t.getMessage();
             writeErrMessage(ErrorCode.ER_YES, msg == null ? t.getClass().getSimpleName() : msg);

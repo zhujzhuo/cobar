@@ -171,9 +171,9 @@ public class MySQLDetector extends BackendConnection {
     }
 
     @Override
-    public void error(int errCode, Throwable t) {
+    public void error(int code, Throwable t) {
         LOGGER.warn(toString(), t);
-        switch (errCode) {
+        switch (code) {
         case ErrorCode.ERR_HANDLE_DATA:
             heartbeat.setResult(MySQLHeartbeat.ERROR_STATUS, this, false);
             break;

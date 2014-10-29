@@ -15,10 +15,8 @@
  */
 package com.alibaba.cobar.server.backend;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import com.alibaba.cobar.server.backend.rshandler.ConnectionAquiredHandler;
 import com.alibaba.cobar.server.model.DataSources.DataSource;
 import com.alibaba.cobar.server.net.nio.NIOHandler;
 import com.alibaba.cobar.server.net.packet.AuthPacket;
@@ -82,17 +80,8 @@ public class MySQLAuthenticator implements NIOHandler {
             switch (data[4]) {
             case OkPacket.FIELD_COUNT:
                 source.setAuthenticated(true);
-                source.connectionAquired(new ConnectionAquiredHandler() {
-                    @Override
-                    public void handle(MySQLConnection c) {
-                        try {
-                            c.testExecute();
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                source.setHandler(new MySQLDispatcher(source));
+                source.connectionAquired();
                 break;
             case ErrorPacket.FIELD_COUNT:
                 ErrorPacket err = new ErrorPacket();

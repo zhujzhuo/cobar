@@ -15,35 +15,24 @@
  */
 package com.alibaba.cobar.server.backend;
 
-import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import com.alibaba.cobar.server.backend.rshandler.ConnectionAquiredHandler;
-import com.alibaba.cobar.server.defs.Capabilities;
-import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.net.BackendConnection;
-import com.alibaba.cobar.server.net.packet.AbstractPacket;
-import com.alibaba.cobar.server.net.packet.CommandPacket;
 
 /**
  * @author xianmao.hexm
  */
 public class MySQLConnection extends BackendConnection {
 
-    private static final Logger LOGGER = Logger.getLogger(MySQLConnection.class);
-    private static final long DEFAULT_CLIENT_FLAGS = defaultClientFlags();
-
     private long threadId;
     private String charset;
     private long clientFlags;
     private boolean isAuthenticated;
+    private MySQLResponseHandler responseHandler;
 
     public MySQLConnection(SocketChannel channel) {
         super(channel);
-        this.clientFlags = DEFAULT_CLIENT_FLAGS;
     }
 
     public long getThreadId() {
@@ -78,90 +67,46 @@ public class MySQLConnection extends BackendConnection {
         this.isAuthenticated = isAuthenticated;
     }
 
+    public MySQLResponseHandler getResponseHandler() {
+        return responseHandler;
+    }
+
+    public void setResponseHandler(MySQLResponseHandler responseHandler) {
+        this.responseHandler = responseHandler;
+    }
+
     @Override
     public void idleCheck() {
+
     }
 
     @Override
-    public void error(int errCode, Throwable t) {
-        LOGGER.warn(toString(), t);
-        switch (errCode) {
-        case ErrorCode.ERR_HANDLE_DATA:
-            // TODO handle error
-            break;
-        case ErrorCode.ERR_PUT_WRITE_QUEUE:
-            // TODO handle error
-            break;
-        default:
-            close();
-        }
+    public void error(int code, Throwable t) {
+        responseHandler.error(code, t);
     }
 
-    public void connectionAquired(ConnectionAquiredHandler handler) {
-        setHandler(new MySQLDispatcher(this));
-        handler.handle(this);
+    public void connectionAquired() {
+        responseHandler.connectionAquired();
     }
 
     public void okPacket(byte[] data) {
-        //LOGGER.info("okPacket");
+        responseHandler.okPacket(data);
     }
 
     public void errorPacket(byte[] data) {
-        //LOGGER.info("errorPacket");
+        responseHandler.errorPacket(data);
     }
 
     public void fieldEofPacket(byte[] header, List<byte[]> fields, byte[] data) {
-        //LOGGER.info("fieldEofPacket");
+        responseHandler.fieldEofPacket(header, fields, data);
     }
 
     public void rowDataPacket(byte[] data) {
-        //LOGGER.info("rowDataPacket");
+        responseHandler.rowDataPacket(data);
     }
 
     public void rowEofPacket(byte[] data) {
-        //LOGGER.info("rowEofPacket");
-        try {
-            this.testExecute();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    private static CommandPacket testPacket;
-    static {
-        testPacket = new CommandPacket();
-        testPacket.packetId = 0;
-        testPacket.command = AbstractPacket.COM_QUERY;
-        testPacket.arg = "select * from t_1".getBytes();
-    }
-
-    public void testExecute() throws IOException {
-        testPacket.write(this);
-    }
-
-    private static long defaultClientFlags() {
-        int flag = 0;
-        flag |= Capabilities.CLIENT_LONG_PASSWORD;
-        flag |= Capabilities.CLIENT_FOUND_ROWS;
-        flag |= Capabilities.CLIENT_LONG_FLAG;
-        flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
-        // flag |= Capabilities.CLIENT_NO_SCHEMA;
-        // flag |= Capabilities.CLIENT_COMPRESS;
-        flag |= Capabilities.CLIENT_ODBC;
-        // flag |= Capabilities.CLIENT_LOCAL_FILES;
-        flag |= Capabilities.CLIENT_IGNORE_SPACE;
-        flag |= Capabilities.CLIENT_PROTOCOL_41;
-        flag |= Capabilities.CLIENT_INTERACTIVE;
-        // flag |= Capabilities.CLIENT_SSL;
-        flag |= Capabilities.CLIENT_IGNORE_SIGPIPE;
-        flag |= Capabilities.CLIENT_TRANSACTIONS;
-        // flag |= Capabilities.CLIENT_RESERVED;
-        flag |= Capabilities.CLIENT_SECURE_CONNECTION;
-        // client extension
-        // flag |= Capabilities.CLIENT_MULTI_STATEMENTS;
-        // flag |= Capabilities.CLIENT_MULTI_RESULTS;
-        return flag;
+        responseHandler.rowEofPacket(data);
     }
 
 }

@@ -62,7 +62,7 @@ public interface NIOConnection {
     /**
      * 发生错误
      */
-    void error(int errCode, Throwable t);
+    void error(int code, Throwable t);
 
     /**
      * 关闭连接

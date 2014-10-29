@@ -17,8 +17,6 @@ package com.alibaba.cobar.server.backend;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-
 import com.alibaba.cobar.server.model.CobarModel;
 import com.alibaba.cobar.server.model.DataSources.DataSource;
 import com.alibaba.cobar.server.net.nio.NIOConnector;
@@ -29,21 +27,19 @@ import com.alibaba.cobar.server.startup.CobarContainer;
  */
 public class MySQLConnectionTest {
 
-    protected static final Logger LOGGER = Logger.getLogger(MySQLConnectionTest.class);
-
     public static void main(String[] args) throws IOException {
         // 启动容器
         CobarContainer container = CobarContainer.getInstance();
         container.startup();
 
-        // 创建指定数据源的连接
-        NIOConnector connector = container.getConnector();
+        // 向指定数据源提交连接
+        MySQLConnectionFactory factory = new MySQLConnectionFactory();
         CobarModel cm = container.getConfigModel();
         DataSource dataSource = cm.getDataSources().getDataSource("S1");
-        MySQLConnectionFactory factory = new MySQLConnectionFactory();
-
-        for (int i = 0; i < 10; i++) {
+        NIOConnector connector = container.getConnector();
+        for (int i = 0; i < 5; i++) {
             MySQLConnection c = (MySQLConnection) factory.make(dataSource);
+            c.setResponseHandler(new MySQLResponseHandlerTest(c));
             connector.postConnect(c);
         }
     }

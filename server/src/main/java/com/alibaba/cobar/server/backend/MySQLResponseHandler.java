@@ -13,15 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.server.backend.rshandler;
+package com.alibaba.cobar.server.backend;
 
-import com.alibaba.cobar.server.backend.MySQLConnection;
+import java.util.List;
 
 /**
  * @author xianmao.hexm
  */
-public interface ConnectionAquiredHandler {
+public interface MySQLResponseHandler {
 
-    void handle(MySQLConnection c);
+    void error(int code, Throwable t);
+
+    void connectionAquired();
+
+    void okPacket(byte[] data);
+
+    void errorPacket(byte[] data);
+
+    void fieldEofPacket(byte[] header, List<byte[]> fields, byte[] data);
+
+    void rowDataPacket(byte[] data);
+
+    void rowEofPacket(byte[] data);
 
 }

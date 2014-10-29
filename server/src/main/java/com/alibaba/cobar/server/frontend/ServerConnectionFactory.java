@@ -17,6 +17,7 @@ package com.alibaba.cobar.server.frontend;
 
 import java.nio.channels.SocketChannel;
 
+import com.alibaba.cobar.server.defs.Capabilities;
 import com.alibaba.cobar.server.frontend.handler.ServerPrepareHandler;
 import com.alibaba.cobar.server.model.Server;
 import com.alibaba.cobar.server.net.FrontendConnection;
@@ -33,6 +34,7 @@ public class ServerConnectionFactory extends FrontendConnectionFactory {
     protected FrontendConnection getConnection(SocketChannel channel) {
         Server sc = CobarContainer.getInstance().getConfigModel().getServer();
         ServerConnection c = new ServerConnection(channel);
+        c.setServerCapabilities(getServerCapabilities());
         c.setTxIsolation(sc.getTxIsolation());
         c.setHandler(new ServerAuthenticator(c));
         c.setPrivileges(new ServerPrivileges());
@@ -40,6 +42,27 @@ public class ServerConnectionFactory extends FrontendConnectionFactory {
         c.setPrepareHandler(new ServerPrepareHandler(c));
         c.setSession(new ServerSession(c));
         return c;
+    }
+
+    protected int getServerCapabilities() {
+        int flag = 0;
+        flag |= Capabilities.CLIENT_LONG_PASSWORD;
+        flag |= Capabilities.CLIENT_FOUND_ROWS;
+        flag |= Capabilities.CLIENT_LONG_FLAG;
+        flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
+        // flag |= Capabilities.CLIENT_NO_SCHEMA;
+        // flag |= Capabilities.CLIENT_COMPRESS;
+        flag |= Capabilities.CLIENT_ODBC;
+        // flag |= Capabilities.CLIENT_LOCAL_FILES;
+        flag |= Capabilities.CLIENT_IGNORE_SPACE;
+        flag |= Capabilities.CLIENT_PROTOCOL_41;
+        flag |= Capabilities.CLIENT_INTERACTIVE;
+        // flag |= Capabilities.CLIENT_SSL;
+        flag |= Capabilities.CLIENT_IGNORE_SIGPIPE;
+        flag |= Capabilities.CLIENT_TRANSACTIONS;
+        // flag |= ServerDefs.CLIENT_RESERVED;
+        flag |= Capabilities.CLIENT_SECURE_CONNECTION;
+        return flag;
     }
 
 }

@@ -26,6 +26,7 @@ import java.util.Random;
  * @author xianmao.hexm 2011-5-9 下午02:40:29
  */
 public class StringUtil {
+
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
     private static final Random RANDOM = new Random();
     private static final char[] CHARS = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'q', 'w', 'e', 'r', 't',
@@ -59,6 +60,9 @@ public class StringUtil {
         if (src == null) {
             return null;
         }
+        if (charset == null) {
+            return src.getBytes();
+        }
         try {
             return src.getBytes(charset);
         } catch (UnsupportedEncodingException e) {
@@ -71,6 +75,9 @@ public class StringUtil {
     }
 
     public static String decode(byte[] src, int offset, int length, String charset) {
+        if (charset == null) {
+            return new String(src, offset, length);
+        }
         try {
             return new String(src, offset, length, charset);
         } catch (UnsupportedEncodingException e) {
