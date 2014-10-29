@@ -30,7 +30,7 @@ public final class Server {
     private static final int DEFAULT_PROCESSORS = Runtime.getRuntime().availableProcessors();
     private static final String DEFAULT_CHARSET = "utf-8";
     private static final long DEFAULT_IDLE_TIMEOUT = 8 * 3600 * 1000L;
-    private static final long DEFAULT_PROCESSOR_CHECK_PERIOD = 30 * 1000L;
+    private static final long DEFAULT_PROCESSOR_CHECK_PERIOD = 15 * 1000L;
     private static final long DEFAULT_DATANODE_IDLE_CHECK_PERIOD = 60 * 1000L;
     private static final long DEFAULT_DATANODE_HEARTBEAT_PERIOD = 10 * 1000L;
     private static final long DEFAULT_CLUSTER_HEARTBEAT_PERIOD = 5 * 1000L;

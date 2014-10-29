@@ -34,12 +34,11 @@ public class MySQLConnectionTest {
 
         // 向指定数据源提交连接
         MySQLConnectionFactory factory = new MySQLConnectionFactory();
-        CobarModel cm = container.getConfigModel();
-        DataSource dataSource = cm.getDataSources().getDataSource("S1");
+        CobarModel model = container.getConfigModel();
+        DataSource dataSource = model.getDataSources().getDataSource("S1");
         NIOConnector connector = container.getConnector();
         for (int i = 0; i < 5; i++) {
-            MySQLConnection c = (MySQLConnection) factory.make(dataSource);
-            c.setResponseHandler(new MySQLResponseHandlerTest(c));
+            MySQLConnection c = (MySQLConnection) factory.make(dataSource, new MySQLResponseHandlerTest());
             connector.postConnect(c);
         }
     }

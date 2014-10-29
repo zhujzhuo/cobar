@@ -17,74 +17,47 @@ package com.alibaba.cobar.server.backend;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import com.alibaba.cobar.server.defs.ErrorCode;
-import com.alibaba.cobar.server.net.packet.AbstractPacket;
-import com.alibaba.cobar.server.net.packet.CommandPacket;
-
 /**
  * @author xianmao.hexm
  */
-public class MySQLResponseHandlerTest implements MySQLResponseHandler {
+public class MySQLResponseHandlerProxy implements MySQLResponseHandler {
 
-    private static final Logger LOGGER = Logger.getLogger(MySQLResponseHandlerTest.class);
+    private MySQLResponseHandler handler;
 
-    private MySQLConnection connection;
-    private CommandPacket packet;
-
-    public MySQLResponseHandlerTest() {
-        CommandPacket packet = new CommandPacket();
-        packet.packetId = 0;
-        packet.command = AbstractPacket.COM_QUERY;
-        packet.arg = "select 1".getBytes();
-        this.packet = packet;
+    public MySQLResponseHandlerProxy(MySQLResponseHandler handler) {
+        this.handler = handler;
     }
 
-    @Override
     public void setConnection(MySQLConnection c) {
-        this.connection = c;
+        handler.setConnection(c);
     }
 
-    @Override
     public void error(int code, Throwable t) {
-        LOGGER.warn(connection.toString(), t);
-        switch (code) {
-        case ErrorCode.ERR_HANDLE_DATA:
-        case ErrorCode.ERR_PUT_WRITE_QUEUE:
-        default:
-            connection.close();
-        }
+        handler.error(code, t);
     }
 
-    @Override
     public void connectionAquired() {
-        packet.write(connection);
+        handler.connectionAquired();
     }
 
-    @Override
     public void okPacket(byte[] data) {
-
+        handler.okPacket(data);
     }
 
-    @Override
     public void errorPacket(byte[] data) {
-
+        handler.errorPacket(data);
     }
 
-    @Override
     public void fieldEofPacket(byte[] header, List<byte[]> fields, byte[] data) {
-
+        handler.fieldEofPacket(header, fields, data);
     }
 
-    @Override
     public void rowDataPacket(byte[] data) {
-
+        handler.rowDataPacket(data);
     }
 
-    @Override
     public void rowEofPacket(byte[] data) {
-        packet.write(connection);
+        handler.rowEofPacket(data);
     }
 
 }

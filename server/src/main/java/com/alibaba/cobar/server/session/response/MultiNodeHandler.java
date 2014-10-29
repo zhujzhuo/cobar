@@ -16,7 +16,7 @@
 /**
  * (created at 2012-5-4)
  */
-package com.alibaba.cobar.server.backend.response;
+package com.alibaba.cobar.server.session.response;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;

@@ -15,21 +15,45 @@
  */
 package com.alibaba.cobar.server.backend;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import com.alibaba.cobar.server.defs.Capabilities;
-import com.alibaba.cobar.server.net.BackendConnection;
+import com.alibaba.cobar.server.model.DataSources.DataSource;
 import com.alibaba.cobar.server.net.factory.BackendConnectionFactory;
+import com.alibaba.cobar.server.util.BufferQueue;
+import com.alibaba.cobar.server.util.TimeUtil;
 
 /**
  * @author xianmao.hexm 2012-4-12
  */
 public class MySQLConnectionFactory extends BackendConnectionFactory {
 
-    protected BackendConnection getConnection(SocketChannel channel) {
+    public MySQLConnection make(DataSource dataSource, MySQLResponseHandler responseHandler) throws IOException {
+        SocketChannel channel = getChannel();
         MySQLConnection c = new MySQLConnection(channel);
         c.setClientFlags(getClientFlags());
         c.setHandler(new MySQLAuthenticator(c));
+        c.setWriteQueue(new BufferQueue<ByteBuffer>(writeQueueCapacity));
+        c.setIdleTimeout(idleTimeout);
+        c.setDataSource(dataSource);
+        c.setResponseHandler(responseHandler);
+        c.setLastTime(TimeUtil.currentTimeMillis());
+        return c;
+    }
+
+    public MySQLConnection make(MySQLConnectionPool pool, MySQLResponseHandler responseHandler) throws IOException {
+        SocketChannel channel = getChannel();
+        MySQLConnection c = new MySQLConnection(channel);
+        c.setClientFlags(getClientFlags());
+        c.setHandler(new MySQLAuthenticator(c));
+        c.setWriteQueue(new BufferQueue<ByteBuffer>(writeQueueCapacity));
+        c.setIdleTimeout(idleTimeout);
+        c.setDataSource(pool.getDataSource());
+        c.setPool(pool);
+        c.setResponseHandler(responseHandler);
+        c.setLastTime(TimeUtil.currentTimeMillis());
         return c;
     }
 

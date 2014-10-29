@@ -16,7 +16,7 @@
 /**
  * (created at 2012-4-19)
  */
-package com.alibaba.cobar.server.backend.response;
+package com.alibaba.cobar.server.session.response;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

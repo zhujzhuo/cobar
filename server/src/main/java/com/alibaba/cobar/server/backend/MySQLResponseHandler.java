@@ -22,6 +22,8 @@ import java.util.List;
  */
 public interface MySQLResponseHandler {
 
+    void setConnection(MySQLConnection c);
+
     void error(int code, Throwable t);
 
     void connectionAquired();

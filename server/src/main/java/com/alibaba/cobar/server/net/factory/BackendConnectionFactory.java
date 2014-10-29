@@ -17,12 +17,7 @@ package com.alibaba.cobar.server.net.factory;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-
-import com.alibaba.cobar.server.model.DataSources.DataSource;
-import com.alibaba.cobar.server.net.BackendConnection;
-import com.alibaba.cobar.server.util.BufferQueue;
 
 /**
  * @author xianmao.hexm
@@ -48,17 +43,6 @@ public abstract class BackendConnectionFactory {
 
     public void setIdleTimeout(long idleTimeout) {
         this.idleTimeout = idleTimeout;
-    }
-
-    protected abstract BackendConnection getConnection(SocketChannel channel);
-
-    public BackendConnection make(DataSource dataSource) throws IOException {
-        SocketChannel channel = getChannel();
-        BackendConnection c = getConnection(channel);
-        c.setWriteQueue(new BufferQueue<ByteBuffer>(writeQueueCapacity));
-        c.setIdleTimeout(idleTimeout);
-        c.setDataSource(dataSource);
-        return c;
     }
 
     protected SocketChannel getChannel() throws IOException {

@@ -30,6 +30,8 @@ public class MySQLConnection extends BackendConnection {
     private long clientFlags;
     private boolean isAuthenticated;
     private MySQLResponseHandler responseHandler;
+    private MySQLConnectionPool pool;
+    private long lastTime;
 
     public MySQLConnection(SocketChannel channel) {
         super(channel);
@@ -72,7 +74,40 @@ public class MySQLConnection extends BackendConnection {
     }
 
     public void setResponseHandler(MySQLResponseHandler responseHandler) {
+        responseHandler.setConnection(this);
         this.responseHandler = responseHandler;
+    }
+
+    public MySQLConnectionPool getPool() {
+        return pool;
+    }
+
+    public void setPool(MySQLConnectionPool pool) {
+        this.pool = pool;
+    }
+
+    public long getLastTime() {
+        return lastTime;
+    }
+
+    public void setLastTime(long lastTime) {
+        this.lastTime = lastTime;
+    }
+
+    public void release() {
+        if (pool != null) {
+            pool.releaseConnection(this);
+        }
+    }
+
+    @Override
+    public boolean close() {
+        if (super.close()) {
+            pool.deActive();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

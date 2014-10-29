@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 /**
- * (created at 2012-4-28)
+ * (created at 2012-5-3)
  */
-package com.alibaba.cobar.server.backend.response;
+package com.alibaba.cobar.server.session.response;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.server.backend.MySQLConnection;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
-import com.alibaba.cobar.server.net.packet.OkPacket;
 import com.alibaba.cobar.server.route.RouteResultsetNode;
 import com.alibaba.cobar.server.session.ServerSession;
 import com.alibaba.cobar.server.util.ByteBufferUtil;
@@ -33,25 +32,19 @@ import com.alibaba.cobar.server.util.ByteBufferUtil;
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
  */
-public class CommitNodeHandler extends MultiNodeHandler {
+public class RollbackNodeHandler extends MultiNodeHandler {
 
-    private static final Logger logger = Logger.getLogger(CommitNodeHandler.class);
-    private OkPacket okPacket;
+    private static final Logger logger = Logger.getLogger(RollbackNodeHandler.class);
 
-    public CommitNodeHandler(ServerSession session) {
+    public RollbackNodeHandler(ServerSession session) {
         super(session);
     }
 
-    public void commit() {
-        commit(null);
-    }
-
-    public void commit(OkPacket packet) {
+    public void rollback() {
         final int initCount = session.getTargetCount();
         lock.lock();
         try {
             reset(initCount);
-            okPacket = packet;
         } finally {
             lock.unlock();
         }
@@ -63,15 +56,15 @@ public class CommitNodeHandler extends MultiNodeHandler {
         // 执行
         Executor executor = session.getSource().getProcessor().getExecutor();
         int started = 0;
-        for (RouteResultsetNode rrn : session.getTargetKeys()) {
-            if (rrn == null) {
+        for (final RouteResultsetNode node : session.getTargetKeys()) {
+            if (node == null) {
                 try {
                     logger.error("null is contained in RoutResultsetNodes, source = " + session.getSource());
                 } catch (Exception e) {
                 }
                 continue;
             }
-            final MySQLConnection conn = session.getTarget(rrn);
+            final MySQLConnection conn = session.getTarget(node);
             if (conn != null) {
                 conn.setRunning(true);
                 executor.execute(new Runnable() {
@@ -81,8 +74,8 @@ public class CommitNodeHandler extends MultiNodeHandler {
                             backendConnError(conn, "cancelled by other thread");
                             return;
                         }
-                        conn.setResponseHandler(CommitNodeHandler.this);
-                        conn.commit();
+                        conn.setResponseHandler(RollbackNodeHandler.this);
+                        conn.rollback();
                     }
                 });
                 ++started;
@@ -99,29 +92,13 @@ public class CommitNodeHandler extends MultiNodeHandler {
     }
 
     @Override
-    public void connectionAcquired(MySQLConnection conn) {
-        logger.error("unexpected invocation: connectionAcquired from commit");
-        conn.release();
-    }
-
-    @Override
-    public void connectionError(Throwable e, MySQLConnection conn) {
-        backendConnError(conn, "connection err for " + conn);
-    }
-
-    @Override
     public void ok(byte[] ok, MySQLConnection conn) {
         conn.setRunning(false);
         if (decrementCountBy(1)) {
             if (isFail.get() || session.closed()) {
                 notifyError((byte) 1);
             } else {
-                session.releaseConnections();
-                if (okPacket == null) {
-                    ByteBufferUtil.write(ok, session.getSource());
-                } else {
-                    okPacket.write(session.getSource());
-                }
+                ByteBufferUtil.write(ok, session.getSource());
             }
         }
     }
@@ -135,7 +112,18 @@ public class CommitNodeHandler extends MultiNodeHandler {
 
     @Override
     public void rowEof(byte[] eof, MySQLConnection conn) {
-        backendConnError(conn, "Unknown response packet for back-end commit");
+        backendConnError(conn, "Unknown response packet for back-end rollback");
+    }
+
+    @Override
+    public void connectionError(Throwable e, MySQLConnection conn) {
+        backendConnError(conn, "connection err for " + conn);
+    }
+
+    @Override
+    public void connectionAcquired(MySQLConnection conn) {
+        logger.error("unexpected invocation: connectionAcquired from rollback");
+        conn.release();
     }
 
     @Override
@@ -150,11 +138,12 @@ public class CommitNodeHandler extends MultiNodeHandler {
 
     @Override
     public void rowData(byte[] row, MySQLConnection conn) {
-        logger.warn(new StringBuilder().append("unexpected packet for ")
-                                       .append(conn)
-                                       .append(" bound by ")
-                                       .append(session.getSource())
-                                       .append(": row data packet")
-                                       .toString());
+        logger.error(new StringBuilder().append("unexpected packet for ")
+                                        .append(conn)
+                                        .append(" bound by ")
+                                        .append(session.getSource())
+                                        .append(": field's eof")
+                                        .toString());
     }
+
 }

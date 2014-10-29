@@ -74,6 +74,7 @@ public final class CobarContainer {
         this.serverExecutor = ExecutorUtil.create("ServerExecutor", sc.getServerExecutor());
         this.managerExecutor = ExecutorUtil.create("ManagerExecutor", sc.getManagerExecutor());
         this.processors = new NIOProcessor[sc.getProcessors()];
+        this.isOnline = new AtomicBoolean(false);
     }
 
     public void startup() throws IOException {
@@ -141,7 +142,7 @@ public final class CobarContainer {
         // server started
         LOGGER.info(server.getName() + " is started and listening on " + server.getPort());
 
-        this.isOnline = new AtomicBoolean(true);
+        isOnline.set(true);
     }
 
     public CobarModel getConfigModel() {
