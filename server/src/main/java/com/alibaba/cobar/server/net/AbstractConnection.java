@@ -281,11 +281,7 @@ public abstract class AbstractConnection implements NIOConnection {
             return false;
         } else {
             if (closeSocket()) {
-                boolean status = isClosed.compareAndSet(false, true);
-                if (status) {
-                    // post closed event
-                }
-                return status;
+                return isClosed.compareAndSet(false, true);
             } else {
                 return false;
             }

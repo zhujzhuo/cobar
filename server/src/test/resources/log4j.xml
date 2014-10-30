@@ -40,7 +40,6 @@
         <level value="error" />
         <appender-ref ref="ALARM" />
     </logger>
-
     <logger name="heartbeat" additivity="false">
         <level value="warn" />
         <appender-ref ref="HEARTBEAT" />

@@ -15,8 +15,6 @@
  */
 package com.alibaba.cobar.server.backend;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.server.defs.ErrorCode;
@@ -26,24 +24,24 @@ import com.alibaba.cobar.server.net.packet.CommandPacket;
 /**
  * @author xianmao.hexm
  */
-public class MySQLResponseHandlerTest implements MySQLResponseHandler {
+public class MySQLResponseHandlerTest extends MySQLResponseHandlerBase {
 
     private static final Logger LOGGER = Logger.getLogger(MySQLResponseHandlerTest.class);
 
-    private MySQLConnection connection;
     private CommandPacket packet;
 
     public MySQLResponseHandlerTest() {
-        CommandPacket packet = new CommandPacket();
-        packet.packetId = 0;
-        packet.command = AbstractPacket.COM_QUERY;
-        packet.arg = "select 1".getBytes();
-        this.packet = packet;
+        this.packet = getTestPacket();
     }
 
     @Override
-    public void setConnection(MySQLConnection c) {
-        this.connection = c;
+    public void connectionAquired() {
+        packet.write(connection);
+    }
+
+    @Override
+    public void rowEofPacket(byte[] data) {
+        packet.write(connection);
     }
 
     @Override
@@ -57,34 +55,12 @@ public class MySQLResponseHandlerTest implements MySQLResponseHandler {
         }
     }
 
-    @Override
-    public void connectionAquired() {
-        packet.write(connection);
-    }
-
-    @Override
-    public void okPacket(byte[] data) {
-
-    }
-
-    @Override
-    public void errorPacket(byte[] data) {
-
-    }
-
-    @Override
-    public void fieldEofPacket(byte[] header, List<byte[]> fields, byte[] data) {
-
-    }
-
-    @Override
-    public void rowDataPacket(byte[] data) {
-
-    }
-
-    @Override
-    public void rowEofPacket(byte[] data) {
-        packet.write(connection);
+    private CommandPacket getTestPacket() {
+        CommandPacket packet = new CommandPacket();
+        packet.packetId = 0;
+        packet.command = AbstractPacket.COM_QUERY;
+        packet.arg = "select 1".getBytes();
+        return packet;
     }
 
 }

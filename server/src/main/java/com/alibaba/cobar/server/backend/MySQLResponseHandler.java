@@ -24,8 +24,6 @@ public interface MySQLResponseHandler {
 
     void setConnection(MySQLConnection c);
 
-    void error(int code, Throwable t);
-
     void connectionAquired();
 
     void okPacket(byte[] data);
@@ -37,5 +35,7 @@ public interface MySQLResponseHandler {
     void rowDataPacket(byte[] data);
 
     void rowEofPacket(byte[] data);
+
+    void error(int code, Throwable t);
 
 }

@@ -20,44 +20,42 @@ import java.util.List;
 /**
  * @author xianmao.hexm
  */
-public class MySQLResponseHandlerProxy implements MySQLResponseHandler {
+public abstract class MySQLResponseHandlerBase implements MySQLResponseHandler {
 
-    private MySQLResponseHandler handler;
+    protected MySQLConnection connection;
 
-    public MySQLResponseHandlerProxy(MySQLResponseHandler handler) {
-        this.handler = handler;
-    }
-
+    @Override
     public void setConnection(MySQLConnection c) {
-        handler.setConnection(c);
+        this.connection = c;
     }
 
-    public void error(int code, Throwable t) {
-        handler.error(code, t);
-    }
-
+    @Override
     public void connectionAquired() {
-        handler.connectionAquired();
     }
 
+    @Override
     public void okPacket(byte[] data) {
-        handler.okPacket(data);
     }
 
+    @Override
     public void errorPacket(byte[] data) {
-        handler.errorPacket(data);
     }
 
+    @Override
     public void fieldEofPacket(byte[] header, List<byte[]> fields, byte[] data) {
-        handler.fieldEofPacket(header, fields, data);
     }
 
+    @Override
     public void rowDataPacket(byte[] data) {
-        handler.rowDataPacket(data);
     }
 
+    @Override
     public void rowEofPacket(byte[] data) {
-        handler.rowEofPacket(data);
+    }
+
+    @Override
+    public void error(int code, Throwable t) {
+        connection.close();
     }
 
 }

@@ -17,11 +17,11 @@ package com.alibaba.cobar.server.backend;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 
 import com.alibaba.cobar.server.defs.Capabilities;
 import com.alibaba.cobar.server.model.DataSources.DataSource;
 import com.alibaba.cobar.server.net.factory.BackendConnectionFactory;
+import com.alibaba.cobar.server.startup.CobarContainer;
 import com.alibaba.cobar.server.util.BufferQueue;
 import com.alibaba.cobar.server.util.TimeUtil;
 
@@ -31,8 +31,21 @@ import com.alibaba.cobar.server.util.TimeUtil;
 public class MySQLConnectionFactory extends BackendConnectionFactory {
 
     public MySQLConnection make(DataSource dataSource, MySQLResponseHandler responseHandler) throws IOException {
-        SocketChannel channel = getChannel();
-        MySQLConnection c = new MySQLConnection(channel);
+        MySQLConnection c = getConnection(dataSource, responseHandler);
+        CobarContainer.getInstance().getConnector().postConnect(c);
+        return c;
+    }
+
+    public MySQLConnection make(MySQLConnectionPool pool, MySQLResponseHandler responseHandler) throws IOException {
+        MySQLConnection c = getConnection(pool.getDataSource(), responseHandler);
+        c.setPool(pool);
+        CobarContainer.getInstance().getConnector().postConnect(c);
+        return c;
+    }
+
+    protected MySQLConnection getConnection(DataSource dataSource, MySQLResponseHandler responseHandler)
+            throws IOException {
+        MySQLConnection c = new MySQLConnection(getChannel());
         c.setClientFlags(getClientFlags());
         c.setHandler(new MySQLAuthenticator(c));
         c.setWriteQueue(new BufferQueue<ByteBuffer>(writeQueueCapacity));
@@ -40,20 +53,7 @@ public class MySQLConnectionFactory extends BackendConnectionFactory {
         c.setDataSource(dataSource);
         c.setResponseHandler(responseHandler);
         c.setLastTime(TimeUtil.currentTimeMillis());
-        return c;
-    }
-
-    public MySQLConnection make(MySQLConnectionPool pool, MySQLResponseHandler responseHandler) throws IOException {
-        SocketChannel channel = getChannel();
-        MySQLConnection c = new MySQLConnection(channel);
-        c.setClientFlags(getClientFlags());
-        c.setHandler(new MySQLAuthenticator(c));
-        c.setWriteQueue(new BufferQueue<ByteBuffer>(writeQueueCapacity));
-        c.setIdleTimeout(idleTimeout);
-        c.setDataSource(pool.getDataSource());
-        c.setPool(pool);
-        c.setResponseHandler(responseHandler);
-        c.setLastTime(TimeUtil.currentTimeMillis());
+        c.setInThePool(false);
         return c;
     }
 

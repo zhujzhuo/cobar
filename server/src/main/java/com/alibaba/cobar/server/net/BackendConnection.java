@@ -75,17 +75,21 @@ public abstract class BackendConnection extends AbstractConnection {
         processor.addBackend(this);
     }
 
-    public boolean isIdleTimeout() {
-        long last = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
-        return TimeUtil.currentTimeMillis() > last + idleTimeout;
-    }
-
     public DataSource getDataSource() {
         return dataSource;
     }
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public boolean isIdleTimeout() {
+        long last = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
+        return TimeUtil.currentTimeMillis() > last + idleTimeout;
+    }
+
+    @Override
+    public void idleCheck() {
     }
 
     public String toString() {

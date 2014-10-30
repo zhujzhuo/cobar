@@ -29,9 +29,10 @@ public class MySQLConnection extends BackendConnection {
     private String charset;
     private long clientFlags;
     private boolean isAuthenticated;
+    private long lastTime;
     private MySQLResponseHandler responseHandler;
     private MySQLConnectionPool pool;
-    private long lastTime;
+    private boolean inThePool;
 
     public MySQLConnection(SocketChannel channel) {
         super(channel);
@@ -69,13 +70,12 @@ public class MySQLConnection extends BackendConnection {
         this.isAuthenticated = isAuthenticated;
     }
 
-    public MySQLResponseHandler getResponseHandler() {
-        return responseHandler;
+    public long getLastTime() {
+        return lastTime;
     }
 
-    public void setResponseHandler(MySQLResponseHandler responseHandler) {
-        responseHandler.setConnection(this);
-        this.responseHandler = responseHandler;
+    public void setLastTime(long lastTime) {
+        this.lastTime = lastTime;
     }
 
     public MySQLConnectionPool getPool() {
@@ -86,12 +86,12 @@ public class MySQLConnection extends BackendConnection {
         this.pool = pool;
     }
 
-    public long getLastTime() {
-        return lastTime;
+    public boolean isInThePool() {
+        return inThePool;
     }
 
-    public void setLastTime(long lastTime) {
-        this.lastTime = lastTime;
+    public void setInThePool(boolean inThePool) {
+        this.inThePool = inThePool;
     }
 
     public void release() {
@@ -102,22 +102,27 @@ public class MySQLConnection extends BackendConnection {
 
     @Override
     public boolean close() {
-        if (super.close()) {
-            pool.deActive();
-            return true;
+        if (pool != null) {
+            return pool.closeConnection(this);
         } else {
-            return false;
+            return independentClose();
         }
     }
 
-    @Override
-    public void idleCheck() {
-
+    /**
+     * 独立关闭连接
+     */
+    public boolean independentClose() {
+        return super.close();
     }
 
-    @Override
-    public void error(int code, Throwable t) {
-        responseHandler.error(code, t);
+    public MySQLResponseHandler getResponseHandler() {
+        return responseHandler;
+    }
+
+    public void setResponseHandler(MySQLResponseHandler responseHandler) {
+        responseHandler.setConnection(this);
+        this.responseHandler = responseHandler;
     }
 
     public void connectionAquired() {
@@ -142,6 +147,11 @@ public class MySQLConnection extends BackendConnection {
 
     public void rowEofPacket(byte[] data) {
         responseHandler.rowEofPacket(data);
+    }
+
+    @Override
+    public void error(int code, Throwable t) {
+        responseHandler.error(code, t);
     }
 
 }

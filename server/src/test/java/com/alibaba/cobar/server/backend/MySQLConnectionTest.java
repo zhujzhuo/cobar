@@ -19,7 +19,6 @@ import java.io.IOException;
 
 import com.alibaba.cobar.server.model.CobarModel;
 import com.alibaba.cobar.server.model.DataSources.DataSource;
-import com.alibaba.cobar.server.net.nio.NIOConnector;
 import com.alibaba.cobar.server.startup.CobarContainer;
 
 /**
@@ -32,14 +31,32 @@ public class MySQLConnectionTest {
         CobarContainer container = CobarContainer.getInstance();
         container.startup();
 
-        // 向指定数据源提交连接
-        MySQLConnectionFactory factory = new MySQLConnectionFactory();
+        // 定义数据源
         CobarModel model = container.getConfigModel();
         DataSource dataSource = model.getDataSources().getDataSource("S1");
-        NIOConnector connector = container.getConnector();
-        for (int i = 0; i < 5; i++) {
-            MySQLConnection c = (MySQLConnection) factory.make(dataSource, new MySQLResponseHandlerTest());
-            connector.postConnect(c);
+
+        // 通过连接工厂创建连接
+        MySQLConnectionFactory factory = new MySQLConnectionFactory();
+        for (int i = 0; i < 0; i++) {
+            factory.make(dataSource, new MySQLResponseHandlerTest());
+        }
+
+        // 通过连接池创建连接
+        MySQLConnectionPool pool = new MySQLConnectionPool(dataSource, 5);
+        for (int i = 0; i < 1; i++) {
+            pool.aquireConnection(new MySQLResponseHandlerTest());
+        }
+
+        // report
+        while (true) {
+            try {
+                Thread.sleep(3000L);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            System.out.println("size=" + pool.getSize() + ",active=" + pool.getActiveCount() + ",idle="
+                    + pool.getIdleCount());
         }
     }
 

@@ -18,6 +18,7 @@
  */
 package com.alibaba.cobar.server.backend;
 
+import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
@@ -52,7 +53,31 @@ public class MySQLConnectionPool {
         return dataSource;
     }
 
-    public void getConnection(final MySQLResponseHandler handler) throws Exception {
+    public int getSize() {
+        return size;
+    }
+
+    public int getActiveCount() {
+        final ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
+            return activeCount;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public int getIdleCount() {
+        final ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
+            return idleCount;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void aquireConnection(MySQLResponseHandler responseHandler) throws IOException {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
@@ -68,14 +93,17 @@ public class MySQLConnectionPool {
             final MySQLConnection[] items = this.items;
             for (int i = 0, len = items.length; idleCount > 0 && i < len; ++i) {
                 if (items[i] != null) {
-                    MySQLConnection conn = items[i];
+                    MySQLConnection c = items[i];
                     items[i] = null;
-                    --idleCount;
-                    if (conn.isClosed()) {
+                    if (c.isClosed()) {
                         continue;
                     } else {
+                        --idleCount;
                         ++activeCount;
-                        handler.connectionAquired();
+                        c.setResponseHandler(responseHandler);
+                        c.setLastTime(TimeUtil.currentTimeMillis());
+                        c.setInThePool(false);
+                        responseHandler.connectionAquired();
                         return;
                     }
                 }
@@ -86,23 +114,7 @@ public class MySQLConnectionPool {
         }
 
         // 创建新的连接
-        factory.make(this, new MySQLResponseHandlerProxy(handler) {
-            private boolean deactived;
-
-            @Override
-            public void error(int code, Throwable t) {
-                lock.lock();
-                try {
-                    if (!deactived) {
-                        --activeCount;
-                        deactived = true;
-                    }
-                } finally {
-                    lock.unlock();
-                }
-                handler.error(code, t);
-            }
-        });
+        factory.make(this, responseHandler);
     }
 
     public void releaseConnection(MySQLConnection c) {
@@ -119,6 +131,7 @@ public class MySQLConnectionPool {
                 if (items[i] == null) {
                     ++idleCount;
                     --activeCount;
+                    c.setInThePool(true);
                     c.setLastTime(TimeUtil.currentTimeMillis());
                     items[i] = c;
                     return;
@@ -132,14 +145,27 @@ public class MySQLConnectionPool {
         c.close();
     }
 
-    public void deActive() {
-        final ReentrantLock lock = this.lock;
-        lock.lock();
-        try {
-            --activeCount;
-        } finally {
-            lock.unlock();
+    public boolean closeConnection(MySQLConnection c) {
+        if (c == null || c.isClosed()) {
+            return false;
         }
+
+        // 关闭连接并调整连接池状态
+        boolean isClosed = c.independentClose();
+        if (isClosed) {
+            final ReentrantLock lock = this.lock;
+            lock.lock();
+            try {
+                if (c.isInThePool()) {
+                    --idleCount;
+                } else {
+                    --activeCount;
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+        return isClosed;
     }
 
 }
