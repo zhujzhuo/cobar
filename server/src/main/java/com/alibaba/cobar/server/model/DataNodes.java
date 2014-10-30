@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.cobar.server.config.DataNodesConfig;
-import com.alibaba.cobar.server.session.response.MySQLResponse;
 import com.alibaba.cobar.server.util.SplitUtil;
 
 /**
@@ -67,11 +66,6 @@ public class DataNodes {
         public String[] getDataSources() {
             return dataSources;
         }
-
-        public void acquireConnection(MySQLResponse handler) {
-
-        }
-
     }
 
 }

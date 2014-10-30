@@ -31,26 +31,24 @@ public class MySQLConnectionTest {
         CobarContainer container = CobarContainer.getInstance();
         container.startup();
 
-        // 定义数据源
+        // 通过连接工厂创建连接
         CobarModel model = container.getConfigModel();
         DataSource dataSource = model.getDataSources().getDataSource("S1");
-
-        // 通过连接工厂创建连接
         MySQLConnectionFactory factory = new MySQLConnectionFactory();
         for (int i = 0; i < 0; i++) {
             factory.make(dataSource, new MySQLResponseHandlerTest());
         }
 
         // 通过连接池创建连接
-        MySQLConnectionPool pool = new MySQLConnectionPool(dataSource, 5);
-        for (int i = 0; i < 1; i++) {
+        MySQLConnectionPool pool = container.getConnectionPool("S1");
+        for (int i = 0; i < 2; i++) {
             pool.aquireConnection(new MySQLResponseHandlerTest());
         }
 
         // report
         while (true) {
             try {
-                Thread.sleep(3000L);
+                Thread.sleep(5000L);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

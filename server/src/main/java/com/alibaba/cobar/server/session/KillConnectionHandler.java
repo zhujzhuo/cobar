@@ -16,7 +16,7 @@
 /**
  * (created at 2012-5-12)
  */
-package com.alibaba.cobar.server.session.response;
+package com.alibaba.cobar.server.session;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -28,7 +28,6 @@ import com.alibaba.cobar.server.backend.MySQLConnection;
 import com.alibaba.cobar.server.net.packet.AbstractPacket;
 import com.alibaba.cobar.server.net.packet.CommandPacket;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
-import com.alibaba.cobar.server.session.ServerSession;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

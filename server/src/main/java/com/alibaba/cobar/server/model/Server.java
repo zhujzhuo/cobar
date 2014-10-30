@@ -30,6 +30,7 @@ public final class Server {
     private static final int DEFAULT_PROCESSORS = Runtime.getRuntime().availableProcessors();
     private static final String DEFAULT_CHARSET = "utf-8";
     private static final long DEFAULT_IDLE_TIMEOUT = 8 * 3600 * 1000L;
+    private static final int DEFAULT_CONNECTION_POOL_SIZE = 16;
     private static final long DEFAULT_PROCESSOR_CHECK_PERIOD = 15 * 1000L;
     private static final long DEFAULT_DATANODE_IDLE_CHECK_PERIOD = 60 * 1000L;
     private static final long DEFAULT_DATANODE_HEARTBEAT_PERIOD = 10 * 1000L;
@@ -45,6 +46,7 @@ public final class Server {
     private int processorExecutor;
     private String charset;
     private long idleTimeout;
+    private int connectionPoolSize;
 
     // 不可配置参数
     private int txIsolation;
@@ -64,6 +66,7 @@ public final class Server {
         this.processorExecutor = DEFAULT_PROCESSORS * 2;
         this.charset = DEFAULT_CHARSET;
         this.idleTimeout = DEFAULT_IDLE_TIMEOUT;
+        this.connectionPoolSize = DEFAULT_CONNECTION_POOL_SIZE;
 
         // 不可配置参数
         this.txIsolation = Isolations.REPEATED_READ;
@@ -138,6 +141,10 @@ public final class Server {
         return clusterHeartbeatRetry;
     }
 
+    public int getConnectionPoolSize() {
+        return connectionPoolSize;
+    }
+
     protected void init(ServerConfig model) {
         String serverPort = model.getServerPort();
         if (serverPort != null) {
@@ -170,6 +177,10 @@ public final class Server {
         String idleTimeout = model.getIdleTimeout();
         if (idleTimeout != null) {
             this.idleTimeout = Long.parseLong(idleTimeout.trim()) * 1000L;
+        }
+        String connectionPoolSize = model.getConnectionPoolSize();
+        if (connectionPoolSize != null) {
+            this.connectionPoolSize = Integer.parseInt(connectionPoolSize);
         }
     }
 

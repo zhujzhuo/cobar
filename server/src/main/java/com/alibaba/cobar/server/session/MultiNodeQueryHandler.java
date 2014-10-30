@@ -16,7 +16,7 @@
 /**
  * (created at 2012-4-19)
  */
-package com.alibaba.cobar.server.session.response;
+package com.alibaba.cobar.server.session;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -33,7 +33,6 @@ import com.alibaba.cobar.server.model.CobarModel;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.net.packet.OkPacket;
 import com.alibaba.cobar.server.route.RouteResultsetNode;
-import com.alibaba.cobar.server.session.ServerSession;
 import com.alibaba.cobar.server.startup.CobarContainer;
 import com.alibaba.cobar.server.util.ByteBufferUtil;
 

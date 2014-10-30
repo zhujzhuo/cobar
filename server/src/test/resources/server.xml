@@ -26,6 +26,7 @@
         <property name="processorExecutor">16</property>
         <property name="charset">utf8</property>
         <property name="idleTimeout">3600</property>
+        <property name="connectionPoolSize">32</property>
     </server>
 
     <!-- 集群列表定义，指定集群节点的主机和权重，用于集群间的心跳和客户端负载均衡。 -->

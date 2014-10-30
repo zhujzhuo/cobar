@@ -16,7 +16,7 @@
 /**
  * (created at 2012-5-8)
  */
-package com.alibaba.cobar.server.session.response;
+package com.alibaba.cobar.server.session;
 
 /**
  * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>

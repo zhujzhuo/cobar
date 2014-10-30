@@ -29,8 +29,9 @@ public class CobarStartupTest {
 
     public static void main(String[] args) {
         try {
-            CobarContainer server = CobarContainer.getInstance();
-            server.startup();
+            CobarContainer container = CobarContainer.getInstance();
+            container.startup();
+            container.startupServer();
         } catch (Throwable e) {
             SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
             LogLog.error(sdf.format(new Date()) + " startup error", e);

@@ -16,7 +16,7 @@
 /**
  * (created at 2012-5-3)
  */
-package com.alibaba.cobar.server.session.response;
+package com.alibaba.cobar.server.session;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import com.alibaba.cobar.server.backend.MySQLConnection;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.route.RouteResultsetNode;
-import com.alibaba.cobar.server.session.ServerSession;
 import com.alibaba.cobar.server.util.ByteBufferUtil;
 
 /**

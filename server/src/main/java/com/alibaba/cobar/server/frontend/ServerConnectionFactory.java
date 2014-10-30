@@ -32,10 +32,10 @@ public class ServerConnectionFactory extends FrontendConnectionFactory {
 
     @Override
     protected FrontendConnection getConnection(SocketChannel channel) {
-        Server sc = CobarContainer.getInstance().getConfigModel().getServer();
+        Server server = CobarContainer.getInstance().getConfigModel().getServer();
         ServerConnection c = new ServerConnection(channel);
         c.setServerCapabilities(getServerCapabilities());
-        c.setTxIsolation(sc.getTxIsolation());
+        c.setTxIsolation(server.getTxIsolation());
         c.setHandler(new ServerAuthenticator(c));
         c.setPrivileges(new ServerPrivileges());
         c.setQueryHandler(new ServerQueryHandler(c));

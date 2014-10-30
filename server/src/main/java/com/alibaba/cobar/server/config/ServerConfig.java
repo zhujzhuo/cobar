@@ -13,6 +13,7 @@ public class ServerConfig {
     private String processorExecutor;
     private String charset;
     private String idleTimeout;
+    private String connectionPoolSize;
 
     public String getServerPort() {
         return serverPort;
@@ -76,6 +77,14 @@ public class ServerConfig {
 
     public void setIdleTimeout(String idleTimeout) {
         this.idleTimeout = idleTimeout;
+    }
+
+    public String getConnectionPoolSize() {
+        return connectionPoolSize;
+    }
+
+    public void setConnectionPoolSize(String connectionPoolSize) {
+        this.connectionPoolSize = connectionPoolSize;
     }
 
 }

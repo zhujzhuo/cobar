@@ -16,7 +16,7 @@
 /**
  * (created at 2012-5-4)
  */
-package com.alibaba.cobar.server.session.response;
+package com.alibaba.cobar.server.session;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,7 +24,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.alibaba.cobar.server.backend.MySQLConnection;
 import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
-import com.alibaba.cobar.server.session.ServerSession;
 import com.alibaba.cobar.server.util.StringUtil;
 
 /**

@@ -18,6 +18,8 @@ package com.alibaba.cobar.server.startup;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,9 +27,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.log4j.Logger;
 import org.apache.log4j.helpers.LogLog;
 
+import com.alibaba.cobar.server.backend.MySQLConnectionPool;
 import com.alibaba.cobar.server.frontend.ServerConnectionFactory;
 import com.alibaba.cobar.server.manager.ManagerConnectionFactory;
 import com.alibaba.cobar.server.model.CobarModel;
+import com.alibaba.cobar.server.model.DataSources.DataSource;
 import com.alibaba.cobar.server.model.Server;
 import com.alibaba.cobar.server.net.nio.NIOAcceptor;
 import com.alibaba.cobar.server.net.nio.NIOConnector;
@@ -59,6 +63,7 @@ public final class CobarContainer {
     private NIOConnector connector;
     private NIOAcceptor manager;
     private NIOAcceptor server;
+    private Map<String, MySQLConnectionPool> connectionPools;
     private long startupTime;
     private AtomicBoolean isOnline;
 
@@ -74,15 +79,13 @@ public final class CobarContainer {
         this.serverExecutor = ExecutorUtil.create("ServerExecutor", sc.getServerExecutor());
         this.managerExecutor = ExecutorUtil.create("ManagerExecutor", sc.getManagerExecutor());
         this.processors = new NIOProcessor[sc.getProcessors()];
+        this.connectionPools = initConnectionPools();
         this.isOnline = new AtomicBoolean(false);
     }
 
     public void startup() throws IOException {
-        Server sc = cobar.getServer();
-
         // ready to startup
-        LOGGER.info("==========================================");
-        LOGGER.info(NAME + " is ready to startup ...");
+        Server sc = cobar.getServer();
         String home = System.getProperty("cobar.home");
         if (home == null) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -92,6 +95,8 @@ public final class CobarContainer {
         }
 
         // startup processors
+        LOGGER.info("==========================================");
+        LOGGER.info(NAME + " is ready to startup ...");
         LOGGER.info("Startup processors ...");
         int processorExecutor = sc.getProcessorExecutor();
         for (int i = 0; i < processors.length; i++) {
@@ -107,42 +112,31 @@ public final class CobarContainer {
         connector.start();
 
         // startup manager
+        LOGGER.info("Startup manager ... ");
         ManagerConnectionFactory factory = new ManagerConnectionFactory();
         factory.setCharset(sc.getCharset());
         factory.setIdleTimeout(sc.getIdleTimeout());
         manager = new NIOAcceptor(NAME + "Manager", sc.getManagerPort(), factory);
         manager.setProcessors(processors);
         manager.start();
-        LOGGER.info(manager.getName() + " is started and listening on " + manager.getPort());
-        LOGGER.info("==========================================");
+        startupTime = TimeUtil.currentTimeMillis();
 
-        this.startupTime = TimeUtil.currentTimeMillis();
+        // compeleted
+        LOGGER.info("Startup compeleted and listening on " + manager.getPort());
+        LOGGER.info("==========================================");
     }
 
     public void startupServer() throws IOException {
+        LOGGER.info("Startup server ... ");
         Server sc = cobar.getServer();
-
-        //        // init dataNodes
-        //        Map<String, MySQLDataNode> dataNodes = config.getDataNodes();
-        //        LOGGER.warn("Initialize dataNodes ...");
-        //        for (MySQLDataNode node : dataNodes.values()) {
-        //            node.init(1, 0);
-        //        }
-        //        timer.schedule(dataNodeIdleCheck(), 0L, system.getDataNodeIdleCheckPeriod());
-        //        timer.schedule(dataNodeHeartbeat(), 0L, system.getDataNodeHeartbeatPeriod());
-
-        // startup server
         ServerConnectionFactory factory = new ServerConnectionFactory();
         factory.setCharset(sc.getCharset());
         factory.setIdleTimeout(sc.getIdleTimeout());
         server = new NIOAcceptor(NAME + "Server", sc.getServerPort(), factory);
         server.setProcessors(processors);
         server.start();
-        //        timer.schedule(clusterHeartbeat(), 0L, sc.getClusterHeartbeatPeriod());
-        // server started
-        LOGGER.info(server.getName() + " is started and listening on " + server.getPort());
-
         isOnline.set(true);
+        //        timer.schedule(clusterHeartbeat(), 0L, sc.getClusterHeartbeatPeriod());
     }
 
     public CobarModel getConfigModel() {
@@ -165,6 +159,10 @@ public final class CobarContainer {
         return managerExecutor;
     }
 
+    public MySQLConnectionPool getConnectionPool(String name) {
+        return connectionPools.get(name);
+    }
+
     public boolean isOnline() {
         return isOnline.get();
     }
@@ -179,6 +177,16 @@ public final class CobarContainer {
 
     public long getStartupTime() {
         return startupTime;
+    }
+
+    Map<String, MySQLConnectionPool> initConnectionPools() {
+        Map<String, MySQLConnectionPool> pools = new HashMap<String, MySQLConnectionPool>();
+        int connectionPoolSize = cobar.getServer().getConnectionPoolSize();
+        for (DataSource ds : cobar.getDataSources().getDataSources().values()) {
+            MySQLConnectionPool pool = new MySQLConnectionPool(ds, connectionPoolSize);
+            pools.put(ds.getName(), pool);
+        }
+        return pools;
     }
 
     // 系统时间定时更新任务
