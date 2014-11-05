@@ -21,14 +21,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-import com.alibaba.cobar.server.model.CobarModel;
-import com.alibaba.cobar.server.model.DataSources.DataSource;
-import com.alibaba.cobar.server.model.Instances.Instance;
-import com.alibaba.cobar.server.model.Machines.Machine;
 import com.alibaba.cobar.server.net.nio.NIOConnector;
 import com.alibaba.cobar.server.net.nio.NIOProcessor;
-import com.alibaba.cobar.server.startup.CobarContainer;
-import com.alibaba.cobar.server.util.TimeUtil;
 
 /**
  * @author xianmao.hexm
@@ -37,7 +31,6 @@ public abstract class BackendConnection extends AbstractConnection {
 
     protected NIOConnector connector;
     protected boolean isFinishConnect;
-    protected DataSource dataSource;
 
     public BackendConnection(SocketChannel channel) {
         super(channel);
@@ -48,11 +41,6 @@ public abstract class BackendConnection extends AbstractConnection {
     }
 
     public void connect(Selector selector) throws IOException {
-        CobarModel cm = CobarContainer.getInstance().getConfigModel();
-        Instance instance = cm.getInstances().getInstance(dataSource.getInstance());
-        Machine machine = cm.getMachines().getMachine(instance.getMachine());
-        this.host = machine.getHost();
-        this.port = instance.getPort();
         channel.register(selector, SelectionKey.OP_CONNECT, this);
         channel.connect(new InetSocketAddress(host, port));
     }
@@ -75,21 +63,11 @@ public abstract class BackendConnection extends AbstractConnection {
         processor.addBackend(this);
     }
 
-    public DataSource getDataSource() {
-        return dataSource;
-    }
-
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public boolean isIdleTimeout() {
-        long last = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
-        return TimeUtil.currentTimeMillis() > last + idleTimeout;
-    }
-
     @Override
     public void idleCheck() {
+        if (isIdleTimeout(idleTimeout)) {
+            close();
+        }
     }
 
     public String toString() {

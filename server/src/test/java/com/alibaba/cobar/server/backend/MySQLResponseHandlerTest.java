@@ -17,14 +17,13 @@ package com.alibaba.cobar.server.backend;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.server.defs.ErrorCode;
 import com.alibaba.cobar.server.net.packet.AbstractPacket;
 import com.alibaba.cobar.server.net.packet.CommandPacket;
 
 /**
  * @author xianmao.hexm
  */
-public class MySQLResponseHandlerTest extends MySQLResponseHandlerBase {
+public class MySQLResponseHandlerTest extends MySQLResponseHandler {
 
     private static final Logger LOGGER = Logger.getLogger(MySQLResponseHandlerTest.class);
 
@@ -47,12 +46,7 @@ public class MySQLResponseHandlerTest extends MySQLResponseHandlerBase {
     @Override
     public void error(int code, Throwable t) {
         LOGGER.warn(connection.toString(), t);
-        switch (code) {
-        case ErrorCode.ERR_HANDLE_DATA:
-        case ErrorCode.ERR_PUT_WRITE_QUEUE:
-        default:
-            connection.close();
-        }
+        connection.close();
     }
 
     private CommandPacket getTestPacket() {

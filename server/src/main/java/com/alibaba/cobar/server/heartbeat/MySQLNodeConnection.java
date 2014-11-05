@@ -36,12 +36,12 @@ import com.alibaba.cobar.server.util.TimeUtil;
 /**
  * @author xianmao.hexm
  */
-public class MySQLDetector extends BackendConnection {
+public class MySQLNodeConnection extends BackendConnection {
 
-    private static final Logger LOGGER = Logger.getLogger(MySQLDetector.class);
+    private static final Logger LOGGER = Logger.getLogger(MySQLNodeConnection.class);
     private static final long CLIENT_FLAGS = initClientFlags();
 
-    private MySQLHeartbeat heartbeat;
+    private MySQLNodeHeartbeat heartbeat;
     private final long clientFlags;
     private HandshakePacket handshake;
     private int charsetIndex;
@@ -52,18 +52,18 @@ public class MySQLDetector extends BackendConnection {
     private long heartbeatTimeout;
     private final AtomicBoolean isQuit;
 
-    public MySQLDetector(SocketChannel channel) {
+    public MySQLNodeConnection(SocketChannel channel) {
         super(channel);
         this.clientFlags = CLIENT_FLAGS;
-        this.handler = new MySQLDetectorAuthenticator(this);
+        this.handler = new MySQLNodeAuthenticator(this);
         this.isQuit = new AtomicBoolean(false);
     }
 
-    public MySQLHeartbeat getHeartbeat() {
+    public MySQLNodeHeartbeat getHeartbeat() {
         return heartbeat;
     }
 
-    public void setHeartbeat(MySQLHeartbeat heartbeat) {
+    public void setHeartbeat(MySQLNodeHeartbeat heartbeat) {
         this.heartbeat = heartbeat;
     }
 
@@ -175,16 +175,16 @@ public class MySQLDetector extends BackendConnection {
         LOGGER.warn(toString(), t);
         switch (code) {
         case ErrorCode.ERR_HANDLE_DATA:
-            heartbeat.setResult(MySQLHeartbeat.ERROR_STATUS, this, false);
+            heartbeat.setResult(MySQLNodeHeartbeat.ERROR_STATUS, this, false);
             break;
         default:
-            heartbeat.setResult(MySQLHeartbeat.ERROR_STATUS, this, true);
+            heartbeat.setResult(MySQLNodeHeartbeat.ERROR_STATUS, this, true);
         }
     }
 
     @Override
     public void idleCheck() {
-        if (isIdleTimeout()) {
+        if (isIdleTimeout(idleTimeout)) {
             LOGGER.warn(toString() + " idle timeout");
             quit();
         }

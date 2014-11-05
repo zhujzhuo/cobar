@@ -123,6 +123,10 @@ public abstract class AbstractConnection implements NIOConnection {
         this.idleTimeout = idleTimeout;
     }
 
+    public boolean isIdleTimeout(long idleTimeout) {
+        return TimeUtil.currentTimeMillis() > (Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime()) + idleTimeout);
+    }
+
     public SocketChannel getChannel() {
         return channel;
     }

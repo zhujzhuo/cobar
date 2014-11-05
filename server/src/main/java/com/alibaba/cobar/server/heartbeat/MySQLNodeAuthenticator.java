@@ -16,25 +16,28 @@
 package com.alibaba.cobar.server.heartbeat;
 
 import com.alibaba.cobar.server.net.nio.NIOHandler;
+import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.net.packet.HandshakePacket;
 import com.alibaba.cobar.server.net.packet.OkPacket;
+import com.alibaba.cobar.server.net.packet.Reply323Packet;
 import com.alibaba.cobar.server.util.CharsetUtil;
+import com.alibaba.cobar.server.util.SecurityUtil;
 
 /**
  * @author xianmao.hexm
  */
-public class CobarDetectorAuthenticator implements NIOHandler {
+public class MySQLNodeAuthenticator implements NIOHandler {
 
-    private final CobarDetector source;
+    private final MySQLNodeConnection source;
 
-    public CobarDetectorAuthenticator(CobarDetector source) {
+    public MySQLNodeAuthenticator(MySQLNodeConnection source) {
         this.source = source;
     }
 
     @Override
     public void handle(byte[] data) {
-        CobarDetector source = this.source;
+        MySQLNodeConnection source = this.source;
         HandshakePacket hsp = source.getHandshake();
         if (hsp == null) {
             // 设置握手数据包
@@ -53,21 +56,37 @@ public class CobarDetectorAuthenticator implements NIOHandler {
 
             // 发送认证数据包
             source.authenticate();
-        } else { // 处理认证结果
+        } else {
             switch (data[4]) {
             case OkPacket.FIELD_COUNT:
-                source.setHandler(new CobarDetectorHandler(source));
+                source.setHandler(new MySQLNodeDispatcher(source));
                 source.setAuthenticated(true);
-                source.heartbeat();// 认证成功后，发起心跳。
+                source.heartbeat();// 成功后发起心跳。
                 break;
             case ErrorPacket.FIELD_COUNT:
                 ErrorPacket err = new ErrorPacket();
                 err.read(data);
                 throw new RuntimeException(new String(err.message));
+            case EOFPacket.FIELD_COUNT:
+                auth323(data[3], hsp.seed);
+                break;
             default:
                 throw new RuntimeException("Unknown packet");
             }
         }
+    }
+
+    /**
+     * 发送323响应认证数据包
+     */
+    private void auth323(byte packetId, byte[] seed) {
+        Reply323Packet r323 = new Reply323Packet();
+        r323.packetId = ++packetId;
+        String pass = source.getPassword();
+        if (pass != null && pass.length() > 0) {
+            r323.seed = SecurityUtil.scramble323(pass, new String(seed)).getBytes();
+        }
+        r323.write(source);
     }
 
 }

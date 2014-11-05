@@ -19,21 +19,20 @@
     <!-- 系统参数定义，服务端口、管理端口，处理器个数、线程池等。 -->
     <server>
         <property name="serverPort">8066</property>
-        <property name="managerPort">9066</property>
         <property name="serverExecutor">8</property>
         <property name="managerExecutor">8</property>
         <property name="processors">4</property>
         <property name="processorExecutor">16</property>
         <property name="charset">utf8</property>
         <property name="idleTimeout">3600</property>
-        <property name="connectionPoolSize">32</property>
+        <property name="connectionPoolSize">16</property>
     </server>
 
     <!-- 集群列表定义，指定集群节点的主机和权重，用于集群间的心跳和客户端负载均衡。 -->
     <cluster>
         <node>
             <property name="name">cobar1</property>
-            <property name="host">192.168.0.1</property>
+            <property name="host">127.0.0.1</property>
             <property name="weight">1</property>
         </node>
         <node>

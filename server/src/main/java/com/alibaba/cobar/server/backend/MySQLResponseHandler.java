@@ -17,25 +17,39 @@ package com.alibaba.cobar.server.backend;
 
 import java.util.List;
 
+import com.alibaba.cobar.server.net.ResponseHandler;
+
 /**
  * @author xianmao.hexm
  */
-public interface MySQLResponseHandler {
+public abstract class MySQLResponseHandler implements ResponseHandler {
 
-    void setConnection(MySQLConnection c);
+    protected MySQLConnection connection;
 
-    void connectionAquired();
+    public void setConnection(MySQLConnection connection) {
+        this.connection = connection;
+    }
 
-    void okPacket(byte[] data);
+    public void connectionAquired() {
+    }
 
-    void errorPacket(byte[] data);
+    public void okPacket(byte[] data) {
+    }
 
-    void fieldEofPacket(byte[] header, List<byte[]> fields, byte[] data);
+    public void errorPacket(byte[] data) {
+    }
 
-    void rowDataPacket(byte[] data);
+    public void fieldEofPacket(byte[] header, List<byte[]> fields, byte[] data) {
+    }
 
-    void rowEofPacket(byte[] data);
+    public void rowDataPacket(byte[] data) {
+    }
 
-    void error(int code, Throwable t);
+    public void rowEofPacket(byte[] data) {
+    }
+
+    public void error(int code, Throwable t) {
+        connection.close();
+    }
 
 }

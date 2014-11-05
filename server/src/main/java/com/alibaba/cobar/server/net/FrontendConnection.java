@@ -27,14 +27,13 @@ import com.alibaba.cobar.server.net.packet.HandshakePacket;
 import com.alibaba.cobar.server.util.CharsetUtil;
 import com.alibaba.cobar.server.util.RandomUtil;
 import com.alibaba.cobar.server.util.StringUtil;
-import com.alibaba.cobar.server.util.TimeUtil;
 
 /**
  * @author xianmao.hexm
  */
 public abstract class FrontendConnection extends AbstractConnection {
 
-    protected static final long AUTH_TIMEOUT = 30 * 1000L;
+    protected static final long AUTH_TIMEOUT = 15 * 1000L;
 
     protected String charset;
     protected byte[] seed;
@@ -116,14 +115,7 @@ public abstract class FrontendConnection extends AbstractConnection {
 
     @Override
     public void idleCheck() {
-        boolean isIdleTimeout = false;
-        long last = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
-        if (isAuthenticated) {
-            isIdleTimeout = TimeUtil.currentTimeMillis() > last + idleTimeout;
-        } else {
-            isIdleTimeout = TimeUtil.currentTimeMillis() > last + AUTH_TIMEOUT;
-        }
-        if (isIdleTimeout) {
+        if (isIdleTimeout(isAuthenticated ? idleTimeout : AUTH_TIMEOUT)) {
             close();
         }
     }

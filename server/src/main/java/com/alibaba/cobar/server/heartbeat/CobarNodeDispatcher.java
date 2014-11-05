@@ -13,29 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.server.frontend.response;
+package com.alibaba.cobar.server.heartbeat;
 
-import com.alibaba.cobar.server.net.FrontendConnection;
+import com.alibaba.cobar.server.net.nio.NIOHandler;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.net.packet.OkPacket;
-import com.alibaba.cobar.server.startup.CobarContainer;
-import com.alibaba.cobar.server.util.ByteBufferUtil;
-import com.alibaba.cobar.server.util.PacketUtil;
 
 /**
- * 加入了offline状态推送，用于心跳语句。
- * 
- * @author xianmao.hexm 2012-4-28
+ * @author xianmao.hexm
  */
-public class Ping {
+public class CobarNodeDispatcher implements NIOHandler {
 
-    private static final ErrorPacket error = PacketUtil.getShutdown();
+    private CobarNodeConnection source;
 
-    public static void response(FrontendConnection c) {
-        if (CobarContainer.getInstance().getOnline().get()) {
-            ByteBufferUtil.write(OkPacket.OK, c);
-        } else {
-            error.write(c);
+    public CobarNodeDispatcher(CobarNodeConnection source) {
+        this.source = source;
+    }
+
+    public CobarNodeConnection getSource() {
+        return source;
+    }
+
+    @Override
+    public void handle(byte[] data) {
+        switch (data[4]) {
+        case OkPacket.FIELD_COUNT:
+            source.okPacket(data);
+            break;
+        case ErrorPacket.FIELD_COUNT:
+            source.errorPacket(data);
+            break;
+        default:
+            throw new RuntimeException("unknown packet!");
         }
     }
 

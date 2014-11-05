@@ -17,35 +17,27 @@ package com.alibaba.cobar.server.backend;
 
 import java.io.IOException;
 
+import com.alibaba.cobar.server.heartbeat.CobarNodeConnectionFactory;
+import com.alibaba.cobar.server.heartbeat.CobarNodeResponseHandler;
+import com.alibaba.cobar.server.model.Cluster.Node;
 import com.alibaba.cobar.server.startup.CobarContainer;
 
 /**
  * @author xianmao.hexm
  */
-public class MySQLConnectionTest {
+public class CobarNodeConnectionTest {
 
     public static void main(String[] args) throws IOException {
         // 启动容器
         CobarContainer container = CobarContainer.getInstance();
         container.startup();
+        container.startupServer();
 
-        // 通过连接池创建连接
-        MySQLConnectionPool pool = container.getConnectionPool("S1");
-        for (int i = 0; i < 2; i++) {
-            pool.aquireConnection(new MySQLResponseHandlerTest());
-        }
-
-        // report
-        while (true) {
-            try {
-                Thread.sleep(5000L);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            System.out.println("size=" + pool.getSize() + ",active=" + pool.getActiveCount() + ",idle="
-                    + pool.getIdleCount());
-        }
+        // 创建CobarNode心跳
+        CobarNodeConnectionFactory factory = container.getCobarNodeFactory();
+        Node node = container.getConfigModel().getCluster().getNode("cobar1");
+        CobarNodeResponseHandler responseHandler = new CobarNodeResponseHandler();
+        factory.make(node, responseHandler);
     }
 
 }

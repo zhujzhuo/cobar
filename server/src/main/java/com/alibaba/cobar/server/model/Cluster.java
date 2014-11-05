@@ -17,6 +17,9 @@ package com.alibaba.cobar.server.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.alibaba.cobar.server.config.ClusterConfig;
 
@@ -47,7 +50,9 @@ public class Cluster {
         private String name;
         private String host;
         private int weight;
-        private boolean isOnline;
+        private AtomicBoolean online;
+        private AtomicLong heartbeatId;
+        private AtomicInteger errorCount;
 
         public Node(ClusterConfig.Node model) {
             String name = model.getName();
@@ -62,6 +67,9 @@ public class Cluster {
             if (weight != null) {
                 this.weight = Integer.parseInt(weight.trim());
             }
+            this.online = new AtomicBoolean(false);
+            this.heartbeatId = new AtomicLong(0L);
+            this.errorCount = new AtomicInteger(0);
         }
 
         public String getName() {
@@ -76,14 +84,25 @@ public class Cluster {
             return weight;
         }
 
-        public boolean isOnline() {
-            return isOnline;
+        public AtomicBoolean getOnline() {
+            return online;
         }
 
-        public void setOnline(boolean isOnline) {
-            this.isOnline = isOnline;
+        public AtomicLong getHeartbeatId() {
+            return heartbeatId;
         }
 
+        public void setHeartbeatId(AtomicLong heartbeatId) {
+            this.heartbeatId = heartbeatId;
+        }
+
+        public AtomicInteger getErrorCount() {
+            return errorCount;
+        }
+
+        public void setErrorCount(AtomicInteger errorCount) {
+            this.errorCount = errorCount;
+        }
     }
 
 }

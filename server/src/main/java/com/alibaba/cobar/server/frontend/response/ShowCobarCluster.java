@@ -91,7 +91,7 @@ public class ShowCobarCluster {
 
         Cluster cluster = CobarContainer.getInstance().getConfigModel().getCluster();
         for (Cluster.Node n : cluster.getNodes().values()) {
-            if (n != null && n.isOnline()) {
+            if (n != null && n.getOnline().get()) {
                 rows.add(getRow(n, c.getCharset()));
             }
         }

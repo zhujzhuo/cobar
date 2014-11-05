@@ -120,7 +120,7 @@ public final class ShowServer {
         //row.add(LongUtil.toBytes(server.getConfig().getReloadTime()));
         //row.add(LongUtil.toBytes(server.getConfig().getRollbackTime()));
         row.add(StringUtil.encode(charset, charset));
-        row.add(StringUtil.encode(CobarContainer.getInstance().isOnline() ? "ON" : "OFF", charset));
+        row.add(StringUtil.encode(CobarContainer.getInstance().getOnline().get() ? "ON" : "OFF", charset));
         return row;
     }
 

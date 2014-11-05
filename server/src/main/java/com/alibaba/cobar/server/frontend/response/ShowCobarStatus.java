@@ -58,7 +58,7 @@ public class ShowCobarStatus {
     }
 
     public static void response(ServerConnection c) {
-        if (CobarContainer.getInstance().isOnline()) {
+        if (CobarContainer.getInstance().getOnline().get()) {
             ByteBuffer buffer = c.allocate();
             buffer = header.write(buffer, c);
             for (FieldPacket field : fields) {

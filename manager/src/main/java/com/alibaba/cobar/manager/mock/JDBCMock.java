@@ -16,19 +16,114 @@
 
 package com.alibaba.cobar.manager.mock;
 
-import java.sql.Connection;
-
 import static com.alibaba.cobar.manager.mock.SQLEquals.sqlEquals;
-import static com.alibaba.cobar.manager.util.SQLDefine.*;
+import static com.alibaba.cobar.manager.util.SQLDefine.ACTIVE;
+import static com.alibaba.cobar.manager.util.SQLDefine.ACTIVE_COUNT;
+import static com.alibaba.cobar.manager.util.SQLDefine.ALIVE_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.ATTEMPS_COUNT;
+import static com.alibaba.cobar.manager.util.SQLDefine.CACHED_COUNT;
+import static com.alibaba.cobar.manager.util.SQLDefine.CACHE_SIZE;
+import static com.alibaba.cobar.manager.util.SQLDefine.CHARSET;
+import static com.alibaba.cobar.manager.util.SQLDefine.CMD_PROCESSOR;
+import static com.alibaba.cobar.manager.util.SQLDefine.COMPLETED_TASK;
+import static com.alibaba.cobar.manager.util.SQLDefine.CS_HOST;
+import static com.alibaba.cobar.manager.util.SQLDefine.CS_ID;
+import static com.alibaba.cobar.manager.util.SQLDefine.C_NET_IN;
+import static com.alibaba.cobar.manager.util.SQLDefine.C_NET_OUT;
+import static com.alibaba.cobar.manager.util.SQLDefine.C_PROCESSOR;
+import static com.alibaba.cobar.manager.util.SQLDefine.DATABASE;
+import static com.alibaba.cobar.manager.util.SQLDefine.DS;
+import static com.alibaba.cobar.manager.util.SQLDefine.DS_CHARSET;
+import static com.alibaba.cobar.manager.util.SQLDefine.DS_HOST;
+import static com.alibaba.cobar.manager.util.SQLDefine.DS_NAME;
+import static com.alibaba.cobar.manager.util.SQLDefine.DS_PORT;
+import static com.alibaba.cobar.manager.util.SQLDefine.DS_SCHEMA;
+import static com.alibaba.cobar.manager.util.SQLDefine.DS_TYPE;
+import static com.alibaba.cobar.manager.util.SQLDefine.D_DATA_SOURCE;
+import static com.alibaba.cobar.manager.util.SQLDefine.D_EXECUTE;
+import static com.alibaba.cobar.manager.util.SQLDefine.D_LAST_EXECUTE_TIMESTAMP;
+import static com.alibaba.cobar.manager.util.SQLDefine.D_LAST_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.D_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.EXECUTE;
+import static com.alibaba.cobar.manager.util.SQLDefine.EXECUTE_START;
+import static com.alibaba.cobar.manager.util.SQLDefine.EXECUTE_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.E_EXECUTE;
+import static com.alibaba.cobar.manager.util.SQLDefine.E_MAX_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.E_MIN_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.E_SQL;
+import static com.alibaba.cobar.manager.util.SQLDefine.E_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.FC_COUNT;
+import static com.alibaba.cobar.manager.util.SQLDefine.FREE_BUFFER;
+import static com.alibaba.cobar.manager.util.SQLDefine.HOST;
+import static com.alibaba.cobar.manager.util.SQLDefine.ID;
+import static com.alibaba.cobar.manager.util.SQLDefine.IDLE;
+import static com.alibaba.cobar.manager.util.SQLDefine.INDEX;
+import static com.alibaba.cobar.manager.util.SQLDefine.INIT_DB;
+import static com.alibaba.cobar.manager.util.SQLDefine.KILL;
+import static com.alibaba.cobar.manager.util.SQLDefine.LOCAL_PORT;
+import static com.alibaba.cobar.manager.util.SQLDefine.MAX_MEMORY;
+import static com.alibaba.cobar.manager.util.SQLDefine.MAX_PARSE_SQL_ID;
+import static com.alibaba.cobar.manager.util.SQLDefine.MAX_PARSE_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.MAX_ROUTE_SQL_ID;
+import static com.alibaba.cobar.manager.util.SQLDefine.MAX_ROUTE_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.MAX_SQL;
+import static com.alibaba.cobar.manager.util.SQLDefine.MAX_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.OTHER;
+import static com.alibaba.cobar.manager.util.SQLDefine.PARSE_COUNT;
+import static com.alibaba.cobar.manager.util.SQLDefine.PING;
+import static com.alibaba.cobar.manager.util.SQLDefine.POOL_NAME;
+import static com.alibaba.cobar.manager.util.SQLDefine.POOL_SIZE;
+import static com.alibaba.cobar.manager.util.SQLDefine.PORT;
+import static com.alibaba.cobar.manager.util.SQLDefine.PROCESSOR_NAME;
+import static com.alibaba.cobar.manager.util.SQLDefine.P_NAME;
+import static com.alibaba.cobar.manager.util.SQLDefine.P_NET_IN;
+import static com.alibaba.cobar.manager.util.SQLDefine.P_NET_OUT;
+import static com.alibaba.cobar.manager.util.SQLDefine.QUERY;
+import static com.alibaba.cobar.manager.util.SQLDefine.QUIT;
+import static com.alibaba.cobar.manager.util.SQLDefine.RECOVERY_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.RECV_BUFFER;
+import static com.alibaba.cobar.manager.util.SQLDefine.RELOAD_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.REQUEST_COUNT;
+import static com.alibaba.cobar.manager.util.SQLDefine.ROLLBACK_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.ROUTE_COUNT;
+import static com.alibaba.cobar.manager.util.SQLDefine.R_P_NAME;
+import static com.alibaba.cobar.manager.util.SQLDefine.R_QUEUE;
+import static com.alibaba.cobar.manager.util.SQLDefine.R_TIME_COUNT;
+import static com.alibaba.cobar.manager.util.SQLDefine.SCHEMA;
+import static com.alibaba.cobar.manager.util.SQLDefine.SEND_QUEUE;
+import static com.alibaba.cobar.manager.util.SQLDefine.SIZE;
+import static com.alibaba.cobar.manager.util.SQLDefine.SQL_DETAIL;
+import static com.alibaba.cobar.manager.util.SQLDefine.SQL_ID;
+import static com.alibaba.cobar.manager.util.SQLDefine.STATUS;
+import static com.alibaba.cobar.manager.util.SQLDefine.STMT_CLOSE;
+import static com.alibaba.cobar.manager.util.SQLDefine.STMT_EXECUTE;
+import static com.alibaba.cobar.manager.util.SQLDefine.STMT_PREPARED;
+import static com.alibaba.cobar.manager.util.SQLDefine.S_DATA_SOURCE;
+import static com.alibaba.cobar.manager.util.SQLDefine.S_EXECUTE_TIMESTAMP;
+import static com.alibaba.cobar.manager.util.SQLDefine.S_SQL;
+import static com.alibaba.cobar.manager.util.SQLDefine.S_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.TASK_QUEUE_SIZE;
+import static com.alibaba.cobar.manager.util.SQLDefine.TIMESTAMP;
+import static com.alibaba.cobar.manager.util.SQLDefine.TIME_COUNT;
+import static com.alibaba.cobar.manager.util.SQLDefine.TOTAL_BUFFER;
+import static com.alibaba.cobar.manager.util.SQLDefine.TOTAL_MEMORY;
+import static com.alibaba.cobar.manager.util.SQLDefine.TOTAL_TASK;
+import static com.alibaba.cobar.manager.util.SQLDefine.TOTAL_TIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.TP_NAME;
+import static com.alibaba.cobar.manager.util.SQLDefine.TYPE;
+import static com.alibaba.cobar.manager.util.SQLDefine.UPTIME;
+import static com.alibaba.cobar.manager.util.SQLDefine.USED_MEMORY;
+import static com.alibaba.cobar.manager.util.SQLDefine.VERSION;
+import static com.alibaba.cobar.manager.util.SQLDefine.W_QUEUE;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.expect;
-
 
 public class JDBCMock {
     public IMocksControl control;
@@ -40,7 +135,6 @@ public class JDBCMock {
     }
 
     public Statement mockStatement;
-
     public ResultSet rsDataNodes;
     public ResultSet rsTimeCurrent;
     public ResultSet rsTimeStartUp;

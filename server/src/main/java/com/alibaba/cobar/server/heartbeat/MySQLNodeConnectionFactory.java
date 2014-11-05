@@ -18,23 +18,24 @@ package com.alibaba.cobar.server.heartbeat;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
+import com.alibaba.cobar.server.defs.Capabilities;
 import com.alibaba.cobar.server.net.factory.BackendConnectionFactory;
 import com.alibaba.cobar.server.startup.CobarContainer;
 
 /**
  * @author xianmao.hexm
  */
-public class MySQLDetectorFactory extends BackendConnectionFactory {
+public class MySQLNodeConnectionFactory extends BackendConnectionFactory {
 
-    public MySQLDetectorFactory() {
+    public MySQLNodeConnectionFactory() {
         this.idleTimeout = 300 * 1000L;
     }
 
-    public MySQLDetector make(MySQLHeartbeat heartbeat) throws IOException {
+    public MySQLNodeConnection make(MySQLNodeHeartbeat heartbeat) throws IOException {
         SocketChannel channel = getChannel();
         DataSourceConfig dsc = heartbeat.getSource().getConfigModel();
         DataNodeConfig dnc = heartbeat.getSource().getNode().getConfigModel();
-        MySQLDetector detector = new MySQLDetector(channel);
+        MySQLNodeConnection detector = new MySQLNodeConnection(channel);
         detector.setHost(dsc.getHost());
         detector.setPort(dsc.getPort());
         detector.setUser(dsc.getUser());
@@ -44,6 +45,30 @@ public class MySQLDetectorFactory extends BackendConnectionFactory {
         detector.setHeartbeat(heartbeat);
         postConnect(detector, CobarContainer.getInstance().getConnector());
         return detector;
+    }
+
+    protected long getClientFlags() {
+        int flag = 0;
+        flag |= Capabilities.CLIENT_LONG_PASSWORD;
+        flag |= Capabilities.CLIENT_FOUND_ROWS;
+        flag |= Capabilities.CLIENT_LONG_FLAG;
+        // flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
+        // flag |= Capabilities.CLIENT_NO_SCHEMA;
+        // flag |= Capabilities.CLIENT_COMPRESS;
+        flag |= Capabilities.CLIENT_ODBC;
+        // flag |= Capabilities.CLIENT_LOCAL_FILES;
+        flag |= Capabilities.CLIENT_IGNORE_SPACE;
+        flag |= Capabilities.CLIENT_PROTOCOL_41;
+        flag |= Capabilities.CLIENT_INTERACTIVE;
+        // flag |= Capabilities.CLIENT_SSL;
+        flag |= Capabilities.CLIENT_IGNORE_SIGPIPE;
+        flag |= Capabilities.CLIENT_TRANSACTIONS;
+        // flag |= Capabilities.CLIENT_RESERVED;
+        flag |= Capabilities.CLIENT_SECURE_CONNECTION;
+        // client extension
+        // flag |= Capabilities.CLIENT_MULTI_STATEMENTS;
+        // flag |= Capabilities.CLIENT_MULTI_RESULTS;
+        return flag;
     }
 
 }

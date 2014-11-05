@@ -18,10 +18,6 @@ package com.alibaba.cobar.server.manager.response;
 import java.nio.ByteBuffer;
 
 import com.alibaba.cobar.server.defs.Fields;
-import com.alibaba.cobar.server.heartbeat.CobarDetector;
-import com.alibaba.cobar.server.heartbeat.CobarHeartbeat;
-import com.alibaba.cobar.server.heartbeat.MySQLDetector;
-import com.alibaba.cobar.server.heartbeat.MySQLHeartbeat;
 import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.net.BackendConnection;
 import com.alibaba.cobar.server.net.nio.NIOProcessor;
@@ -44,7 +40,7 @@ import com.alibaba.cobar.server.util.TimeUtil;
  */
 public class ShowBackend {
 
-    private static final int FIELD_COUNT = 14;
+    private static final int FIELD_COUNT = 13;
     private static final ResultSetHeaderPacket header = PacketUtil.getHeader(FIELD_COUNT);
     private static final FieldPacket[] fields = new FieldPacket[FIELD_COUNT];
     private static final EOFPacket eof = new EOFPacket();
@@ -77,8 +73,6 @@ public class ShowBackend {
         fields[i] = PacketUtil.getField("checking", Fields.FIELD_TYPE_VAR_STRING);
         fields[i++].packetId = ++packetId;
         fields[i] = PacketUtil.getField("stop", Fields.FIELD_TYPE_VAR_STRING);
-        fields[i++].packetId = ++packetId;
-        fields[i] = PacketUtil.getField("status", Fields.FIELD_TYPE_LONGLONG);
         fields[i++].packetId = ++packetId;
         eof.packetId = ++packetId;
     }
@@ -119,29 +113,6 @@ public class ShowBackend {
         row.add(LongUtil.toBytes(statistic.getNetOutBytes()));
         row.add(LongUtil.toBytes((TimeUtil.currentTimeMillis() - statistic.getStartupTime()) / 1000L));
         row.add(c.isClosed() ? "true".getBytes() : "false".getBytes());
-        if (c instanceof CobarDetector) {
-            CobarDetector detector = (CobarDetector) c;
-            CobarHeartbeat heartbeat = detector.getHeartbeat();
-            row.add(detector.isAuthenticated() ? "true".getBytes() : "false".getBytes());
-            row.add(detector.isQuit() ? "true".getBytes() : "false".getBytes());
-            row.add(heartbeat.isChecking() ? "true".getBytes() : "false".getBytes());
-            row.add(heartbeat.isStop() ? "true".getBytes() : "false".getBytes());
-            row.add(LongUtil.toBytes(heartbeat.getStatus()));
-        } else if (c instanceof MySQLDetector) {
-            MySQLDetector detector = (MySQLDetector) c;
-            MySQLHeartbeat heartbeat = detector.getHeartbeat();
-            row.add(detector.isAuthenticated() ? "true".getBytes() : "false".getBytes());
-            row.add(detector.isQuit() ? "true".getBytes() : "false".getBytes());
-            row.add(heartbeat.isChecking() ? "true".getBytes() : "false".getBytes());
-            row.add(heartbeat.isStop() ? "true".getBytes() : "false".getBytes());
-            row.add(LongUtil.toBytes(heartbeat.getStatus()));
-        } else {
-            row.add(null);
-            row.add(null);
-            row.add(null);
-            row.add(null);
-            row.add(null);
-        }
         return row;
     }
 

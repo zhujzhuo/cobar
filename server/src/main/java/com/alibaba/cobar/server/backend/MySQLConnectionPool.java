@@ -25,7 +25,6 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.cobar.server.defs.Alarms;
 import com.alibaba.cobar.server.model.DataSources.DataSource;
-import com.alibaba.cobar.server.util.TimeUtil;
 
 /**
  * @author xianmao.hexm
@@ -101,7 +100,6 @@ public class MySQLConnectionPool {
                         --idleCount;
                         ++activeCount;
                         c.setResponseHandler(responseHandler);
-                        c.setLastTime(TimeUtil.currentTimeMillis());
                         c.setInThePool(false);
                         responseHandler.connectionAquired();
                         return;
@@ -132,7 +130,6 @@ public class MySQLConnectionPool {
                     ++idleCount;
                     --activeCount;
                     c.setInThePool(true);
-                    c.setLastTime(TimeUtil.currentTimeMillis());
                     items[i] = c;
                     return;
                 }

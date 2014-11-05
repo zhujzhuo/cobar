@@ -18,6 +18,7 @@ package com.alibaba.cobar.server.backend;
 import java.nio.channels.SocketChannel;
 import java.util.List;
 
+import com.alibaba.cobar.server.model.DataSources.DataSource;
 import com.alibaba.cobar.server.net.BackendConnection;
 
 /**
@@ -29,8 +30,8 @@ public class MySQLConnection extends BackendConnection {
     private String charset;
     private long clientFlags;
     private boolean isAuthenticated;
-    private long lastTime;
     private MySQLResponseHandler responseHandler;
+    private DataSource dataSource;
     private MySQLConnectionPool pool;
     private boolean inThePool;
 
@@ -70,12 +71,12 @@ public class MySQLConnection extends BackendConnection {
         this.isAuthenticated = isAuthenticated;
     }
 
-    public long getLastTime() {
-        return lastTime;
+    public DataSource getDataSource() {
+        return dataSource;
     }
 
-    public void setLastTime(long lastTime) {
-        this.lastTime = lastTime;
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public MySQLConnectionPool getPool() {

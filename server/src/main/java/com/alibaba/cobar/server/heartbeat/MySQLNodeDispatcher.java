@@ -25,15 +25,15 @@ import com.alibaba.cobar.server.net.packet.OkPacket;
 /**
  * @author xianmao.hexm
  */
-public class MySQLDetectorHandler extends BackendHandler {
+public class MySQLNodeDispatcher extends BackendHandler {
     private static final int RESULT_STATUS_INIT = 0;
     private static final int RESULT_STATUS_HEADER = 1;
     private static final int RESULT_STATUS_FIELD_EOF = 2;
 
-    private final MySQLDetector source;
+    private final MySQLNodeConnection source;
     private volatile int resultStatus;
 
-    public MySQLDetectorHandler(MySQLDetector source) {
+    public MySQLNodeDispatcher(MySQLNodeConnection source) {
         this.source = source;
         this.resultStatus = RESULT_STATUS_INIT;
     }
@@ -104,7 +104,7 @@ public class MySQLDetectorHandler extends BackendHandler {
      * OK数据包处理
      */
     private void handleOkPacket() {
-        source.getHeartbeat().setResult(MySQLHeartbeat.OK_STATUS, source, false);
+        source.getHeartbeat().setResult(MySQLNodeHeartbeat.OK_STATUS, source, false);
     }
 
     /**
@@ -120,7 +120,7 @@ public class MySQLDetectorHandler extends BackendHandler {
      * 行数据包结束处理
      */
     private void handleRowEofPacket() {
-        source.getHeartbeat().setResult(MySQLHeartbeat.OK_STATUS, source, false);
+        source.getHeartbeat().setResult(MySQLNodeHeartbeat.OK_STATUS, source, false);
     }
 
 }

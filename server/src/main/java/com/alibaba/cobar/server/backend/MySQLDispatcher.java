@@ -93,7 +93,7 @@ public class MySQLDispatcher implements NIOHandler {
             }
             break;
         default:
-            throw new RuntimeException("unknown status!");
+            throw new RuntimeException("unknown packet!");
         }
     }
 

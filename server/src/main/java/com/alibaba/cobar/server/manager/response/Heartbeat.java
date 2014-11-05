@@ -32,7 +32,7 @@ public class Heartbeat {
     public static void response(ManagerConnection c, byte[] data) {
         HeartbeatPacket hp = new HeartbeatPacket();
         hp.read(data);
-        if (CobarContainer.getInstance().isOnline()) {
+        if (CobarContainer.getInstance().getOnline().get()) {
             OkPacket ok = new OkPacket();
             ok.packetId = 1;
             ok.affectedRows = hp.id;

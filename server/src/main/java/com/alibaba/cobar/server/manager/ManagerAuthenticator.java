@@ -63,7 +63,13 @@ public class ManagerAuthenticator implements NIOHandler {
         source.setHandler(new ManagerDispatcher(source));
         if (LOGGER.isInfoEnabled()) {
             StringBuilder s = new StringBuilder();
-            s.append(source).append('\'').append(auth.user).append("' login success");
+            s.append(source);
+            if (auth.user != null) {
+                s.append('\'');
+                s.append(auth.user);
+                s.append('\'');
+            }
+            s.append(" login success");
             byte[] extra = auth.extra;
             if (extra != null && extra.length > 0) {
                 s.append(",extra:").append(new String(extra));

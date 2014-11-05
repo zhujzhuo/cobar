@@ -35,7 +35,7 @@ public class Online {
     }
 
     public static void execute(String stmt, ManagerConnection mc) {
-        CobarContainer.getInstance().online();
+        CobarContainer.getInstance().getOnline().compareAndSet(false, true);
         ok.write(mc);
     }
 

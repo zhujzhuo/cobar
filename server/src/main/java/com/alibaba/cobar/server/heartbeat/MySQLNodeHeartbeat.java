@@ -18,62 +18,52 @@ package com.alibaba.cobar.server.heartbeat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import com.alibaba.cobar.server.defs.Alarms;
-import com.alibaba.cobar.server.net.packet.OkPacket;
 import com.alibaba.cobar.server.statistics.ConnectionStatistic;
 import com.alibaba.cobar.server.statistics.HeartbeatStatistic;
-import com.alibaba.cobar.server.util.TimeUtil;
 
 /**
  * @author xianmao.hexm
  */
-public class CobarHeartbeat {
+public class MySQLNodeHeartbeat {
 
     public static final int OK_STATUS = 1;
-    public static final int OFF_STATUS = 2;
-    public static final int SEND = 3;
     public static final int ERROR_STATUS = -1;
     private static final int TIMEOUT_STATUS = -2;
     private static final int INIT_STATUS = 0;
     private static final int MAX_RETRY_COUNT = 5;
-    private static final Logger ALARM = Logger.getLogger("alarm");
-    private static final Logger LOGGER = Logger.getLogger(CobarHeartbeat.class);
-    private static final Logger HEARTBEAT = Logger.getLogger("heartbeat");
+    private static final Logger LOGGER = Logger.getLogger(MySQLNodeHeartbeat.class);
 
-    private final CobarNode node;
+    private final MySQLDataSource source;
     private final AtomicBoolean isStop;
     private final AtomicBoolean isChecking;
-    private final CobarDetectorFactory factory;
+    private final MySQLNodeConnectionFactory factory;
     private final HeartbeatStatistic recorder;
     private final ReentrantLock lock;
     private final int maxRetryCount;
     private int errorCount;
     private volatile int status;
-    private CobarDetector detector;
-    public final AtomicLong detectCount;
+    private MySQLNodeConnection detector;
 
-    public CobarHeartbeat(CobarNode node) {
-        this.node = node;
+    public MySQLNodeHeartbeat(MySQLDataSource source) {
+        this.source = source;
         this.isStop = new AtomicBoolean(false);
         this.isChecking = new AtomicBoolean(false);
-        this.factory = new CobarDetectorFactory();
+        this.factory = new MySQLNodeConnectionFactory();
         this.recorder = new HeartbeatStatistic();
         this.lock = new ReentrantLock(false);
         this.maxRetryCount = MAX_RETRY_COUNT;
-        this.status = OK_STATUS;
-        this.detectCount = new AtomicLong(0);
+        this.status = INIT_STATUS;
     }
 
-    public CobarNode getNode() {
-        return node;
+    public MySQLDataSource getSource() {
+        return source;
     }
 
-    public CobarDetector getDetector() {
+    public MySQLNodeConnection getDetector() {
         return detector;
     }
 
@@ -86,7 +76,7 @@ public class CobarHeartbeat {
     }
 
     public long getTimeout() {
-        CobarDetector detector = this.detector;
+        MySQLNodeConnection detector = this.detector;
         if (detector == null) {
             return -1L;
         }
@@ -97,8 +87,8 @@ public class CobarHeartbeat {
         return recorder;
     }
 
-    public String lastActiveTime() {
-        CobarDetector detector = this.detector;
+    public String getLastActiveTime() {
+        MySQLNodeConnection detector = this.detector;
         if (detector == null) {
             return null;
         }
@@ -134,7 +124,7 @@ public class CobarHeartbeat {
                 if (isChecking.get()) {
                     // nothing
                 } else {
-                    CobarDetector detector = this.detector;
+                    MySQLNodeConnection detector = this.detector;
                     if (detector != null) {
                         detector.quit();
                         isChecking.set(false);
@@ -147,19 +137,19 @@ public class CobarHeartbeat {
     }
 
     /**
-     * 执行心跳
+     * execute heart beat
      */
     public void heartbeat() {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
             if (isChecking.compareAndSet(false, true)) {
-                CobarDetector detector = this.detector;
+                MySQLNodeConnection detector = this.detector;
                 if (detector == null || detector.isQuit() || detector.isClosed()) {
                     try {
                         detector = factory.make(this);
                     } catch (Throwable e) {
-                        LOGGER.warn(node.toString(), e);
+                        LOGGER.warn(source.getConfigModel().toString(), e);
                         setError(null);
                         return;
                     }
@@ -168,7 +158,7 @@ public class CobarHeartbeat {
                     detector.heartbeat();
                 }
             } else {
-                CobarDetector detector = this.detector;
+                MySQLNodeConnection detector = this.detector;
                 if (detector != null) {
                     if (detector.isQuit() || detector.isClosed()) {
                         isChecking.compareAndSet(true, false);
@@ -182,22 +172,10 @@ public class CobarHeartbeat {
         }
     }
 
-    /**
-     * 设定结果
-     */
-    public void setResult(int result, CobarDetector detector, boolean isTransferError, byte[] message) {
+    public void setResult(int result, MySQLNodeConnection detector, boolean isTransferError) {
         switch (result) {
         case OK_STATUS:
             setOk(detector);
-            if (HEARTBEAT.isInfoEnabled()) {
-                HEARTBEAT.info(requestMessage(OK_STATUS, message));
-            }
-            break;
-        case OFF_STATUS:
-            setOff(detector);
-            if (HEARTBEAT.isInfoEnabled()) {
-                HEARTBEAT.info(requestMessage(OFF_STATUS, message));
-            }
             break;
         case ERROR_STATUS:
             if (detector.isQuit()) {
@@ -208,14 +186,11 @@ public class CobarHeartbeat {
                 }
                 setError(detector);
             }
-            if (HEARTBEAT.isInfoEnabled()) {
-                HEARTBEAT.info(requestMessage(ERROR_STATUS, message));
-            }
             break;
         }
     }
 
-    private void setOk(CobarDetector detector) {
+    private void setOk(MySQLNodeConnection detector) {
         ConnectionStatistic statistic = detector.getStatistic();
         recorder.set(statistic.getLastReadTime() - statistic.getLastWriteTime());
         switch (status) {
@@ -226,7 +201,7 @@ public class CobarHeartbeat {
             if (isStop.get()) {
                 detector.quit();
             } else {
-                heartbeat();// 超时状态，再次执行心跳。
+                heartbeat();// timeout, heart beat again
             }
             break;
         default:
@@ -239,29 +214,20 @@ public class CobarHeartbeat {
         }
     }
 
-    private void setOff(CobarDetector detector) {
-        this.status = OFF_STATUS;
-        this.errorCount = 0;
-        this.isChecking.set(false);
-        if (isStop.get()) {
-            detector.quit();
-        }
-    }
-
-    private void setError(CobarDetector detector) {
+    private void setError(MySQLNodeConnection detector) {
         if (++errorCount < maxRetryCount) {
-            this.isChecking.set(false);
+            isChecking.set(false);
             if (detector != null && isStop.get()) {
                 detector.quit();
             } else {
-                heartbeat();// 未到达错误次数，再次执行心跳。
+                heartbeat(); // error count not enough, heart beat again
             }
         } else {
             this.status = ERROR_STATUS;
             this.errorCount = 0;
             this.isChecking.set(false);
             try {
-                ALARM.error(alarmMessage("ERROR"));
+                switchSource("ERROR");
             } finally {
                 if (detector != null && isStop.get()) {
                     detector.quit();
@@ -270,13 +236,10 @@ public class CobarHeartbeat {
         }
     }
 
-    private void setTimeout(CobarDetector detector) {
+    private void setTimeout(MySQLNodeConnection detector) {
         status = TIMEOUT_STATUS;
         try {
-            ALARM.error(alarmMessage("TIMEOUT"));
-            if (HEARTBEAT.isInfoEnabled()) {
-                HEARTBEAT.info(requestMessage(TIMEOUT_STATUS, null));
-            }
+            switchSource("TIMEOUT");
         } finally {
             detector.quit();
             isChecking.set(false);
@@ -284,83 +247,14 @@ public class CobarHeartbeat {
     }
 
     /**
-     * 报警信息
+     * switch data source
      */
-    private String alarmMessage(String reason) {
-        CobarNodeConfig cnc = node.getConfigModel();
-        return new StringBuilder().append(Alarms.DEFAULT)
-                                  .append("[name=")
-                                  .append(cnc.getName())
-                                  .append(",host=")
-                                  .append(cnc.getHost())
-                                  .append(",port=")
-                                  .append(cnc.getPort())
-                                  .append(",reason=")
-                                  .append(reason)
-                                  .append(']')
-                                  .toString();
-    }
-
-    /**
-     * 心跳日志信息
-     */
-    public String requestMessage(int type, byte[] message) {
-        String action = null;
-        String id = null;
-        switch (type) {
-        case OK_STATUS:
-            action = "OK";
-            OkPacket ok = new OkPacket();
-            ok.read(message);
-            id = String.valueOf(ok.affectedRows);
-            break;
-        case OFF_STATUS:
-            action = "OFFLINE";
-            if (message != null) {
-                id = new String(message);
-            }
-            break;
-        case ERROR_STATUS:
-            action = "ERROR";
-            if (message != null) {
-                id = new String(message);
-            }
-            break;
-        case TIMEOUT_STATUS:
-            action = "TIMEOUT";
-            if (message != null) {
-                id = new String(message);
-            }
-            break;
-        case SEND:
-            action = "SEND";
-            if (message != null) {
-                id = new String(message);
-            }
-            break;
-        default:
-            action = "UNKNOWN";
-            if (message != null) {
-                id = new String(message);
-            }
+    private void switchSource(String reason) {
+        if (!isStop.get()) {
+            MySQLDataNode node = source.getNode();
+            int i = node.next(source.getIndex());
+            node.switchSource(i, true, reason);
         }
-
-        // 如果取不到从服务端返回的id，则从本地取得。
-        if (id == null) {
-            id = "$" + detectCount.get();
-        }
-
-        return new StringBuilder().append("REQUEST:")
-                                  .append(action)
-                                  .append(", id=")
-                                  .append(id)
-                                  .append(", host=")
-                                  .append(node.getConfigModel().getHost())
-                                  .append(", port=")
-                                  .append(node.getConfigModel().getPort())
-                                  .append(", time=")
-                                  .append(TimeUtil.currentTimeMillis())
-                                  .toString();
     }
 
 }

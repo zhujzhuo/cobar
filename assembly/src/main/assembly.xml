@@ -1,0 +1,68 @@
+<!--
+ - Copyright 1999-2012 Alibaba Group.
+ -  
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ -  
+ -      http://www.apache.org/licenses/LICENSE-2.0
+ -  
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+-->
+<assembly xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSch ema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/assembly-1.0.0.xsd">
+    <id>assembly</id>
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <formats>
+        <format>zip</format>
+        <format>tar.gz</format>
+    </formats>
+
+	  <files>
+	    <file>
+	      <source>${project.basedir}/../COPYRIGHT</source>
+	      <outputDirectory>/</outputDirectory>
+	      <filtered>true</filtered>
+	    </file>
+	    <file>
+	      <source>${project.basedir}/../LICENSE</source>
+	      <outputDirectory>/</outputDirectory>
+	      <filtered>true</filtered>
+	    </file>
+	    <file>
+	      <source>${project.basedir}/../README.md</source>
+	      <outputDirectory>/</outputDirectory>
+	      <filtered>true</filtered>
+	    </file>
+	  </files>
+  
+    <fileSets>
+        <fileSet>
+            <directory>src/main/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
+            <lineEnding>keep</lineEnding>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../server/target/cobar-server-${project.version}.dir</directory>
+            <outputDirectory>server</outputDirectory>  
+        </fileSet>
+        <fileSet>  
+            <directory>${project.basedir}/../manager/target/cobar-manager-${project.version}.dir</directory>
+            <outputDirectory>manager</outputDirectory>  
+        </fileSet>
+        <fileSet>  
+            <directory>${project.basedir}/../driver/target</directory>
+             <includes>  
+                <include>*.jar</include>  
+            </includes>
+            <outputDirectory>driver</outputDirectory>  
+        </fileSet>
+    </fileSets>
+
+</assembly>

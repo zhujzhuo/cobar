@@ -13,42 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cobar.server.backend;
+package com.alibaba.cobar.server.heartbeat;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.alibaba.cobar.server.defs.Capabilities;
+import com.alibaba.cobar.server.model.Cluster;
 import com.alibaba.cobar.server.model.CobarModel;
-import com.alibaba.cobar.server.model.DataSources.DataSource;
-import com.alibaba.cobar.server.model.Instances.Instance;
-import com.alibaba.cobar.server.model.Machines.Machine;
 import com.alibaba.cobar.server.net.factory.BackendConnectionFactory;
 import com.alibaba.cobar.server.startup.CobarContainer;
 import com.alibaba.cobar.server.util.BufferQueue;
 
 /**
- * @author xianmao.hexm 2012-4-12
+ * @author xianmao.hexm
  */
-public class MySQLConnectionFactory extends BackendConnectionFactory {
+public class CobarNodeConnectionFactory extends BackendConnectionFactory {
 
-    public MySQLConnection make(MySQLConnectionPool pool, MySQLResponseHandler responseHandler) throws IOException {
-        DataSource dataSource = pool.getDataSource();
+    public CobarNodeConnectionFactory() {
+        this.idleTimeout = 60 * 1000L;
+    }
+
+    public CobarNodeConnection make(Cluster.Node node, CobarNodeResponseHandler responseHandler) throws IOException {
         CobarContainer container = CobarContainer.getInstance();
         CobarModel model = container.getConfigModel();
-        Instance instance = model.getInstances().getInstance(dataSource.getInstance());
-        Machine machine = model.getMachines().getMachine(instance.getMachine());
-        MySQLConnection c = new MySQLConnection(getChannel());
-        c.setHost(machine.getHost());
-        c.setPort(instance.getPort());
+        CobarNodeConnection c = new CobarNodeConnection(getChannel());
+        c.setHost(node.getHost());
+        c.setPort(model.getServer().getManagerPort());
         c.setClientFlags(getClientFlags());
-        c.setHandler(new MySQLAuthenticator(c));
+        c.setHandler(new CobarNodeAuthenticator(c));
         c.setWriteQueue(new BufferQueue<ByteBuffer>(writeQueueCapacity));
         c.setIdleTimeout(idleTimeout);
-        c.setDataSource(dataSource);
+        c.setNode(node);
         c.setResponseHandler(responseHandler);
-        c.setInThePool(false);
-        c.setPool(pool);
         container.getConnector().postConnect(c);
         return c;
     }
@@ -58,7 +55,7 @@ public class MySQLConnectionFactory extends BackendConnectionFactory {
         flag |= Capabilities.CLIENT_LONG_PASSWORD;
         flag |= Capabilities.CLIENT_FOUND_ROWS;
         flag |= Capabilities.CLIENT_LONG_FLAG;
-        flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
+        // flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
         // flag |= Capabilities.CLIENT_NO_SCHEMA;
         // flag |= Capabilities.CLIENT_COMPRESS;
         flag |= Capabilities.CLIENT_ODBC;

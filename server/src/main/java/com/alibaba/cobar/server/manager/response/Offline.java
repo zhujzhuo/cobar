@@ -35,7 +35,7 @@ public class Offline {
     }
 
     public static void execute(String stmt, ManagerConnection c) {
-        CobarContainer.getInstance().offline();
+        CobarContainer.getInstance().getOnline().compareAndSet(true, false);
         ok.write(c);
     }
 
