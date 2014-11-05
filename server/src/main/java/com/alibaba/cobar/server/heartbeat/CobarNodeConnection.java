@@ -25,21 +25,12 @@ import com.alibaba.cobar.server.net.BackendConnection;
  */
 public class CobarNodeConnection extends BackendConnection {
 
-    private long threadId;
     private long clientFlags;
     private CobarNodeResponseHandler responseHandler;
     private Cluster.Node node;
 
     public CobarNodeConnection(SocketChannel channel) {
         super(channel);
-    }
-
-    public long getThreadId() {
-        return threadId;
-    }
-
-    public void setThreadId(long threadId) {
-        this.threadId = threadId;
     }
 
     public long getClientFlags() {
@@ -82,6 +73,14 @@ public class CobarNodeConnection extends BackendConnection {
     @Override
     public void error(int code, Throwable t) {
         responseHandler.error(code, t);
+    }
+
+    @Override
+    public void idleCheck() {
+        if (isIdleTimeout(idleTimeout)) {
+            close();
+            node.getOnline().compareAndSet(true, false);
+        }
     }
 
 }

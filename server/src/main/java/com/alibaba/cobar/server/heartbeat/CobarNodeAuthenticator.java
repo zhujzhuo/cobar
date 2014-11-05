@@ -42,9 +42,6 @@ public class CobarNodeAuthenticator implements NIOHandler {
             hsp.read(data);
             this.handshake = hsp;
 
-            // 设置连接属性
-            source.setThreadId(hsp.threadId);
-
             // 发送认证数据包
             AuthPacket ap = new AuthPacket();
             ap.packetId = 1;

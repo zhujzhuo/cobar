@@ -15,8 +15,6 @@
  */
 package com.alibaba.cobar.server.manager.response;
 
-import org.apache.log4j.Logger;
-
 import com.alibaba.cobar.server.manager.ManagerConnection;
 
 /**
@@ -26,7 +24,7 @@ import com.alibaba.cobar.server.manager.ManagerConnection;
  */
 public final class StopHeartbeat {
 
-    private static final Logger LOGGER = Logger.getLogger(StopHeartbeat.class);
+    //    private static final Logger LOGGER = Logger.getLogger(StopHeartbeat.class);
 
     public static void execute(String stmt, ManagerConnection c) {
         //        int count = 0;

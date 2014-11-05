@@ -31,7 +31,7 @@ public class CobarStartupTest {
         try {
             CobarContainer container = CobarContainer.getInstance();
             container.startup();
-            container.startupServer();
+            container.online();
         } catch (Throwable e) {
             SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
             LogLog.error(sdf.format(new Date()) + " startup error", e);

@@ -16,92 +16,40 @@
 package com.alibaba.cobar.server.heartbeat;
 
 import java.nio.channels.SocketChannel;
-import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import com.alibaba.cobar.server.defs.Capabilities;
-import com.alibaba.cobar.server.defs.ErrorCode;
+import com.alibaba.cobar.server.model.DataSources.DataSource;
 import com.alibaba.cobar.server.net.BackendConnection;
-import com.alibaba.cobar.server.net.packet.AbstractPacket;
-import com.alibaba.cobar.server.net.packet.AuthPacket;
-import com.alibaba.cobar.server.net.packet.CommandPacket;
-import com.alibaba.cobar.server.net.packet.HandshakePacket;
-import com.alibaba.cobar.server.net.packet.QuitPacket;
-import com.alibaba.cobar.server.util.ByteBufferUtil;
-import com.alibaba.cobar.server.util.SecurityUtil;
-import com.alibaba.cobar.server.util.TimeUtil;
 
 /**
  * @author xianmao.hexm
  */
 public class MySQLNodeConnection extends BackendConnection {
 
-    private static final Logger LOGGER = Logger.getLogger(MySQLNodeConnection.class);
-    private static final long CLIENT_FLAGS = initClientFlags();
-
-    private MySQLNodeHeartbeat heartbeat;
-    private final long clientFlags;
-    private HandshakePacket handshake;
-    private int charsetIndex;
+    private String charset;
+    private long clientFlags;
     private boolean isAuthenticated;
-    private String user;
-    private String password;
-    private String schema;
-    private long heartbeatTimeout;
-    private final AtomicBoolean isQuit;
+    private DataSource dataSource;
+    private MySQLNodeResponseHandler responseHandler;
 
     public MySQLNodeConnection(SocketChannel channel) {
         super(channel);
-        this.clientFlags = CLIENT_FLAGS;
-        this.handler = new MySQLNodeAuthenticator(this);
-        this.isQuit = new AtomicBoolean(false);
     }
 
-    public MySQLNodeHeartbeat getHeartbeat() {
-        return heartbeat;
+    public String getCharset() {
+        return charset;
     }
 
-    public void setHeartbeat(MySQLNodeHeartbeat heartbeat) {
-        this.heartbeat = heartbeat;
+    public void setCharset(String charset) {
+        this.charset = charset;
     }
 
-    public String getUser() {
-        return user;
+    public long getClientFlags() {
+        return clientFlags;
     }
 
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getSchema() {
-        return schema;
-    }
-
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public long getHeartbeatTimeout() {
-        return heartbeatTimeout;
-    }
-
-    public void setHeartbeatTimeout(long heartbeatTimeout) {
-        this.heartbeatTimeout = heartbeatTimeout;
-    }
-
-    public boolean isHeartbeatTimeout() {
-        long last = Math.max(statistic.getLastWriteTime(), statistic.getLastReadTime());
-        return TimeUtil.currentTimeMillis() > last + heartbeatTimeout;
+    public void setClientFlags(long clientFlags) {
+        this.clientFlags = clientFlags;
     }
 
     public boolean isAuthenticated() {
@@ -112,136 +60,50 @@ public class MySQLNodeConnection extends BackendConnection {
         this.isAuthenticated = isAuthenticated;
     }
 
-    public HandshakePacket getHandshake() {
-        return handshake;
+    public DataSource getDataSource() {
+        return dataSource;
     }
 
-    public void setHandshake(HandshakePacket handshake) {
-        this.handshake = handshake;
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
-    public void setCharsetIndex(int charsetIndex) {
-        this.charsetIndex = charsetIndex;
+    public MySQLNodeResponseHandler getResponseHandler() {
+        return responseHandler;
     }
 
-    public void authenticate() {
-        AuthPacket packet = new AuthPacket();
-        packet.packetId = 1;
-        packet.clientFlags = clientFlags;
-        packet.maxPacketSize = protocol.getMaxPacketSize();
-        packet.charsetIndex = charsetIndex;
-        packet.user = user;
-        try {
-            packet.password = getPass(password, handshake);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-        packet.database = schema;
-        packet.write(this);
+    public void setResponseHandler(MySQLNodeResponseHandler responseHandler) {
+        responseHandler.setConnection(this);
+        this.responseHandler = responseHandler;
     }
 
-    public void heartbeat() {
-        if (isAuthenticated) {
-            String sql = heartbeat.getSource().getNode().getHeartbeatSQL();
-            if (sql != null) {
-                CommandPacket packet = new CommandPacket();
-                packet.packetId = 0;
-                packet.command = AbstractPacket.COM_QUERY;
-                packet.arg = sql.getBytes();
-                packet.write(this);
-            }
-        } else {
-            authenticate();
-        }
+    public void connectionAquired() {
+        responseHandler.connectionAquired();
     }
 
-    public void quit() {
-        if (isQuit.compareAndSet(false, true)) {
-            if (isAuthenticated) {
-                ByteBufferUtil.write(QuitPacket.QUIT, this);
-                write(processor.getBufferPool().allocate());
-            } else {
-                close();
-            }
-        }
+    public void okPacket(byte[] data) {
+        responseHandler.okPacket(data);
     }
 
-    public boolean isQuit() {
-        return isQuit.get();
+    public void errorPacket(byte[] data) {
+        responseHandler.errorPacket(data);
+    }
+
+    public void fieldEofPacket(byte[] header, List<byte[]> fields, byte[] data) {
+        responseHandler.fieldEofPacket(header, fields, data);
+    }
+
+    public void rowDataPacket(byte[] data) {
+        responseHandler.rowDataPacket(data);
+    }
+
+    public void rowEofPacket(byte[] data) {
+        responseHandler.rowEofPacket(data);
     }
 
     @Override
     public void error(int code, Throwable t) {
-        LOGGER.warn(toString(), t);
-        switch (code) {
-        case ErrorCode.ERR_HANDLE_DATA:
-            heartbeat.setResult(MySQLNodeHeartbeat.ERROR_STATUS, this, false);
-            break;
-        default:
-            heartbeat.setResult(MySQLNodeHeartbeat.ERROR_STATUS, this, true);
-        }
-    }
-
-    @Override
-    public void idleCheck() {
-        if (isIdleTimeout(idleTimeout)) {
-            LOGGER.warn(toString() + " idle timeout");
-            quit();
-        }
-    }
-
-    public String toString() {
-        return new StringBuilder().append("[thread=")
-                                  .append(Thread.currentThread().getName())
-                                  .append(",class=")
-                                  .append(getClass().getSimpleName())
-                                  .append(",host=")
-                                  .append(host)
-                                  .append(",port=")
-                                  .append(port)
-                                  .append(",localPort=")
-                                  .append(localPort)
-                                  .append(",schema=")
-                                  .append(schema)
-                                  .append(']')
-                                  .toString();
-    }
-
-    private static long initClientFlags() {
-        int flag = 0;
-        flag |= Capabilities.CLIENT_LONG_PASSWORD;
-        flag |= Capabilities.CLIENT_FOUND_ROWS;
-        flag |= Capabilities.CLIENT_LONG_FLAG;
-        flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
-        // flag |= Capabilities.CLIENT_NO_SCHEMA;
-        // flag |= Capabilities.CLIENT_COMPRESS;
-        flag |= Capabilities.CLIENT_ODBC;
-        // flag |= Capabilities.CLIENT_LOCAL_FILES;
-        flag |= Capabilities.CLIENT_IGNORE_SPACE;
-        flag |= Capabilities.CLIENT_PROTOCOL_41;
-        flag |= Capabilities.CLIENT_INTERACTIVE;
-        // flag |= Capabilities.CLIENT_SSL;
-        flag |= Capabilities.CLIENT_IGNORE_SIGPIPE;
-        flag |= Capabilities.CLIENT_TRANSACTIONS;
-        // flag |= Capabilities.CLIENT_RESERVED;
-        flag |= Capabilities.CLIENT_SECURE_CONNECTION;
-        // client extension
-        // flag |= Capabilities.CLIENT_MULTI_STATEMENTS;
-        // flag |= Capabilities.CLIENT_MULTI_RESULTS;
-        return flag;
-    }
-
-    private static byte[] getPass(String src, HandshakePacket hsp) throws NoSuchAlgorithmException {
-        if (src == null || src.length() == 0) {
-            return null;
-        }
-        byte[] passwd = src.getBytes();
-        int sl1 = hsp.seed.length;
-        int sl2 = hsp.restOfScrambleBuff.length;
-        byte[] seed = new byte[sl1 + sl2];
-        System.arraycopy(hsp.seed, 0, seed, 0, sl1);
-        System.arraycopy(hsp.restOfScrambleBuff, 0, seed, sl1, sl2);
-        return SecurityUtil.scramble411(passwd, seed);
+        responseHandler.error(code, t);
     }
 
 }

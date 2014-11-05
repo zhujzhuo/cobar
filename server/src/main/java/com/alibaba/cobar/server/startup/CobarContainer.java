@@ -65,33 +65,28 @@ public final class CobarContainer {
     private NIOConnector connector;
     private NIOAcceptor manager;
     private NIOAcceptor server;
-    private Map<String, MySQLConnectionPool> connectionPools;
+    private Map<String, MySQLConnectionPool> pools;
     private long startupTime;
     private AtomicBoolean online;
     private CobarNodeConnectionFactory cobarNodeFactory;
     private MySQLNodeConnectionFactory mysqlNodeFactory;
 
     private CobarContainer() {
-        this.init();
-    }
-
-    private void init() {
         this.cobar = new CobarModel();
-        this.timer = new Timer(NAME + "Timer", true);
-        this.timer.schedule(updateTime(), 0L, TIME_UPDATE_PERIOD);
-        Server sc = cobar.getServer();
-        this.serverExecutor = ExecutorUtil.create("ServerExecutor", sc.getServerExecutor());
-        this.managerExecutor = ExecutorUtil.create("ManagerExecutor", sc.getManagerExecutor());
-        this.processors = new NIOProcessor[sc.getProcessors()];
-        this.connectionPools = initConnectionPools();
-        this.online = new AtomicBoolean(false);
-        this.cobarNodeFactory = new CobarNodeConnectionFactory();
-        this.mysqlNodeFactory = new MySQLNodeConnectionFactory();
     }
 
     public void startup() throws IOException {
-        // ready to startup
+        // 准备启动
         Server sc = cobar.getServer();
+        this.timer = new Timer(NAME + "Timer", true);
+        this.timer.schedule(updateTime(), 0L, TIME_UPDATE_PERIOD);
+        this.serverExecutor = ExecutorUtil.create("ServerExecutor", sc.getServerExecutor());
+        this.managerExecutor = ExecutorUtil.create("ManagerExecutor", sc.getManagerExecutor());
+        this.processors = new NIOProcessor[sc.getProcessors()];
+        this.pools = initPools();
+        this.online = new AtomicBoolean(false);
+        this.cobarNodeFactory = new CobarNodeConnectionFactory();
+        this.mysqlNodeFactory = new MySQLNodeConnectionFactory();
         String home = System.getProperty("cobar.home");
         if (home == null) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -100,7 +95,7 @@ public final class CobarContainer {
             Log4jInitializer.configureAndWatch(home + "/conf/log4j.xml", LOG_WATCH_DELAY);
         }
 
-        // startup processors
+        // 启动处理器
         LOGGER.info("==========================================");
         LOGGER.info(NAME + " is ready to startup ...");
         LOGGER.info("Startup processors ...");
@@ -111,38 +106,38 @@ public final class CobarContainer {
         }
         timer.schedule(processorCheck(), 0L, sc.getProcessorCheckPeriod());
 
-        // startup connector
+        // 启动连接器
         LOGGER.info("Startup connector ...");
         connector = new NIOConnector(NAME + "Connector");
         connector.setProcessors(processors);
         connector.start();
 
-        // startup manager
+        // 启动管理者
         LOGGER.info("Startup manager ... ");
-        ManagerConnectionFactory factory = new ManagerConnectionFactory();
-        factory.setCharset(sc.getCharset());
-        factory.setIdleTimeout(sc.getIdleTimeout());
-        manager = new NIOAcceptor(NAME + "Manager", sc.getManagerPort(), factory);
+        ManagerConnectionFactory mcf = new ManagerConnectionFactory();
+        mcf.setCharset(sc.getCharset());
+        mcf.setIdleTimeout(sc.getIdleTimeout());
+        manager = new NIOAcceptor(NAME + "Manager", sc.getManagerPort(), mcf);
         manager.setProcessors(processors);
         manager.start();
-        startupTime = TimeUtil.currentTimeMillis();
 
-        // compeleted
-        LOGGER.info("Startup compeleted and listening on " + manager.getPort());
+        // 启动服务者
+        LOGGER.info("Startup server ... ");
+        ServerConnectionFactory scf = new ServerConnectionFactory();
+        scf.setCharset(sc.getCharset());
+        scf.setIdleTimeout(sc.getIdleTimeout());
+        server = new NIOAcceptor(NAME + "Server", sc.getServerPort(), scf);
+        server.setProcessors(processors);
+        server.start();
+
+        // 启动完成
+        startupTime = TimeUtil.currentTimeMillis();
+        LOGGER.info("Startup compeleted and listening on " + manager.getPort() + "," + server.getPort());
         LOGGER.info("==========================================");
     }
 
-    public void startupServer() throws IOException {
-        LOGGER.info("Startup server ... ");
-        Server sc = cobar.getServer();
-        ServerConnectionFactory factory = new ServerConnectionFactory();
-        factory.setCharset(sc.getCharset());
-        factory.setIdleTimeout(sc.getIdleTimeout());
-        server = new NIOAcceptor(NAME + "Server", sc.getServerPort(), factory);
-        server.setProcessors(processors);
-        server.start();
+    public void online() throws IOException {
         online.set(true);
-        //        timer.schedule(clusterHeartbeat(), 0L, sc.getClusterHeartbeatPeriod());
     }
 
     public CobarModel getConfigModel() {
@@ -166,7 +161,7 @@ public final class CobarContainer {
     }
 
     public MySQLConnectionPool getConnectionPool(String name) {
-        return connectionPools.get(name);
+        return pools.get(name);
     }
 
     public AtomicBoolean getOnline() {
@@ -189,7 +184,7 @@ public final class CobarContainer {
         return timer;
     }
 
-    Map<String, MySQLConnectionPool> initConnectionPools() {
+    private Map<String, MySQLConnectionPool> initPools() {
         Map<String, MySQLConnectionPool> pools = new HashMap<String, MySQLConnectionPool>();
         int connectionPoolSize = cobar.getServer().getConnectionPoolSize();
         for (DataSource ds : cobar.getDataSources().getDataSources().values()) {
@@ -200,7 +195,7 @@ public final class CobarContainer {
     }
 
     // 系统时间定时更新任务
-    TimerTask updateTime() {
+    private TimerTask updateTime() {
         return new TimerTask() {
             @Override
             public void run() {
@@ -210,7 +205,7 @@ public final class CobarContainer {
     }
 
     // 处理器定时检查任务
-    TimerTask processorCheck() {
+    private TimerTask processorCheck() {
         return new TimerTask() {
             @Override
             public void run() {

@@ -15,8 +15,6 @@
  */
 package com.alibaba.cobar.server.manager.response;
 
-import org.apache.log4j.Logger;
-
 import com.alibaba.cobar.server.manager.ManagerConnection;
 
 /**
@@ -24,7 +22,7 @@ import com.alibaba.cobar.server.manager.ManagerConnection;
  */
 public final class ReloadConfig {
 
-    private static final Logger LOGGER = Logger.getLogger(ReloadConfig.class);
+    //    private static final Logger LOGGER = Logger.getLogger(ReloadConfig.class);
 
     public static void execute(ManagerConnection c) {
         //        final ReentrantLock lock = CobarServer.getInstance().getConfig().getLock();

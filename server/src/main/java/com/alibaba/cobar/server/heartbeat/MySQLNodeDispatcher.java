@@ -15,112 +15,86 @@
  */
 package com.alibaba.cobar.server.heartbeat;
 
-import com.alibaba.cobar.server.backend.BackendHandler;
-import com.alibaba.cobar.server.defs.ErrorCode;
-import com.alibaba.cobar.server.exeception.HeartbeatException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.alibaba.cobar.server.net.nio.NIOHandler;
 import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.ErrorPacket;
 import com.alibaba.cobar.server.net.packet.OkPacket;
+import com.alibaba.cobar.server.util.BytesUtil;
 
 /**
  * @author xianmao.hexm
  */
-public class MySQLNodeDispatcher extends BackendHandler {
+public class MySQLNodeDispatcher implements NIOHandler {
+
     private static final int RESULT_STATUS_INIT = 0;
     private static final int RESULT_STATUS_HEADER = 1;
     private static final int RESULT_STATUS_FIELD_EOF = 2;
 
-    private final MySQLNodeConnection source;
+    private MySQLNodeConnection source;
     private volatile int resultStatus;
+    private volatile byte[] header;
+    private volatile List<byte[]> fields;
 
     public MySQLNodeDispatcher(MySQLNodeConnection source) {
         this.source = source;
         this.resultStatus = RESULT_STATUS_INIT;
     }
 
+    public MySQLNodeConnection getSource() {
+        return source;
+    }
+
     @Override
     public void handle(byte[] data) {
-        offerData(data, source.getProcessor().getExecutor());
-    }
-
-    @Override
-    protected void offerDataError() {
-        dataQueue.clear();
-        resultStatus = RESULT_STATUS_INIT;
-        throw new HeartbeatException("offer data error!");
-    }
-
-    @Override
-    protected void handleData(byte[] data) {
         switch (resultStatus) {
         case RESULT_STATUS_INIT:
             switch (data[4]) {
             case OkPacket.FIELD_COUNT:
-                handleOkPacket();
+                source.okPacket(data);
                 break;
             case ErrorPacket.FIELD_COUNT:
-                handleErrorPacket(data);
+                source.errorPacket(data);
                 break;
             default:
                 resultStatus = RESULT_STATUS_HEADER;
+                header = data;
+                fields = new ArrayList<byte[]>((int) BytesUtil.readLength(data, 4));
             }
             break;
         case RESULT_STATUS_HEADER:
             switch (data[4]) {
             case ErrorPacket.FIELD_COUNT:
                 resultStatus = RESULT_STATUS_INIT;
-                handleErrorPacket(data);
+                source.errorPacket(data);
                 break;
             case EOFPacket.FIELD_COUNT:
                 resultStatus = RESULT_STATUS_FIELD_EOF;
+                source.fieldEofPacket(header, fields, data);
                 break;
+            default:
+                fields.add(data);
             }
             break;
         case RESULT_STATUS_FIELD_EOF:
             switch (data[4]) {
             case ErrorPacket.FIELD_COUNT:
                 resultStatus = RESULT_STATUS_INIT;
-                handleErrorPacket(data);
+                source.errorPacket(data);
                 break;
             case EOFPacket.FIELD_COUNT:
                 resultStatus = RESULT_STATUS_INIT;
-                handleRowEofPacket();
+                source.rowEofPacket(data);
                 break;
+            default:
+                source.rowDataPacket(data);
             }
             break;
         default:
-            throw new HeartbeatException("unknown status!");
+            throw new RuntimeException("Unknown packet!");
         }
-    }
-
-    @Override
-    protected void handleDataError(Throwable t) {
-        dataQueue.clear();
-        resultStatus = RESULT_STATUS_INIT;
-        source.error(ErrorCode.ERR_HANDLE_DATA, t);
-    }
-
-    /**
-     * OK数据包处理
-     */
-    private void handleOkPacket() {
-        source.getHeartbeat().setResult(MySQLNodeHeartbeat.OK_STATUS, source, false);
-    }
-
-    /**
-     * ERROR数据包处理
-     */
-    private void handleErrorPacket(byte[] data) {
-        ErrorPacket err = new ErrorPacket();
-        err.read(data);
-        throw new HeartbeatException(new String(err.message));
-    }
-
-    /**
-     * 行数据包结束处理
-     */
-    private void handleRowEofPacket() {
-        source.getHeartbeat().setResult(MySQLNodeHeartbeat.OK_STATUS, source, false);
     }
 
 }

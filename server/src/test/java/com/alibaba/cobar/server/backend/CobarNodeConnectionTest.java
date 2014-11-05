@@ -31,7 +31,7 @@ public class CobarNodeConnectionTest {
         // 启动容器
         CobarContainer container = CobarContainer.getInstance();
         container.startup();
-        container.startupServer();
+        container.online();
 
         // 创建CobarNode心跳
         CobarNodeConnectionFactory factory = container.getCobarNodeFactory();

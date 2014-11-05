@@ -22,12 +22,7 @@ import com.alibaba.cobar.server.manager.ManagerConnection;
 import com.alibaba.cobar.server.net.packet.EOFPacket;
 import com.alibaba.cobar.server.net.packet.FieldPacket;
 import com.alibaba.cobar.server.net.packet.ResultSetHeaderPacket;
-import com.alibaba.cobar.server.net.packet.RowDataPacket;
-import com.alibaba.cobar.server.statistics.SQLStatistic.SQLRecord;
-import com.alibaba.cobar.server.util.IntegerUtil;
-import com.alibaba.cobar.server.util.LongUtil;
 import com.alibaba.cobar.server.util.PacketUtil;
-import com.alibaba.cobar.server.util.StringUtil;
 
 /**
  * 查询执行时间超过设定阈值的SQL
@@ -103,16 +98,16 @@ public final class ShowSQLSlow {
         c.write(buffer);
     }
 
-    private static RowDataPacket getRow(SQLRecord sql, String charset) {
-        RowDataPacket row = new RowDataPacket(FIELD_COUNT);
-        row.add(StringUtil.encode(sql.host, charset));
-        row.add(StringUtil.encode(sql.schema, charset));
-        row.add(StringUtil.encode(sql.dataNode, charset));
-        row.add(IntegerUtil.toBytes(sql.dataNodeIndex));
-        row.add(LongUtil.toBytes(sql.startTime));
-        row.add(LongUtil.toBytes(sql.executeTime));
-        row.add(StringUtil.encode(sql.statement, charset));
-        return row;
-    }
+    //    private static RowDataPacket getRow(SQLRecord sql, String charset) {
+    //        RowDataPacket row = new RowDataPacket(FIELD_COUNT);
+    //        row.add(StringUtil.encode(sql.host, charset));
+    //        row.add(StringUtil.encode(sql.schema, charset));
+    //        row.add(StringUtil.encode(sql.dataNode, charset));
+    //        row.add(IntegerUtil.toBytes(sql.dataNodeIndex));
+    //        row.add(LongUtil.toBytes(sql.startTime));
+    //        row.add(LongUtil.toBytes(sql.executeTime));
+    //        row.add(StringUtil.encode(sql.statement, charset));
+    //        return row;
+    //    }
 
 }

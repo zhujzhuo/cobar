@@ -96,7 +96,6 @@ public class MySQLAuthenticator implements NIOHandler {
         }
     }
 
-    // 发送323响应认证数据包
     private void auth323(byte packetId) {
         Reply323Packet r323 = new Reply323Packet();
         r323.packetId = ++packetId;

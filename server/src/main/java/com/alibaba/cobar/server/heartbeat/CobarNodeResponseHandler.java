@@ -76,7 +76,7 @@ public class CobarNodeResponseHandler implements ResponseHandler {
             break;
         }
         default:
-            if (node.getErrorCount().get() < RETRY_TIMES) {
+            if (node.getOnline().get() && node.getErrorCount().get() < RETRY_TIMES) {
                 node.getErrorCount().incrementAndGet();
                 doHeartbeat(ERROR_HEARTBEAT);
             } else {
@@ -90,7 +90,7 @@ public class CobarNodeResponseHandler implements ResponseHandler {
     public void error(int code, Throwable t) {
         connection.close();
         Cluster.Node node = connection.getNode();
-        if (node.getErrorCount().get() < RETRY_TIMES) {
+        if (node.getOnline().get() && node.getErrorCount().get() < RETRY_TIMES) {
             node.getErrorCount().incrementAndGet();
             newHeartbeat(ERROR_HEARTBEAT);
         } else {

@@ -16,11 +16,16 @@
 package com.alibaba.cobar.server.heartbeat;
 
 import java.io.IOException;
-import java.nio.channels.SocketChannel;
+import java.nio.ByteBuffer;
 
 import com.alibaba.cobar.server.defs.Capabilities;
+import com.alibaba.cobar.server.model.CobarModel;
+import com.alibaba.cobar.server.model.DataSources.DataSource;
+import com.alibaba.cobar.server.model.Instances.Instance;
+import com.alibaba.cobar.server.model.Machines.Machine;
 import com.alibaba.cobar.server.net.factory.BackendConnectionFactory;
 import com.alibaba.cobar.server.startup.CobarContainer;
+import com.alibaba.cobar.server.util.BufferQueue;
 
 /**
  * @author xianmao.hexm
@@ -28,23 +33,25 @@ import com.alibaba.cobar.server.startup.CobarContainer;
 public class MySQLNodeConnectionFactory extends BackendConnectionFactory {
 
     public MySQLNodeConnectionFactory() {
-        this.idleTimeout = 300 * 1000L;
+        this.idleTimeout = 60 * 1000L;
     }
 
-    public MySQLNodeConnection make(MySQLNodeHeartbeat heartbeat) throws IOException {
-        SocketChannel channel = getChannel();
-        DataSourceConfig dsc = heartbeat.getSource().getConfigModel();
-        DataNodeConfig dnc = heartbeat.getSource().getNode().getConfigModel();
-        MySQLNodeConnection detector = new MySQLNodeConnection(channel);
-        detector.setHost(dsc.getHost());
-        detector.setPort(dsc.getPort());
-        detector.setUser(dsc.getUser());
-        detector.setPassword(dsc.getPassword());
-        detector.setSchema(dsc.getDatabase());
-        detector.setHeartbeatTimeout(dnc.getHeartbeatTimeout());
-        detector.setHeartbeat(heartbeat);
-        postConnect(detector, CobarContainer.getInstance().getConnector());
-        return detector;
+    public MySQLNodeConnection make(DataSource dataSource, MySQLNodeResponseHandler responseHandler) throws IOException {
+        CobarContainer container = CobarContainer.getInstance();
+        CobarModel model = container.getConfigModel();
+        Instance instance = model.getInstances().getInstance(dataSource.getInstance());
+        Machine machine = model.getMachines().getMachine(instance.getMachine());
+        MySQLNodeConnection c = new MySQLNodeConnection(getChannel());
+        c.setHost(machine.getHost());
+        c.setPort(instance.getPort());
+        c.setClientFlags(getClientFlags());
+        c.setHandler(new MySQLNodeDispatcher(c));
+        c.setWriteQueue(new BufferQueue<ByteBuffer>(writeQueueCapacity));
+        c.setIdleTimeout(idleTimeout);
+        c.setDataSource(dataSource);
+        c.setResponseHandler(responseHandler);
+        container.getConnector().postConnect(c);
+        return c;
     }
 
     protected long getClientFlags() {
@@ -52,7 +59,7 @@ public class MySQLNodeConnectionFactory extends BackendConnectionFactory {
         flag |= Capabilities.CLIENT_LONG_PASSWORD;
         flag |= Capabilities.CLIENT_FOUND_ROWS;
         flag |= Capabilities.CLIENT_LONG_FLAG;
-        // flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
+        flag |= Capabilities.CLIENT_CONNECT_WITH_DB;
         // flag |= Capabilities.CLIENT_NO_SCHEMA;
         // flag |= Capabilities.CLIENT_COMPRESS;
         flag |= Capabilities.CLIENT_ODBC;
